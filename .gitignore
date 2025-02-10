@@ -1,0 +1,9 @@
+# Code
+build
+
+# OS
+.DS_Store
+
+# IDE
+.vscode
+.clang-format
