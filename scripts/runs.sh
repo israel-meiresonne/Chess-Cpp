@@ -25,8 +25,8 @@ run_tests() {
 
 download_libs() {
   echo "Downloading libs..."
-  
-  download_lib 'https://github.com/google/googletest.git' 'v1.16.x' 'googletest' './libs/googletest' 'googletest/googletest/'
+
+  download_lib 'https://github.com/google/googletest.git' 'v1.16.x' 'googletest' './googletest/googletest'
 }
 
 download_lib() {
@@ -36,7 +36,7 @@ download_lib() {
   LIB_NAME="$3"
   REPO_SRC_DIR="$4"
 
-  DEST_DIR="./libs/$LIB_NAME"
+  DEST_DIR="./libs/"
 
   # Clone the repository and switch to the specified branch
   git clone --branch "$BRANCH" --depth 1 "$REPO_URL" "$LIB_NAME"
@@ -44,7 +44,7 @@ download_lib() {
   # Check if cloning was successful
   if [ ! -d "$LIB_NAME" ]; then
     echo "Error: Failed to clone the repository."
-    exit 1
+    return 1
   fi
 
   # Ensure the destination directory exists
@@ -52,6 +52,12 @@ download_lib() {
 
   # Copy the required folder
   cp -r "$REPO_SRC_DIR" "$DEST_DIR"
+
+  # Check if copying was successful
+  if [ ! -d "$DEST_DIR/$LIB_NAME" ]; then
+    echo "Error: Failed to download the library."
+    return 1
+  fi
 
   # Remove the cloned repository
   rm -rf "$LIB_NAME"
