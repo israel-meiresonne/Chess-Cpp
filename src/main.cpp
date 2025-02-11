@@ -1,7 +1,13 @@
+#include "model/player/player.hpp"
+
 #include <iostream>
-using namespace std;
 
 int main() {
-  cout << "Hello, World!" << endl;
+  Player player;
+  std::cout << "Hello " << player.name() << std::endl;
+
+  Player anotherPlayer("Alice");
+  std::cout << "Hello " << anotherPlayer.name() << std::endl;
+
   return 0;
 }
