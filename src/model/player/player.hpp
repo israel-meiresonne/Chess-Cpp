@@ -5,12 +5,12 @@
 
 class Player {
 private:
-    std::string _name;
+  std::string _name;
 
 public:
-    Player();
-    Player(const std::string& name);
-    std::string name() const;
+  Player();
+  Player(const std::string &name);
+  std::string name() const;
 };
 
 #endif
