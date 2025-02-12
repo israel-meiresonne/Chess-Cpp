@@ -1,17 +1,17 @@
 #!/bin/bash
 
+COMPILER="-std=c++20"
+
 run_main() {
-  compiler="-std=c++20"
   app_src=$(find src -type f -name "*.cpp")
   built_binary="builds/main"
 
   mkdir -p builds
 
-  echo $app_src | xargs clang++ $compiler -o $built_binary && ./$built_binary
+  echo $app_src | xargs clang++ $COMPILER -o $built_binary && ./$built_binary
 }
 
 run_tests() {
-  compiler="-std=c++20"
   headers_src="-I./src -I./libs/googletest/include -I./libs/googletest"
   gtest_src='./libs/googletest/src/gtest-all.cc'
   app_src=$(find src -type f -name "*.cpp" | grep -v 'main.cpp')
@@ -20,7 +20,7 @@ run_tests() {
 
   mkdir -p builds
 
-  echo $headers_src $gtest_src $app_src $tests_src | xargs clang++ $compiler -o $built_binary && $built_binary
+  echo $headers_src $gtest_src $app_src $tests_src | xargs clang++ $COMPILER -o $built_binary && $built_binary
 }
 
 download_libs() {
@@ -62,5 +62,5 @@ download_lib() {
   # Remove the cloned repository
   rm -rf "$LIB_NAME"
 
-  echo "$LIB_NAME has been successfully downloaded into $DEST_DIR."
+  echo "'$LIB_NAME' has been successfully downloaded into '$DEST_DIR/$LIB_NAME'."
 }
