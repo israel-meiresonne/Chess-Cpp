@@ -1,6 +1,6 @@
-#include <model/player/player.hpp>
-
 #include <gtest/gtest.h>
+
+#include <model/player/player.hpp>
 
 // Test Default Constructor
 TEST(PlayerTest, DefaultConstructor) {
