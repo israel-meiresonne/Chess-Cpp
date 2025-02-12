@@ -16,7 +16,7 @@ run_tests() {
   gtest_src='./libs/googletest/src/gtest-all.cc'
   app_src=$(find src -type f -name "*.cpp" | grep -v 'main.cpp')
   tests_src=$(find tests -type f -name "*.cpp")
-  built_binary='./builds/tests'
+  built_binary='./builds/main_test'
 
   mkdir -p builds
 
