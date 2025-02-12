@@ -13,9 +13,3 @@ TEST(PlayerTest, ParameterizedConstructor) {
   Player player("Alice");
   EXPECT_EQ(player.name(), "Alice");
 }
-
-// Run all tests
-int main(int argc, char **argv) {
-  ::testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
-}
