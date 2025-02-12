@@ -1,4 +1,4 @@
-#include "model/player/player.hpp"
+#include <model/player/player.hpp>
 
 #include <gtest/gtest.h>
 
