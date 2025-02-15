@@ -2,15 +2,18 @@
 #define POSITION_HPP
 
 class Position {
-private:
-  int _row;
-  int _column;
+  private:
+    int _row;
+    int _column;
 
-public:
-  Position();
-  Position(int row, int column);
-  int row() const;
-  int column() const;
+  public:
+    Position();
+    Position(int row, int column);
+
+    int row() const;
+    int column() const;
+
+    bool operator==(const Position &other) const;
 };
 
-#endif
+#endif // POSITION_HPP
