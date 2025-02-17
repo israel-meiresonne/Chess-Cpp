@@ -1,5 +1,3 @@
-#include <vector>
-
 #include "model/pieces/pieces.hpp"
 
 namespace Pieces {
@@ -21,5 +19,9 @@ namespace Pieces {
     bool Piece::operator==(const Piece &other) const {
         return typeid(*this) == typeid(other) && _position == other._position &&
                _nMoves == other._nMoves;
+    };
+
+    int Piece::hash() const {
+        return typeid(*this).hash_code() ^ (_position.hash() << 1) ^ (_nMoves << 2);
     };
 }; // namespace Pieces

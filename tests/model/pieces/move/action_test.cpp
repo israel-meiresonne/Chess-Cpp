@@ -7,7 +7,7 @@ class MockPiece : public Pieces::Piece {
   public:
     MockPiece(const Position &position)
         : Pieces::Piece(position) {}
-    std::vector<Pieces::Move> moves(int, int) override { return {}; }
+    std::unordered_set<Pieces::Move> moves(int, int) override { return {}; }
 };
 
 TEST(ActionTest, DefaultConstructor) {
@@ -39,4 +39,16 @@ TEST(ActionTest, EqualityOperator) {
 
     EXPECT_TRUE(action1 == action2);
     EXPECT_FALSE(action1 == action3);
+}
+
+TEST(ActionTest, Hash) {
+    Position initial(1, 2);
+    Position final(3, 4);
+    MockPiece piece(initial);
+    Pieces::Action action1;
+    Pieces::Action action2(&piece, initial, final);
+    Pieces::Action action3(&piece, initial, final);
+
+    EXPECT_NE(action1.hash(), action2.hash());
+    EXPECT_EQ(action2.hash(), action3.hash());
 }

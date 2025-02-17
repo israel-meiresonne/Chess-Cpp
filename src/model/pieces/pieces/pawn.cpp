@@ -1,4 +1,4 @@
-#include <vector>
+#include <unordered_set>
 
 #include "model/pieces/pieces.hpp"
 
@@ -8,8 +8,8 @@ namespace Pieces {
     Pawn::Pawn(const Position &position)
         : Piece(position) {};
 
-    std::vector<Move> Pawn::moves(int nRow, int nColumn) {
-        std::vector<Move> moves;
+    std::unordered_set<Move> Pawn::moves(int nRow, int nColumn) {
+        std::unordered_set<Move> moves;
         return moves;
     };
 } // namespace Pieces

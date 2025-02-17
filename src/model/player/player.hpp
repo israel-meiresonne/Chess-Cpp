@@ -14,6 +14,8 @@ class Player {
     std::string name() const;
 
     bool operator==(const Player &other) const;
+
+    int hash() const;
 };
 
 #endif // PLAYER_HPP

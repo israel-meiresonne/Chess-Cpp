@@ -14,6 +14,8 @@ class Position {
     int column() const;
 
     bool operator==(const Position &other) const;
+
+    int hash() const;
 };
 
 #endif // POSITION_HPP

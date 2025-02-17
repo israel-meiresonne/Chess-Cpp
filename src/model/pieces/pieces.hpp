@@ -1,10 +1,12 @@
 #ifndef PIECES_HPP
 #define PIECES_HPP
 
+#include <unordered_set>
 #include <vector>
 
 #include "model/player/player.hpp"
 #include "model/position/position.hpp"
+#include <model/utils/templates.hpp>
 
 namespace Pieces {
     class Piece;
@@ -24,6 +26,8 @@ namespace Pieces {
         Position final() const;
 
         bool operator==(const Action &other) const;
+
+        int hash() const;
     };
 
     class Move {
@@ -39,6 +43,10 @@ namespace Pieces {
         Player author() const;
 
         void add(const Action &action);
+
+        bool operator==(const Move &other) const;
+
+        int hash() const;
     };
 
     class Piece {
@@ -54,9 +62,11 @@ namespace Pieces {
         int nMoves() const;
 
         void move(const Position &position);
-        virtual std::vector<Move> moves(int nRow, int nColumn) = 0;
+        virtual std::unordered_set<Move> moves(int nRow, int nColumn) = 0;
 
         bool operator==(const Piece &other) const;
+
+        int hash() const;
     };
 
     class King : public Piece {
@@ -64,7 +74,7 @@ namespace Pieces {
         King();
         King(const Position &position);
 
-        std::vector<Move> moves(int nRow, int nColumn) override;
+        std::unordered_set<Move> moves(int nRow, int nColumn) override;
     };
 
     class Queen : public Piece {
@@ -72,7 +82,7 @@ namespace Pieces {
         Queen();
         Queen(const Position &position);
 
-        std::vector<Move> moves(int nRow, int nColumn) override;
+        std::unordered_set<Move> moves(int nRow, int nColumn) override;
     };
 
     class Rook : public Piece {
@@ -80,7 +90,7 @@ namespace Pieces {
         Rook();
         Rook(const Position &position);
 
-        std::vector<Move> moves(int nRow, int nColumn) override;
+        std::unordered_set<Move> moves(int nRow, int nColumn) override;
     };
 
     class Bishop : public Piece {
@@ -88,7 +98,7 @@ namespace Pieces {
         Bishop();
         Bishop(const Position &position);
 
-        std::vector<Move> moves(int nRow, int nColumn) override;
+        std::unordered_set<Move> moves(int nRow, int nColumn) override;
     };
 
     class Knight : public Piece {
@@ -96,7 +106,7 @@ namespace Pieces {
         Knight();
         Knight(const Position &position);
 
-        std::vector<Move> moves(int nRow, int nColumn) override;
+        std::unordered_set<Move> moves(int nRow, int nColumn) override;
     };
 
     class Pawn : public Piece {
@@ -104,7 +114,19 @@ namespace Pieces {
         Pawn();
         Pawn(const Position &position);
 
-        std::vector<Move> moves(int nRow, int nColumn) override;
+        std::unordered_set<Move> moves(int nRow, int nColumn) override;
     };
 } // namespace Pieces
+
+namespace std {
+    template <>
+    struct hash<Pieces::Move> {
+        size_t operator()(const Pieces::Move &o) const {
+            // return hash<int>()(p.x) ^ (hash<int>()(p.y) << 1);
+            // return hash<int>()(m.author().name().length());
+            return Utils::Templates::hash(o);
+        }
+    };
+} // namespace std
+
 #endif // PIECES_HPP

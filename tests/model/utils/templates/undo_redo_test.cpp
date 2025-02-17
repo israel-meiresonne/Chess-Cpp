@@ -1,10 +1,10 @@
 #include <gtest/gtest.h>
 
-#include <model/templates/undo_redo.hpp>
+#include <model/utils/templates.hpp>
 
 class UndoRedoTest : public ::testing::Test {
   protected:
-    UndoRedo<int> undoRedo;
+    Utils::Templates::UndoRedo<int> undoRedo;
 };
 
 TEST_F(UndoRedoTest, DoAddsElement) {

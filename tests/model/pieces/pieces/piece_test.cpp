@@ -10,7 +10,7 @@ class TestPiece1 : public Pieces::Piece {
     TestPiece1(const Position &position)
         : Piece(position) {}
 
-    std::vector<Pieces::Move> moves(int, int) override { return {}; }
+    std::unordered_set<Pieces::Move> moves(int, int) override { return {}; }
 };
 
 class TestPiece2 : public TestPiece1 {
@@ -56,4 +56,15 @@ TEST(PieceTest, EqualityOperator) {
     EXPECT_TRUE(piece1 == piece2);
     EXPECT_FALSE(piece1 == piece3);
     EXPECT_FALSE(piece3 == piece4);
+}
+
+TEST(PieceTest, Hash) {
+    TestPiece1 piece1(Position(1, 1));
+    TestPiece1 piece2(Position(1, 1));
+    TestPiece1 piece3(Position(2, 2));
+    TestPiece2 piece4(Position(2, 2));
+
+    EXPECT_EQ(piece1.hash(), piece2.hash());
+    EXPECT_NE(piece1.hash(), piece3.hash());
+    EXPECT_NE(piece3.hash(), piece4.hash());
 }

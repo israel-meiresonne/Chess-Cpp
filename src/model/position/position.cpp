@@ -15,3 +15,5 @@ int Position::column() const { return _column; };
 bool Position::operator==(const Position &other) const {
     return _row == other._row && _column == other._column;
 }
+
+int Position::hash() const { return _row ^ (_column << 1); }

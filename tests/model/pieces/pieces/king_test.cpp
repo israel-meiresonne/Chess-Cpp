@@ -15,7 +15,7 @@ TEST(KingTest, ParameterizedConstructor) {
     EXPECT_EQ(king.nMoves(), 0);
 }
 
-TEST(KingTest, Moves) {
+TEST(KingTest, MovesReturnsEmptySet) {
     Pieces::King king;
     auto moves = king.moves(4, 4);
     EXPECT_TRUE(moves.empty());

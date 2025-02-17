@@ -21,4 +21,10 @@ namespace Pieces {
     bool Action::operator==(const Action &other) const {
         return _piece == other._piece && _initial == other._initial && _final == other._final;
     }
+
+    int Action::hash() const {
+        int piece_hash = _piece == nullptr ? 0 : _piece->hash();
+
+        return piece_hash ^ (_initial.hash() << 1) ^ (_final.hash() << 2);
+    }
 } // namespace Pieces
