@@ -31,14 +31,19 @@ namespace Pieces {
     };
 
     class Move {
+      public:
+        enum class Type { DISPLACEMENT, CAPTURE, SWAP };
+
       private:
+        Type _type;
         std::vector<Action> _actions;
         Player _author;
 
       public:
         Move();
-        Move(const Player &author);
+        Move(const Player &author, const Type type = Move::Type::DISPLACEMENT);
 
+        Type type() const;
         std::vector<Action> actions() const;
         Player author() const;
 
