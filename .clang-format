@@ -1,1 +1,61 @@
-/Users/im/MY-MAC/MKD/Markdown/Utils/Configs/VScode/C++/.clang-format
+Language: Cpp       # Language and Base Style
+BasedOnStyle: LLVM  # Industry-standard base; alternatives: Google, Mozilla, Chromium
+
+# Indentation and Spacing
+IndentWidth: 4            # Standard 4-space indentation for readability
+TabWidth: 4               # Defines tab width when using tabs
+UseTab: Never             # Enforces spaces instead of tabs (widely recommended)
+NamespaceIndentation: All # Indents nested namespaces for readability
+InsertNewlineAtEOF: true  # Ensures files end with a newline for POSIX compatibility
+
+# Braces and Control Statements
+BreakBeforeBraces: Attach                           # Places opening brace on the same line (K&R style)
+AllowShortBlocksOnASingleLine: Never                # Forces all blocks to use braces for clarity
+AllowShortIfStatementsOnASingleLine: AllIfsAndElse  # Prevents single-line ifs, ensuring clarity
+
+# Line Length
+ColumnLimit: 100          # Keeps lines at 100 chars max, balancing readability and screen width
+BinPackParameters: false  # Put all parameters on the current line if they fit. Otherwise, put each one on its own line.
+
+# Template Formatting
+BreakTemplateDeclarations: true  # Breaks template declarations for better readability
+
+# Namespace and Include Handling
+IndentPPDirectives: BeforeHash  # Aligns preprocessor directives for better readability
+IncludeBlocks: Preserve         # Keeps include order unchanged
+SortIncludes: true              # Disables automatic sorting (maintains logical grouping)
+
+# Function Declaration & Formatting
+AlwaysBreakAfterReturnType: None  # Keeps function return types on the same line for clarity
+AlignAfterOpenBracket: Align      # Aligns parameters for multi-line function calls
+
+# Pointer and Reference Formatting
+PointerAlignment: Right  # Aligns '*' and '&' with the type (`int* ptr` instead of `int *ptr`)
+
+# Enforce End of File Newline
+# InsertFinalNewline: true  # Ensures all files end with a blank line for POSIX compatibility
+
+# Operator Wrapping
+BreakBeforeBinaryOperators: None  # Keeps operators with their left operand for better reading
+BreakBeforeTernaryOperators: true # Breaks before '?' in ternary for better readability
+
+# Comment Formatting
+ReflowComments: true  # Ensures long comments are wrapped to fit within ColumnLimit
+
+# Constructor Initializer Formatting
+BreakConstructorInitializers: BeforeComma  # Breaks initializer lists for better readability
+
+# Loop Formatting
+AllowShortLoopsOnASingleLine: false  # Requires explicit braces in loops for safety
+
+# Struct and Class Formatting
+AccessModifierOffset: -2            # Aligns `public:` `private:` etc. to reduce nesting
+AlignConsecutiveDeclarations: false # Aligns variable declarations for readability
+
+# Formatting of Lambdas and Anonymous Functions
+LambdaBodyIndentation: Signature  # Aligns lambda body properly for readability
+
+# Avoid Unnecessary Formatting Changes
+FixNamespaceComments: true              # Adds `// namespace <name>` for clarity
+KeepEmptyLinesAtTheStartOfBlocks: true  # Prevents removing intentional empty lines
+SpaceAfterCStyleCast: true              # Adds space after C-style casts for clarity
