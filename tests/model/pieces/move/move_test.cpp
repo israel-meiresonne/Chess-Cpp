@@ -3,6 +3,13 @@
 #include <model/pieces/pieces.hpp>
 #include <model/position/position.hpp>
 
+class MockPiece : public Pieces::Piece {
+  public:
+    MockPiece(Position pos)
+        : Piece(pos) {}
+    std::unordered_set<Pieces::Move> moves(int nRow, int nColumn) override { return {}; }
+};
+
 TEST(MoveTest, DefaultConstructor) {
     Pieces::Move move;
     EXPECT_EQ(move.actions().size(), 0);
@@ -145,4 +152,31 @@ TEST(MoveTest, Hash) {
     EXPECT_EQ(move7.hash(), move8.hash());
     EXPECT_NE(move8.hash(), move9.hash());
     EXPECT_EQ(move9.hash(), move10.hash());
+}
+
+TEST(MoveTest, CreateMove) {
+    MockPiece piece1(Position(1, 1));
+    MockPiece piece2(Position(2, 2));
+    Position initial(1, 1);
+    Position final(2, 2);
+
+    Pieces::Move move1 = Pieces::Move::createMove(&piece1, initial, final);
+    Pieces::Move move2 =
+        Pieces::Move::createMove(&piece2, initial, final, Pieces::Move::Type::CAPTURE);
+
+    EXPECT_EQ(move1.type(), Pieces::Move::Type::DISPLACEMENT);
+    EXPECT_EQ(move2.type(), Pieces::Move::Type::CAPTURE);
+
+    ASSERT_FALSE(move1.actions().empty());
+    ASSERT_FALSE(move2.actions().empty());
+
+    Pieces::Action action = move1.actions().front();
+    EXPECT_EQ(*action.piece(), piece1);
+    EXPECT_EQ(action.initial(), initial);
+    EXPECT_EQ(action.final(), final);
+
+    action = move2.actions().front();
+    EXPECT_EQ(*action.piece(), piece2);
+    EXPECT_EQ(action.initial(), initial);
+    EXPECT_EQ(action.final(), final);
 }

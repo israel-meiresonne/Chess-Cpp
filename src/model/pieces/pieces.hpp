@@ -57,6 +57,9 @@ namespace Pieces {
 
         bool operator==(const Move &other) const;
         friend std::ostream &operator<<(std::ostream &os, const Pieces::Move &move);
+
+        static Move createMove(Pieces::Piece *piece, Position initial, Position final,
+                               Pieces::Move::Type moveType = Pieces::Move::Type::DISPLACEMENT);
     };
 
     class Piece {

@@ -26,7 +26,7 @@ namespace Pieces {
     };
 
     std::ostream &operator<<(std::ostream &os, const Pieces::Piece &piece) {
-        os << "Piece(" << typeid(piece).name() << ")";
+        os << "Piece(" << typeid(piece).name() << ", " << piece.position() << ")";
         return os;
     }
 

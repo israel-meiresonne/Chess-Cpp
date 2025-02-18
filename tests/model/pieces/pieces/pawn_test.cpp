@@ -3,14 +3,6 @@
 
 #include "model/pieces/pieces.hpp"
 
-Pieces::Move newMove(Pieces::Piece *piece, Position initial, Position final,
-                     Pieces::Move::Type moveType) {
-    Pieces::Action action(piece, initial, final);
-    Pieces::Move move(moveType);
-    move.add(action);
-    return move;
-}
-
 TEST(PawnTest, DefaultConstructor) {
     Pieces::Pawn pawn;
     EXPECT_EQ(typeid(pawn.position()), typeid(Position));
@@ -39,10 +31,14 @@ TEST(PawnTest, FirstMoveCenter) {
     Position initial = pawn.position();
 
     std::vector<Pieces::Move> expectedMoves = {
-        newMove(&pawn, initial, Position(row + 1, column), Pieces::Move::Type::DISPLACEMENT),
-        newMove(&pawn, initial, Position(row + 2, column), Pieces::Move::Type::DISPLACEMENT),
-        newMove(&pawn, initial, Position(row + 1, column - 1), Pieces::Move::Type::CAPTURE),
-        newMove(&pawn, initial, Position(row + 1, column + 1), Pieces::Move::Type::CAPTURE)};
+        Pieces::Move::createMove(&pawn, initial, Position(row + 1, column),
+                                 Pieces::Move::Type::DISPLACEMENT),
+        Pieces::Move::createMove(&pawn, initial, Position(row + 2, column),
+                                 Pieces::Move::Type::DISPLACEMENT),
+        Pieces::Move::createMove(&pawn, initial, Position(row + 1, column - 1),
+                                 Pieces::Move::Type::CAPTURE),
+        Pieces::Move::createMove(&pawn, initial, Position(row + 1, column + 1),
+                                 Pieces::Move::Type::CAPTURE)};
 
     auto moves = pawn.moves(nRow, nColumn);
     EXPECT_EQ(moves.size(), expectedMoves.size());
@@ -84,9 +80,12 @@ TEST(PawnTest, FirstMoveBottomRight) {
     Position outsideCornerRight(pawn.position().row(), pawn.position().column() + 1);
 
     std::vector<Pieces::Move> expectedMoves = {
-        newMove(&pawn, initial, Position(row + 1, column), Pieces::Move::Type::DISPLACEMENT),
-        newMove(&pawn, initial, Position(row + 2, column), Pieces::Move::Type::DISPLACEMENT),
-        newMove(&pawn, initial, Position(row + 1, column - 1), Pieces::Move::Type::CAPTURE)};
+        Pieces::Move::createMove(&pawn, initial, Position(row + 1, column),
+                                 Pieces::Move::Type::DISPLACEMENT),
+        Pieces::Move::createMove(&pawn, initial, Position(row + 2, column),
+                                 Pieces::Move::Type::DISPLACEMENT),
+        Pieces::Move::createMove(&pawn, initial, Position(row + 1, column - 1),
+                                 Pieces::Move::Type::CAPTURE)};
 
     auto moves = pawn.moves(nRow, nColumn);
 
@@ -109,9 +108,12 @@ TEST(PawnTest, NotFirstMoveCenter) {
     Position initial = pawn.position();
 
     std::vector<Pieces::Move> expectedMoves = {
-        newMove(&pawn, initial, Position(row + 1, column), Pieces::Move::Type::DISPLACEMENT),
-        newMove(&pawn, initial, Position(row + 1, column - 1), Pieces::Move::Type::CAPTURE),
-        newMove(&pawn, initial, Position(row + 1, column + 1), Pieces::Move::Type::CAPTURE)};
+        Pieces::Move::createMove(&pawn, initial, Position(row + 1, column),
+                                 Pieces::Move::Type::DISPLACEMENT),
+        Pieces::Move::createMove(&pawn, initial, Position(row + 1, column - 1),
+                                 Pieces::Move::Type::CAPTURE),
+        Pieces::Move::createMove(&pawn, initial, Position(row + 1, column + 1),
+                                 Pieces::Move::Type::CAPTURE)};
 
     pawn.move(pawn.position());
     auto moves = pawn.moves(nRow, nColumn);
@@ -155,8 +157,10 @@ TEST(PawnTest, NotFirstMoveBottomRight) {
     Position outsideCornerRight(pawn.position().row(), pawn.position().column() + 1);
 
     std::vector<Pieces::Move> expectedMoves = {
-        newMove(&pawn, initial, Position(row + 1, column), Pieces::Move::Type::DISPLACEMENT),
-        newMove(&pawn, initial, Position(row + 1, column - 1), Pieces::Move::Type::CAPTURE)};
+        Pieces::Move::createMove(&pawn, initial, Position(row + 1, column),
+                                 Pieces::Move::Type::DISPLACEMENT),
+        Pieces::Move::createMove(&pawn, initial, Position(row + 1, column - 1),
+                                 Pieces::Move::Type::CAPTURE)};
 
     pawn.move(pawn.position());
     auto moves = pawn.moves(nRow, nColumn);

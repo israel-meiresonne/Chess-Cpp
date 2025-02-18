@@ -56,4 +56,12 @@ namespace Pieces {
         return os;
     }
 
+    Move Move::createMove(Pieces::Piece *piece, Position initial, Position final,
+                          Pieces::Move::Type moveType) {
+        Pieces::Action action(piece, initial, final);
+        Pieces::Move move(moveType);
+        move.add(action);
+        return move;
+    }
+
 } // namespace Pieces
