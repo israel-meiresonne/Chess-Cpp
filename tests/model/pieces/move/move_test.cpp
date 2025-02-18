@@ -10,12 +10,20 @@ TEST(MoveTest, DefaultConstructor) {
     EXPECT_EQ(move.type(), Pieces::Move::Type::DISPLACEMENT);
 }
 
-TEST(MoveTest, ParameterizedConstructor) {
+TEST(MoveTest, PlayerConstructor) {
     Player player("Alice");
     Pieces::Move move(player, Pieces::Move::Type::CAPTURE);
     EXPECT_EQ(move.author(), player);
     EXPECT_EQ(move.actions().size(), 0);
     EXPECT_EQ(move.type(), Pieces::Move::Type::CAPTURE);
+}
+
+TEST(MoveTest, TypeConstructor) {
+    Player player("Alice");
+    Pieces::Move move(Pieces::Move::Type::SWAP, player);
+    EXPECT_EQ(move.author(), player);
+    EXPECT_EQ(move.actions().size(), 0);
+    EXPECT_EQ(move.type(), Pieces::Move::Type::SWAP);
 }
 
 TEST(MoveTest, Getters) {

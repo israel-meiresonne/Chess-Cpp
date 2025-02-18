@@ -1,6 +1,7 @@
 #ifndef PLAYER_HPP
 #define PLAYER_HPP
 
+#include <iostream>
 #include <string>
 
 class Player {
@@ -13,9 +14,10 @@ class Player {
 
     std::string name() const;
 
-    bool operator==(const Player &other) const;
-
     int hash() const;
+
+    bool operator==(const Player &other) const;
+    friend std::ostream &operator<<(std::ostream &os, const Player &player);
 };
 
 #endif // PLAYER_HPP

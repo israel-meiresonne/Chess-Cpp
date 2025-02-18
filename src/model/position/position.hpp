@@ -1,6 +1,10 @@
 #ifndef POSITION_HPP
 #define POSITION_HPP
 
+#include <iostream>
+
+#include "model/utils/templates.hpp"
+
 class Position {
   private:
     int _row;
@@ -13,9 +17,10 @@ class Position {
     int row() const;
     int column() const;
 
-    bool operator==(const Position &other) const;
-
     int hash() const;
+
+    bool operator==(const Position &other) const;
+    friend std::ostream &operator<<(std::ostream &os, const Position &pos);
 };
 
 #endif // POSITION_HPP

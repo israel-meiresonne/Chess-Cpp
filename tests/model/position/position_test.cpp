@@ -4,8 +4,8 @@
 
 TEST(PositionTest, DefaultConstructor) {
     Position pos;
-    EXPECT_EQ(pos.row(), 0);
-    EXPECT_EQ(pos.column(), 0);
+    EXPECT_EQ(pos.row(), -1);
+    EXPECT_EQ(pos.column(), -1);
 }
 
 TEST(PositionTest, ParameterizedConstructor) {

@@ -4,16 +4,20 @@ namespace Pieces {
     Piece::Piece()
         : _position(Position())
         , _nMoves(0) {};
-    Piece::Piece(const Position &position)
+    Piece::Piece(const Position position)
         : _position(position)
         , _nMoves(0) {};
 
     Position Piece::position() const { return _position; };
     int Piece::nMoves() const { return _nMoves; };
 
-    void Piece::move(const Position &position) {
+    void Piece::move(const Position position) {
         _position = position;
         _nMoves++;
+    };
+
+    int Piece::hash() const {
+        return typeid(*this).hash_code() ^ (_position.hash() << 1) ^ (_nMoves << 2);
     };
 
     bool Piece::operator==(const Piece &other) const {
@@ -21,7 +25,9 @@ namespace Pieces {
                _nMoves == other._nMoves;
     };
 
-    int Piece::hash() const {
-        return typeid(*this).hash_code() ^ (_position.hash() << 1) ^ (_nMoves << 2);
-    };
+    std::ostream &operator<<(std::ostream &os, const Pieces::Piece &piece) {
+        os << "Piece(" << typeid(piece).name() << ")";
+        return os;
+    }
+
 }; // namespace Pieces
