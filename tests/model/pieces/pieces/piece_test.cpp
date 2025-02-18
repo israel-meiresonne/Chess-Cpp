@@ -68,3 +68,25 @@ TEST(PieceTest, Hash) {
     EXPECT_NE(piece1.hash(), piece3.hash());
     EXPECT_NE(piece3.hash(), piece4.hash());
 }
+
+TEST(PieceTest, IsInBounds_ValidPositions) {
+    // Top-left corner
+    EXPECT_TRUE(Pieces::Piece::isInBounds(Position(0, 0), 8, 8));
+    // Bottom-right corner
+    EXPECT_TRUE(Pieces::Piece::isInBounds(Position(7, 7), 8, 8));
+    // Middle of the board
+    EXPECT_TRUE(Pieces::Piece::isInBounds(Position(3, 4), 8, 8));
+}
+
+TEST(PieceTest, IsInBounds_InvalidPositions) {
+    // Out of bounds (negative row)
+    EXPECT_FALSE(Pieces::Piece::isInBounds(Position(-1, 0), 8, 8));
+    // Out of bounds (negative column)
+    EXPECT_FALSE(Pieces::Piece::isInBounds(Position(0, -1), 8, 8));
+    // Out of bounds (exceeding limits)
+    EXPECT_FALSE(Pieces::Piece::isInBounds(Position(8, 8), 8, 8));
+    // Row exceeds board size
+    EXPECT_FALSE(Pieces::Piece::isInBounds(Position(10, 5), 8, 8));
+    // Column exceeds board size
+    EXPECT_FALSE(Pieces::Piece::isInBounds(Position(3, 9), 8, 8));
+}

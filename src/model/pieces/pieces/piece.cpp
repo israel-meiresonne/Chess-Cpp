@@ -30,4 +30,9 @@ namespace Pieces {
         return os;
     }
 
+    bool Piece::isInBounds(const Position &position, int nRow, int nColumn) {
+        return position.row() >= 0 && position.row() < nRow && position.column() >= 0 &&
+               position.column() < nColumn;
+    }
+
 }; // namespace Pieces

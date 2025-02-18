@@ -78,6 +78,8 @@ namespace Pieces {
 
         bool operator==(const Piece &other) const;
         friend std::ostream &operator<<(std::ostream &os, const Pieces::Piece &piece);
+
+        static bool isInBounds(const Position &position, int nRow, int nColumn);
     };
 
     class King : public Piece {
@@ -126,8 +128,6 @@ namespace Pieces {
         Pawn(const Position &position);
 
         std::unordered_set<Move> moves(int nRow, int nColumn) override;
-
-        static bool isInBounds(const Position &position, int nRow, int nColumn);
 
       private:
         std::unordered_set<Move> &addFirstMoves(const Position &initialPosition, int nRow,

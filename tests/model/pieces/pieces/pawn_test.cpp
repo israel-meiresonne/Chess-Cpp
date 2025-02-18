@@ -65,9 +65,9 @@ TEST(PawnTest, FirstMoveTopLeft) {
 
     auto moves = pawn.moves(nRow, nColumn);
 
-    EXPECT_TRUE(Pieces::Pawn::isInBounds(pawn.position(), nRow, nColumn));
-    EXPECT_FALSE(Pieces::Pawn::isInBounds(outsideCornerTop, nRow, nColumn));
-    EXPECT_FALSE(Pieces::Pawn::isInBounds(outsideCornerLeft, nRow, nColumn));
+    EXPECT_TRUE(Pieces::Piece::isInBounds(pawn.position(), nRow, nColumn));
+    EXPECT_FALSE(Pieces::Piece::isInBounds(outsideCornerTop, nRow, nColumn));
+    EXPECT_FALSE(Pieces::Piece::isInBounds(outsideCornerLeft, nRow, nColumn));
 
     EXPECT_EQ(moves.size(), 0);
 }
@@ -90,9 +90,9 @@ TEST(PawnTest, FirstMoveBottomRight) {
 
     auto moves = pawn.moves(nRow, nColumn);
 
-    EXPECT_TRUE(Pieces::Pawn::isInBounds(pawn.position(), nRow, nColumn));
-    EXPECT_FALSE(Pieces::Pawn::isInBounds(outsideCornerBottom, nRow, nColumn));
-    EXPECT_FALSE(Pieces::Pawn::isInBounds(outsideCornerRight, nRow, nColumn));
+    EXPECT_TRUE(Pieces::Piece::isInBounds(pawn.position(), nRow, nColumn));
+    EXPECT_FALSE(Pieces::Piece::isInBounds(outsideCornerBottom, nRow, nColumn));
+    EXPECT_FALSE(Pieces::Piece::isInBounds(outsideCornerRight, nRow, nColumn));
 
     EXPECT_EQ(moves.size(), expectedMoves.size());
     for (const auto &move : expectedMoves) {
@@ -136,9 +136,9 @@ TEST(PawnTest, NotFirstMoveTopLeft) {
     pawn.move(pawn.position());
     auto moves = pawn.moves(nRow, nColumn);
 
-    EXPECT_TRUE(Pieces::Pawn::isInBounds(pawn.position(), nRow, nColumn));
-    EXPECT_FALSE(Pieces::Pawn::isInBounds(outsideCornerTop, nRow, nColumn));
-    EXPECT_FALSE(Pieces::Pawn::isInBounds(outsideCornerLeft, nRow, nColumn));
+    EXPECT_TRUE(Pieces::Piece::isInBounds(pawn.position(), nRow, nColumn));
+    EXPECT_FALSE(Pieces::Piece::isInBounds(outsideCornerTop, nRow, nColumn));
+    EXPECT_FALSE(Pieces::Piece::isInBounds(outsideCornerLeft, nRow, nColumn));
 
     EXPECT_EQ(moves.size(), 0);
 }
@@ -161,9 +161,9 @@ TEST(PawnTest, NotFirstMoveBottomRight) {
     pawn.move(pawn.position());
     auto moves = pawn.moves(nRow, nColumn);
 
-    EXPECT_TRUE(Pieces::Pawn::isInBounds(pawn.position(), nRow, nColumn));
-    EXPECT_FALSE(Pieces::Pawn::isInBounds(outsideCornerBottom, nRow, nColumn));
-    EXPECT_FALSE(Pieces::Pawn::isInBounds(outsideCornerRight, nRow, nColumn));
+    EXPECT_TRUE(Pieces::Piece::isInBounds(pawn.position(), nRow, nColumn));
+    EXPECT_FALSE(Pieces::Piece::isInBounds(outsideCornerBottom, nRow, nColumn));
+    EXPECT_FALSE(Pieces::Piece::isInBounds(outsideCornerRight, nRow, nColumn));
 
     EXPECT_EQ(moves.size(), expectedMoves.size());
     for (const auto &move : expectedMoves) {
