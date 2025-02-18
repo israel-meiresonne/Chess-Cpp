@@ -14,8 +14,8 @@ AllowShortBlocksOnASingleLine: Never                # Forces all blocks to use b
 AllowShortIfStatementsOnASingleLine: AllIfsAndElse  # Prevents single-line ifs, ensuring clarity
 
 # Line Length
-ColumnLimit: 100          # Keeps lines at 100 chars max, balancing readability and screen width
-BinPackParameters: false  # Put all parameters on the current line if they fit. Otherwise, put each one on its own line.
+ColumnLimit: 100        # Keeps lines at 100 chars max, balancing readability and screen width
+BinPackParameters: true # Put all parameters on the current line if they fit. Otherwise, put each one on its own line.
 
 # Template Formatting
 BreakTemplateDeclarations: true  # Breaks template declarations for better readability
