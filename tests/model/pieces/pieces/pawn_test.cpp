@@ -43,8 +43,14 @@ TEST(PawnTest, FirstMoveCenter) {
     auto moves = pawn.moves(nRow, nColumn);
     EXPECT_EQ(moves.size(), expectedMoves.size());
 
-    for (const auto &move : expectedMoves) {
-        EXPECT_TRUE(moves.count(move));
+    for (const auto &move : moves) {
+        for (const auto &action : move.actions()) {
+            EXPECT_TRUE(Pieces::Piece::isInBounds(action.initial(), nRow, nColumn));
+            EXPECT_TRUE(Pieces::Piece::isInBounds(action.final(), nRow, nColumn));
+        }
+    }
+    for (const auto &expectedMove : expectedMoves) {
+        EXPECT_TRUE(moves.count(expectedMove));
     }
 }
 
@@ -94,8 +100,14 @@ TEST(PawnTest, FirstMoveBottomRight) {
     EXPECT_FALSE(Pieces::Piece::isInBounds(outsideCornerRight, nRow, nColumn));
 
     EXPECT_EQ(moves.size(), expectedMoves.size());
-    for (const auto &move : expectedMoves) {
-        EXPECT_TRUE(moves.count(move));
+    for (const auto &move : moves) {
+        for (const auto &action : move.actions()) {
+            EXPECT_TRUE(Pieces::Piece::isInBounds(action.initial(), nRow, nColumn));
+            EXPECT_TRUE(Pieces::Piece::isInBounds(action.final(), nRow, nColumn));
+        }
+    }
+    for (const auto &expectedMove : expectedMoves) {
+        EXPECT_TRUE(moves.count(expectedMove));
     }
 }
 
@@ -119,8 +131,14 @@ TEST(PawnTest, NotFirstMoveCenter) {
     auto moves = pawn.moves(nRow, nColumn);
 
     EXPECT_EQ(moves.size(), expectedMoves.size());
-    for (const auto &move : expectedMoves) {
-        EXPECT_TRUE(moves.count(move));
+    for (const auto &move : moves) {
+        for (const auto &action : move.actions()) {
+            EXPECT_TRUE(Pieces::Piece::isInBounds(action.initial(), nRow, nColumn));
+            EXPECT_TRUE(Pieces::Piece::isInBounds(action.final(), nRow, nColumn));
+        }
+    }
+    for (const auto &expectedMove : expectedMoves) {
+        EXPECT_TRUE(moves.count(expectedMove));
     }
 }
 
@@ -170,7 +188,13 @@ TEST(PawnTest, NotFirstMoveBottomRight) {
     EXPECT_FALSE(Pieces::Piece::isInBounds(outsideCornerRight, nRow, nColumn));
 
     EXPECT_EQ(moves.size(), expectedMoves.size());
-    for (const auto &move : expectedMoves) {
-        EXPECT_TRUE(moves.count(move));
+    for (const auto &move : moves) {
+        for (const auto &action : move.actions()) {
+            EXPECT_TRUE(Pieces::Piece::isInBounds(action.initial(), nRow, nColumn));
+            EXPECT_TRUE(Pieces::Piece::isInBounds(action.final(), nRow, nColumn));
+        }
+    }
+    for (const auto &expectedMove : expectedMoves) {
+        EXPECT_TRUE(moves.count(expectedMove));
     }
 }
