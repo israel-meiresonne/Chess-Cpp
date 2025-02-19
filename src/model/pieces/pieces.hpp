@@ -111,6 +111,10 @@ namespace Pieces {
         Rook(const Position &position);
 
         std::unordered_set<Move> moves(int nRow, int nColumn) override;
+
+      private:
+        std::unordered_set<Move> verticalMoves(std::unordered_set<Move> &moves, int &nRow);
+        std::unordered_set<Move> horizontalMoves(std::unordered_set<Move> &moves, int &nRow);
     };
 
     class Bishop : public Piece {

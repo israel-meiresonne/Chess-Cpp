@@ -16,7 +16,7 @@ TEST(PawnTest, ParameterizedConstructor) {
     EXPECT_EQ(pawn.nMoves(), 0);
 }
 
-TEST(PawnTest, NoMoves) {
+TEST(PawnTest, MovesEmpty) {
     Pieces::Pawn pawn;
     auto moves = pawn.moves(0, 0);
     EXPECT_TRUE(moves.empty());
