@@ -124,6 +124,12 @@ namespace Pieces {
         Bishop(const Position &position);
 
         std::unordered_set<Move> moves(int nRow, int nColumn) override;
+
+      private:
+        std::unordered_set<Move> bottomLeftDiagonalMoves(std::unordered_set<Move> &moves, int &nRow,
+                                                         int &nColumn);
+        std::unordered_set<Move> bottomRightDiagonalMoves(std::unordered_set<Move> &moves,
+                                                          int &nRow, int &nColumn);
     };
 
     class Knight : public Piece {

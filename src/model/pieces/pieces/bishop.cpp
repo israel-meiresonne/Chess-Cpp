@@ -10,6 +10,62 @@ namespace Pieces {
 
     std::unordered_set<Move> Bishop::moves(int nRow, int nColumn) {
         std::unordered_set<Move> moves;
-        return moves;
+        if (!nRow && !nColumn) return moves;
+        if (!isInBounds(position(), nRow, nColumn)) return moves;
+
+        bottomLeftDiagonalMoves(moves, nRow, nColumn);
+        return bottomRightDiagonalMoves(moves, nRow, nColumn);
     };
+
+    std::unordered_set<Move> Bishop::bottomLeftDiagonalMoves(std::unordered_set<Move> &moves,
+                                                             int &nRow, int &nColumn) {
+        Position initialPosition = position();
+        int initialRow = initialPosition.row();
+        int initialColumn = initialPosition.column();
+
+        int minDiffToStart = std::min(initialRow, initialColumn);
+        int startRow = initialRow - minDiffToStart;
+        int startColumn = initialColumn - minDiffToStart;
+        Position start(startRow, startColumn);
+
+        int rowDiffToBound = (nRow) ? (nRow - initialRow - 1) : nRow;
+        int columnDiffToBound = nColumn - initialColumn - 1;
+        int minDiffToEnd = std::min(rowDiffToBound, columnDiffToBound);
+        int endRow = initialRow + minDiffToEnd;
+        int endColumn = initialColumn + minDiffToEnd;
+        Position end(endRow, endColumn);
+
+        if (start == end) return moves;
+
+        int rowDiff = 1, columnDiff = 1;
+        this->genDirectionMoves(moves, start, end, rowDiff, columnDiff);
+        return this->genDirectionMoves(moves, start, end, rowDiff, columnDiff, Move::Type::CAPTURE);
+    }
+
+    std::unordered_set<Move> Bishop::bottomRightDiagonalMoves(std::unordered_set<Move> &moves,
+                                                              int &nRow, int &nColumn) {
+        Position initialPosition = position();
+        int initialRow = initialPosition.row();
+        int initialColumn = initialPosition.column();
+
+        int rowDiffToOrigin = initialRow;
+        int columnDiffToBound = (nColumn) ? (nColumn - initialColumn - 1) : nColumn;
+        int minDiffToStart = std::min(rowDiffToOrigin, columnDiffToBound);
+        int startRow = initialRow - minDiffToStart;
+        int startColumn = initialColumn + minDiffToStart;
+        Position start(startRow, startColumn);
+
+        int rowDiffToBound = (nRow) ? (nRow - initialRow - 1) : nRow;
+        int columnDiffToOrigin = initialColumn;
+        int minDiffToEnd = std::min(rowDiffToBound, columnDiffToOrigin);
+        int endRow = initialRow + minDiffToEnd;
+        int endColumn = initialColumn - minDiffToEnd;
+        Position end(endRow, endColumn);
+
+        if (start == end) return moves;
+
+        int rowDiff = 1, columnDiff = -1;
+        this->genDirectionMoves(moves, start, end, rowDiff, columnDiff);
+        return this->genDirectionMoves(moves, start, end, rowDiff, columnDiff, Move::Type::CAPTURE);
+    }
 } // namespace Pieces
