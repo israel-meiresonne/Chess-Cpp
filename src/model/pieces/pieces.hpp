@@ -67,6 +67,11 @@ namespace Pieces {
         Position _position;
         int _nMoves;
 
+      protected:
+        std::unordered_set<Move> &genDirectionMoves(std::unordered_set<Move> &moves, Position start,
+                                                    Position end, int rowDiff, int columnDiff,
+                                                    Move::Type moveType = Move::Type::DISPLACEMENT);
+
       public:
         Piece();
         Piece(const Position position);
@@ -77,12 +82,11 @@ namespace Pieces {
         void move(const Position position);
         virtual std::unordered_set<Move> moves(int nRow, int nColumn) = 0;
 
-        int hash() const;
+        static bool isInBounds(const Position &position, int nRow, int nColumn);
 
+        int hash() const;
         bool operator==(const Piece &other) const;
         friend std::ostream &operator<<(std::ostream &os, const Pieces::Piece &piece);
-
-        static bool isInBounds(const Position &position, int nRow, int nColumn);
     };
 
     class King : public Piece {
