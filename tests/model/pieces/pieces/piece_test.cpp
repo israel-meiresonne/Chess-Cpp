@@ -66,12 +66,31 @@ TEST(PieceTest, GenMovesDirection_ThrowsWhenRowDiffAndColumnDiffAreZero) {
                  std::runtime_error);
 }
 
-TEST(PieceTest, GenDirectionMoves_DiffRowAndColumn) {
-    Position start(0, 0);
-    Position end(5, 5);
-    MockPiece1 piece(Position(3, 3));
+TEST(PieceTest, GenDirectionMoves_StartIsAtEnd) {
+    Position start(3, 4);
+    Position end(3, 4);
+    MockPiece1 piece(Position(3, 2));
     std::unordered_set<Pieces::Move> moves;
-    int rowDiff = 1, columnDiff = 1;
+    int rowDiff = 1, columnDiff = -1;
+    Pieces::Move::Type moveType = Pieces::Move::Type::CAPTURE;
+
+    std::vector<Pieces::Move> expectedMoves = {Pieces::Move::createMove(
+        &piece, piece.position(), Position(start.row(), start.column()), moveType)};
+
+    piece._genDirectionMoves(moves, start, end, rowDiff, columnDiff, moveType);
+
+    EXPECT_EQ(moves.size(), expectedMoves.size());
+    for (const auto &expectedMove : expectedMoves) {
+        EXPECT_TRUE(moves.count(expectedMove));
+    }
+}
+
+TEST(PieceTest, GenDirectionMoves_DiffRowAndColumn) {
+    Position start(0, 5);
+    Position end(5, 0);
+    MockPiece1 piece(Position(3, 2));
+    std::unordered_set<Pieces::Move> moves;
+    int rowDiff = 1, columnDiff = -1;
     Pieces::Move::Type moveType = Pieces::Move::Type::CAPTURE;
 
     std::vector<Pieces::Move> expectedMoves = {
@@ -87,22 +106,26 @@ TEST(PieceTest, GenDirectionMoves_DiffRowAndColumn) {
         Pieces::Move::createMove(
             &piece, piece.position(),
             Position(start.row() + 4 * rowDiff, start.column() + 4 * columnDiff),
+            Pieces::Move::Type::CAPTURE),
+        Pieces::Move::createMove(
+            &piece, piece.position(),
+            Position(start.row() + 5 * rowDiff, start.column() + 5 * columnDiff),
             Pieces::Move::Type::CAPTURE)};
 
     piece._genDirectionMoves(moves, start, end, rowDiff, columnDiff, moveType);
 
     EXPECT_EQ(moves.size(), expectedMoves.size());
-    for (const auto &move : expectedMoves) {
-        EXPECT_TRUE(moves.count(move));
+    for (const auto &expectedMove : expectedMoves) {
+        EXPECT_TRUE(moves.count(expectedMove));
     }
 }
 
 TEST(PieceTest, GenDirectionMoves_DiffRowOnly) {
-    Position start(0, 3);
-    Position end(5, 5);
+    Position start(5, 3);
+    Position end(0, 3);
     MockPiece1 piece(Position(3, 3));
     std::unordered_set<Pieces::Move> moves;
-    int rowDiff = 1, columnDiff = 0;
+    int rowDiff = -1, columnDiff = 0;
     Pieces::Move::Type moveType = Pieces::Move::Type::CAPTURE;
 
     std::vector<Pieces::Move> expectedMoves = {
@@ -113,27 +136,31 @@ TEST(PieceTest, GenDirectionMoves_DiffRowOnly) {
                                  Pieces::Move::Type::CAPTURE),
         Pieces::Move::createMove(
             &piece, piece.position(),
-            Position(start.row() + 2 * rowDiff, start.column() + 2 * columnDiff),
+            Position(start.row() + 3 * rowDiff, start.column() + 3 * columnDiff),
             Pieces::Move::Type::CAPTURE),
         Pieces::Move::createMove(
             &piece, piece.position(),
             Position(start.row() + 4 * rowDiff, start.column() + 4 * columnDiff),
+            Pieces::Move::Type::CAPTURE),
+        Pieces::Move::createMove(
+            &piece, piece.position(),
+            Position(start.row() + 5 * rowDiff, start.column() + 5 * columnDiff),
             Pieces::Move::Type::CAPTURE)};
 
     piece._genDirectionMoves(moves, start, end, rowDiff, columnDiff, moveType);
 
     EXPECT_EQ(moves.size(), expectedMoves.size());
-    for (const auto &move : expectedMoves) {
-        EXPECT_TRUE(moves.count(move));
+    for (const auto &expectedMove : expectedMoves) {
+        EXPECT_TRUE(moves.count(expectedMove));
     }
 }
 
 TEST(PieceTest, GenDirectionMoves_DiffColumOnly) {
-    Position start(3, 0);
-    Position end(5, 5);
+    Position start(3, 5);
+    Position end(3, 0);
     MockPiece1 piece(Position(3, 3));
     std::unordered_set<Pieces::Move> moves;
-    int rowDiff = 0, columnDiff = 1;
+    int rowDiff = 0, columnDiff = -1;
     Pieces::Move::Type moveType = Pieces::Move::Type::CAPTURE;
 
     std::vector<Pieces::Move> expectedMoves = {
@@ -144,18 +171,22 @@ TEST(PieceTest, GenDirectionMoves_DiffColumOnly) {
                                  Pieces::Move::Type::CAPTURE),
         Pieces::Move::createMove(
             &piece, piece.position(),
-            Position(start.row() + 2 * rowDiff, start.column() + 2 * columnDiff),
+            Position(start.row() + 3 * rowDiff, start.column() + 3 * columnDiff),
             Pieces::Move::Type::CAPTURE),
         Pieces::Move::createMove(
             &piece, piece.position(),
             Position(start.row() + 4 * rowDiff, start.column() + 4 * columnDiff),
+            Pieces::Move::Type::CAPTURE),
+        Pieces::Move::createMove(
+            &piece, piece.position(),
+            Position(start.row() + 5 * rowDiff, start.column() + 5 * columnDiff),
             Pieces::Move::Type::CAPTURE)};
 
     piece._genDirectionMoves(moves, start, end, rowDiff, columnDiff, moveType);
 
     EXPECT_EQ(moves.size(), expectedMoves.size());
-    for (const auto &move : expectedMoves) {
-        EXPECT_TRUE(moves.count(move));
+    for (const auto &expectedMove : expectedMoves) {
+        EXPECT_TRUE(moves.count(expectedMove));
     }
 }
 

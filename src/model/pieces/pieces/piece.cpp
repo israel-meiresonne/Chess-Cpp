@@ -24,15 +24,20 @@ namespace Pieces {
         }
 
         Position initialPosition = position();
-        int row = start.row();
-        int column = start.column();
-        int targetRow = end.row();
-        int targetColumn = end.column();
+        int startRow = start.row(), row = startRow;
+        int startColumn = start.column(), column = startColumn;
+        int endRow = end.row();
+        int endColumn = end.column();
 
-        while ((rowDiff == 0 || row != targetRow) && (columnDiff == 0 || column != targetColumn)) {
+        int rowMinBound = std::min(startRow, endRow);
+        int rowMaxBound = std::max(startRow, endRow);
+        int columnMinBound = std::min(startColumn, endColumn);
+        int columnMaxBound = std::max(startColumn, endColumn);
+
+        while (row >= rowMinBound && row <= rowMaxBound && column >= columnMinBound &&
+               column <= columnMaxBound) {
             Position finalPosition(row, column);
             row += rowDiff, column += columnDiff;
-
             if (finalPosition == initialPosition) continue;
 
             Move move = Move::createMove(this, initialPosition, finalPosition, moveType);

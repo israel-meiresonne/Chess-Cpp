@@ -1,6 +1,7 @@
 #ifndef PIECES_HPP
 #define PIECES_HPP
 
+#include <algorithm>
 #include <unordered_set>
 #include <vector>
 
