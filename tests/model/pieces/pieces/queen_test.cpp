@@ -79,6 +79,7 @@ TEST(QueenTest, MovesCenter) {
         EXPECT_TRUE(moves.count(expectedMove));
     }
 }
+
 TEST(QueenTest, MoveTopLeft) {
     int nRow = 8;
     int nColumn = 8;
