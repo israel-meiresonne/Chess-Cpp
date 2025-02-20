@@ -72,7 +72,7 @@ namespace Pieces {
         int nMoves() const;
 
         void move(const Position position);
-        std::unordered_set<Move> moves(int nRow, int nColumn);
+        std::unordered_set<Move> moves(int nRow, int nColumn, std::vector<Piece *> opponents = {});
 
         static bool isInBounds(const Position &position, int nRow, int nColumn);
 
@@ -81,14 +81,21 @@ namespace Pieces {
         friend std::ostream &operator<<(std::ostream &os, const Pieces::Piece &piece);
 
       protected:
+        std::vector<Piece *> &opponents();
+
         virtual std::unordered_set<Move> &_moves(std::unordered_set<Move> &moves, int &nRow,
                                                  int &nColumn) = 0;
+
         std::unordered_set<Move> &verticalMoves(std::unordered_set<Move> &moves, int &nRow);
+
         std::unordered_set<Move> &horizontalMoves(std::unordered_set<Move> &moves, int &nRow);
+
         std::unordered_set<Move> &bottomLeftDiagonalMoves(std::unordered_set<Move> &moves,
                                                           int &nRow, int &nColumn);
+
         std::unordered_set<Move> &bottomRightDiagonalMoves(std::unordered_set<Move> &moves,
                                                            int &nRow, int &nColumn);
+
         std::unordered_set<Move> &genDirectionMoves(std::unordered_set<Move> &moves, Position start,
                                                     Position end, int rowDiff, int columnDiff,
                                                     Move::Type moveType = Move::Type::DISPLACEMENT);
@@ -96,6 +103,7 @@ namespace Pieces {
       private:
         Position _position;
         int _nMoves;
+        std::vector<Piece *> _opponents;
     };
 
     class King : public Piece {
@@ -106,6 +114,12 @@ namespace Pieces {
       protected:
         std::unordered_set<Move> &_moves(std::unordered_set<Move> &moves, int &nRow,
                                          int &nColumn) override;
+
+      private:
+        std::unordered_set<Position> threateningPositions(int nRow, int nColumn);
+
+        void extractPositionsFromMoves(std::unordered_set<Position> &threatening,
+                                       std::unordered_set<Move> &moves);
     };
 
     class Queen : public Piece {

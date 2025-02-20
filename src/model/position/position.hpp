@@ -23,4 +23,11 @@ class Position {
     friend std::ostream &operator<<(std::ostream &os, const Position &pos);
 };
 
+namespace std {
+    template <>
+    struct hash<Position> {
+        size_t operator()(const Position &o) const { return Utils::Templates::hash(o); }
+    };
+} // namespace std
+
 #endif // POSITION_HPP

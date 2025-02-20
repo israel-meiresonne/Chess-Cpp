@@ -3,26 +3,33 @@
 namespace Pieces {
     Piece::Piece()
         : _position(Position())
-        , _nMoves(0) {};
+        , _nMoves(0)
+        , _opponents({}) {};
     Piece::Piece(const Position position)
         : _position(position)
-        , _nMoves(0) {};
+        , _nMoves(0)
+        , _opponents({}) {};
 
     Position Piece::position() const { return _position; };
     int Piece::nMoves() const { return _nMoves; };
+    std::vector<Piece *> &Piece::opponents() { return _opponents; };
 
     void Piece::move(const Position position) {
         _position = position;
         _nMoves++;
     };
 
-    std::unordered_set<Move> Piece::moves(int nRow, int nColumn) {
+    std::unordered_set<Move> Piece::moves(int nRow, int nColumn, std::vector<Piece *> opponents) {
+        _opponents = opponents;
         std::unordered_set<Move> moves;
         if (!nRow && !nColumn) return moves;
 
         if (!isInBounds(position(), nRow, nColumn)) return moves;
 
-        return this->_moves(moves, nRow, nColumn);
+        this->_moves(moves, nRow, nColumn);
+
+        _opponents = {};
+        return moves;
     };
 
     std::unordered_set<Move> &Piece::verticalMoves(std::unordered_set<Move> &moves, int &nRow) {

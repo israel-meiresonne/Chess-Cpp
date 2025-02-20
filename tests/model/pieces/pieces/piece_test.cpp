@@ -30,6 +30,14 @@ class MockPiece2 : public MockPiece1 {
         : MockPiece1(position) {}
 };
 
+class MockPiece3 : public MockPiece1 {
+  public:
+    MockPiece3(const Position &position)
+        : MockPiece1(position) {}
+
+    std::vector<Piece *> &callOpponents() { return opponents(); };
+};
+
 TEST(PieceTest, DefaultConstructor) {
     MockPiece1 piece;
     EXPECT_EQ(typeid(piece.position()), typeid(Position));
@@ -43,7 +51,22 @@ TEST(PieceTest, PositionConstructor) {
     EXPECT_EQ(piece.nMoves(), 0);
 }
 
-TEST(PieceTest, MoveIncrementsMoveCount) {
+TEST(PieceTest, Getter_Opponents) {
+    MockPiece3 piece(Position(3, 3));
+    std::vector<Pieces::Piece *> opponents = {&piece};
+
+    piece.callOpponents().push_back(&piece);
+
+    EXPECT_EQ(piece.callOpponents().size(), 1);
+    EXPECT_EQ(piece.callOpponents(), opponents);
+
+    piece.moves(8, 8, opponents);
+
+    EXPECT_EQ(piece.callOpponents().size(), 0);
+    EXPECT_NE(piece.callOpponents(), opponents);
+}
+
+TEST(PieceTest, Move_IncrementsMoveCount) {
     Position pos1(1, 1);
     Position pos2(2, 2);
     Position pos3(3, 3);
