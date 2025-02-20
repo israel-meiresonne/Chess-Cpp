@@ -7,7 +7,12 @@ class MockPiece : public Pieces::Piece {
   public:
     MockPiece(Position pos)
         : Piece(pos) {}
-    std::unordered_set<Pieces::Move> moves(int nRow, int nColumn) override { return {}; }
+
+  protected:
+    std::unordered_set<Pieces::Move> &_moves(std::unordered_set<Pieces::Move> &moves, int &nRow,
+                                             int &nColumn) {
+        return moves;
+    }
 };
 
 TEST(MoveTest, DefaultConstructor) {

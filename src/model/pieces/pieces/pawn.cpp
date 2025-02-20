@@ -8,11 +8,10 @@ namespace Pieces {
     Pawn::Pawn(const Position &position)
         : Piece(position) {}
 
-    std::unordered_set<Move> Pawn::moves(int nRow, int nColumn) {
-        std::unordered_set<Move> moves;
+    std::unordered_set<Move> &Pawn::_moves(std::unordered_set<Move> &moves, int &nRow,
+                                           int &nColumn) {
         Position initialPosition = position();
         addCaptureMoves(initialPosition, nRow, nColumn, moves);
-
         if (nMoves() == 0) return addFirstMoves(initialPosition, nRow, nColumn, moves);
 
         return addNotFirstMoves(initialPosition, nRow, nColumn, moves);
@@ -39,10 +38,10 @@ namespace Pieces {
         std::vector<Position> capturePositions = {Position(newRow, column - 1),
                                                   Position(newRow, column + 1)};
 
-        for (const Position &capture : capturePositions) {
-            if (!isInBounds(capture, nRow, nColumn)) continue;
+        for (const Position &capturePosition : capturePositions) {
+            if (!isInBounds(capturePosition, nRow, nColumn)) continue;
 
-            Action action(this, initialPosition, capture);
+            Action action(this, initialPosition, capturePosition);
             Move move(Move::Type::CAPTURE);
             move.add(action);
             moves.insert(move);

@@ -16,6 +16,15 @@ namespace Pieces {
         _nMoves++;
     };
 
+    std::unordered_set<Move> Piece::moves(int nRow, int nColumn) {
+        std::unordered_set<Move> moves;
+        if (!nRow && !nColumn) return moves;
+
+        if (!isInBounds(position(), nRow, nColumn)) return moves;
+
+        return this->_moves(moves, nRow, nColumn);
+    };
+
     std::unordered_set<Move> &Piece::genDirectionMoves(std::unordered_set<Move> &moves,
                                                        Position start, Position end, int rowDiff,
                                                        int columnDiff, Move::Type moveType) {

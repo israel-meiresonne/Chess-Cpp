@@ -1,5 +1,3 @@
-#include <unordered_set>
-
 #include "model/pieces/pieces.hpp"
 
 namespace Pieces {
@@ -8,8 +6,8 @@ namespace Pieces {
     Knight::Knight(const Position &position)
         : Piece(position) {};
 
-    std::unordered_set<Move> Knight::moves(int nRow, int nColumn) {
-        std::unordered_set<Move> moves;
+    std::unordered_set<Move> &Knight::_moves(std::unordered_set<Move> &moves, int &nRow,
+                                             int &nColumn) {
         return moves;
     };
 } // namespace Pieces

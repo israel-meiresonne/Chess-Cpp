@@ -10,13 +10,17 @@ class MockPiece1 : public Pieces::Piece {
     MockPiece1(const Position &position)
         : Piece(position) {}
 
-    std::unordered_set<Pieces::Move> moves(int, int) override { return {}; }
-
     std::unordered_set<Pieces::Move> &_genDirectionMoves(std::unordered_set<Pieces::Move> &moves,
                                                          Position start, Position end, int rowDiff,
                                                          int columnDiff,
                                                          Pieces::Move::Type moveType) {
         return genDirectionMoves(moves, start, end, rowDiff, columnDiff, moveType);
+    }
+
+  protected:
+    std::unordered_set<Pieces::Move> &_moves(std::unordered_set<Pieces::Move> &moves, int &nRow,
+                                             int &nColumn) {
+        return moves;
     }
 };
 

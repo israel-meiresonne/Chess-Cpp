@@ -64,15 +64,6 @@ namespace Pieces {
     };
 
     class Piece {
-      private:
-        Position _position;
-        int _nMoves;
-
-      protected:
-        std::unordered_set<Move> &genDirectionMoves(std::unordered_set<Move> &moves, Position start,
-                                                    Position end, int rowDiff, int columnDiff,
-                                                    Move::Type moveType = Move::Type::DISPLACEMENT);
-
       public:
         Piece();
         Piece(const Position position);
@@ -81,13 +72,24 @@ namespace Pieces {
         int nMoves() const;
 
         void move(const Position position);
-        virtual std::unordered_set<Move> moves(int nRow, int nColumn) = 0;
+        std::unordered_set<Move> moves(int nRow, int nColumn);
 
         static bool isInBounds(const Position &position, int nRow, int nColumn);
 
         int hash() const;
         bool operator==(const Piece &other) const;
         friend std::ostream &operator<<(std::ostream &os, const Pieces::Piece &piece);
+
+      protected:
+        virtual std::unordered_set<Move> &_moves(std::unordered_set<Move> &moves, int &nRow,
+                                                 int &nColumn) = 0;
+        std::unordered_set<Move> &genDirectionMoves(std::unordered_set<Move> &moves, Position start,
+                                                    Position end, int rowDiff, int columnDiff,
+                                                    Move::Type moveType = Move::Type::DISPLACEMENT);
+
+      private:
+        Position _position;
+        int _nMoves;
     };
 
     class King : public Piece {
@@ -95,7 +97,9 @@ namespace Pieces {
         King();
         King(const Position &position);
 
-        std::unordered_set<Move> moves(int nRow, int nColumn) override;
+      protected:
+        std::unordered_set<Move> &_moves(std::unordered_set<Move> &moves, int &nRow,
+                                         int &nColumn) override;
     };
 
     class Queen : public Piece {
@@ -103,7 +107,9 @@ namespace Pieces {
         Queen();
         Queen(const Position &position);
 
-        std::unordered_set<Move> moves(int nRow, int nColumn) override;
+      protected:
+        std::unordered_set<Move> &_moves(std::unordered_set<Move> &moves, int &nRow,
+                                         int &nColumn) override;
     };
 
     class Rook : public Piece {
@@ -111,11 +117,13 @@ namespace Pieces {
         Rook();
         Rook(const Position &position);
 
-        std::unordered_set<Move> moves(int nRow, int nColumn) override;
+      protected:
+        std::unordered_set<Move> &_moves(std::unordered_set<Move> &moves, int &nRow,
+                                         int &nColumn) override;
 
       private:
-        std::unordered_set<Move> verticalMoves(std::unordered_set<Move> &moves, int &nRow);
-        std::unordered_set<Move> horizontalMoves(std::unordered_set<Move> &moves, int &nRow);
+        std::unordered_set<Move> &verticalMoves(std::unordered_set<Move> &moves, int &nRow);
+        std::unordered_set<Move> &horizontalMoves(std::unordered_set<Move> &moves, int &nRow);
     };
 
     class Bishop : public Piece {
@@ -123,13 +131,15 @@ namespace Pieces {
         Bishop();
         Bishop(const Position &position);
 
-        std::unordered_set<Move> moves(int nRow, int nColumn) override;
+      protected:
+        std::unordered_set<Move> &_moves(std::unordered_set<Move> &moves, int &nRow,
+                                         int &nColumn) override;
 
       private:
-        std::unordered_set<Move> bottomLeftDiagonalMoves(std::unordered_set<Move> &moves, int &nRow,
-                                                         int &nColumn);
-        std::unordered_set<Move> bottomRightDiagonalMoves(std::unordered_set<Move> &moves,
+        std::unordered_set<Move> &bottomLeftDiagonalMoves(std::unordered_set<Move> &moves,
                                                           int &nRow, int &nColumn);
+        std::unordered_set<Move> &bottomRightDiagonalMoves(std::unordered_set<Move> &moves,
+                                                           int &nRow, int &nColumn);
     };
 
     class Knight : public Piece {
@@ -137,7 +147,9 @@ namespace Pieces {
         Knight();
         Knight(const Position &position);
 
-        std::unordered_set<Move> moves(int nRow, int nColumn) override;
+      protected:
+        std::unordered_set<Move> &_moves(std::unordered_set<Move> &moves, int &nRow,
+                                         int &nColumn) override;
     };
 
     class Pawn : public Piece {
@@ -145,7 +157,9 @@ namespace Pieces {
         Pawn();
         Pawn(const Position &position);
 
-        std::unordered_set<Move> moves(int nRow, int nColumn) override;
+      protected:
+        std::unordered_set<Move> &_moves(std::unordered_set<Move> &moves, int &nRow,
+                                         int &nColumn) override;
 
       private:
         std::unordered_set<Move> &addFirstMoves(const Position &initialPosition, int nRow,
