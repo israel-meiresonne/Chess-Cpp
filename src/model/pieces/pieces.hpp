@@ -83,6 +83,12 @@ namespace Pieces {
       protected:
         virtual std::unordered_set<Move> &_moves(std::unordered_set<Move> &moves, int &nRow,
                                                  int &nColumn) = 0;
+        std::unordered_set<Move> &verticalMoves(std::unordered_set<Move> &moves, int &nRow);
+        std::unordered_set<Move> &horizontalMoves(std::unordered_set<Move> &moves, int &nRow);
+        std::unordered_set<Move> &bottomLeftDiagonalMoves(std::unordered_set<Move> &moves,
+                                                          int &nRow, int &nColumn);
+        std::unordered_set<Move> &bottomRightDiagonalMoves(std::unordered_set<Move> &moves,
+                                                           int &nRow, int &nColumn);
         std::unordered_set<Move> &genDirectionMoves(std::unordered_set<Move> &moves, Position start,
                                                     Position end, int rowDiff, int columnDiff,
                                                     Move::Type moveType = Move::Type::DISPLACEMENT);
@@ -120,10 +126,6 @@ namespace Pieces {
       protected:
         std::unordered_set<Move> &_moves(std::unordered_set<Move> &moves, int &nRow,
                                          int &nColumn) override;
-
-      private:
-        std::unordered_set<Move> &verticalMoves(std::unordered_set<Move> &moves, int &nRow);
-        std::unordered_set<Move> &horizontalMoves(std::unordered_set<Move> &moves, int &nRow);
     };
 
     class Bishop : public Piece {
@@ -134,12 +136,6 @@ namespace Pieces {
       protected:
         std::unordered_set<Move> &_moves(std::unordered_set<Move> &moves, int &nRow,
                                          int &nColumn) override;
-
-      private:
-        std::unordered_set<Move> &bottomLeftDiagonalMoves(std::unordered_set<Move> &moves,
-                                                          int &nRow, int &nColumn);
-        std::unordered_set<Move> &bottomRightDiagonalMoves(std::unordered_set<Move> &moves,
-                                                           int &nRow, int &nColumn);
     };
 
     class Knight : public Piece {

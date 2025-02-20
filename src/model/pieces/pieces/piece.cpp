@@ -25,6 +25,83 @@ namespace Pieces {
         return this->_moves(moves, nRow, nColumn);
     };
 
+    std::unordered_set<Move> &Piece::verticalMoves(std::unordered_set<Move> &moves, int &nRow) {
+        Position initialPosition = position();
+        int initialRow = initialPosition.row();
+        int initialColumn = initialPosition.column();
+        int endRow = nRow - 1;
+        Position verticalStart(0, initialColumn);
+        Position verticalEnd(endRow, initialColumn);
+
+        int rowDiff = 1, columnDiff = 0;
+        this->genDirectionMoves(moves, verticalStart, verticalEnd, rowDiff, columnDiff);
+        return this->genDirectionMoves(moves, verticalStart, verticalEnd, rowDiff, columnDiff,
+                                       Move::Type::CAPTURE);
+    }
+
+    std::unordered_set<Move> &Piece::horizontalMoves(std::unordered_set<Move> &moves,
+                                                     int &nColumn) {
+        Position initialPosition = position();
+        int initialRow = initialPosition.row();
+        int initialColumn = initialPosition.column();
+        int endColumn = nColumn - 1;
+        Position horizontalStart(initialRow, 0);
+        Position horizontalEnd(initialRow, endColumn);
+
+        int rowDiff = 0, columnDiff = 1;
+        this->genDirectionMoves(moves, horizontalStart, horizontalEnd, rowDiff, columnDiff);
+        return this->genDirectionMoves(moves, horizontalStart, horizontalEnd, rowDiff, columnDiff,
+                                       Move::Type::CAPTURE);
+    }
+
+    std::unordered_set<Move> &Piece::bottomLeftDiagonalMoves(std::unordered_set<Move> &moves,
+                                                             int &nRow, int &nColumn) {
+        Position initialPosition = position();
+        int initialRow = initialPosition.row();
+        int initialColumn = initialPosition.column();
+
+        int minDiffToStart = std::min(initialRow, initialColumn);
+        int startRow = initialRow - minDiffToStart;
+        int startColumn = initialColumn - minDiffToStart;
+        Position start(startRow, startColumn);
+
+        int rowDiffToBound = nRow - initialRow - 1;
+        int columnDiffToBound = nColumn - initialColumn - 1;
+        int minDiffToEnd = std::min(rowDiffToBound, columnDiffToBound);
+        int endRow = initialRow + minDiffToEnd;
+        int endColumn = initialColumn + minDiffToEnd;
+        Position end(endRow, endColumn);
+
+        int rowDiff = 1, columnDiff = 1;
+        this->genDirectionMoves(moves, start, end, rowDiff, columnDiff);
+        return this->genDirectionMoves(moves, start, end, rowDiff, columnDiff, Move::Type::CAPTURE);
+    }
+
+    std::unordered_set<Move> &Piece::bottomRightDiagonalMoves(std::unordered_set<Move> &moves,
+                                                              int &nRow, int &nColumn) {
+        Position initialPosition = position();
+        int initialRow = initialPosition.row();
+        int initialColumn = initialPosition.column();
+
+        int rowDiffToOrigin = initialRow;
+        int columnDiffToBound = nColumn - initialColumn - 1;
+        int minDiffToStart = std::min(rowDiffToOrigin, columnDiffToBound);
+        int startRow = initialRow - minDiffToStart;
+        int startColumn = initialColumn + minDiffToStart;
+        Position start(startRow, startColumn);
+
+        int rowDiffToBound = nRow - initialRow - 1;
+        int columnDiffToOrigin = initialColumn;
+        int minDiffToEnd = std::min(rowDiffToBound, columnDiffToOrigin);
+        int endRow = initialRow + minDiffToEnd;
+        int endColumn = initialColumn - minDiffToEnd;
+        Position end(endRow, endColumn);
+
+        int rowDiff = 1, columnDiff = -1;
+        this->genDirectionMoves(moves, start, end, rowDiff, columnDiff);
+        return this->genDirectionMoves(moves, start, end, rowDiff, columnDiff, Move::Type::CAPTURE);
+    }
+
     std::unordered_set<Move> &Piece::genDirectionMoves(std::unordered_set<Move> &moves,
                                                        Position start, Position end, int rowDiff,
                                                        int columnDiff, Move::Type moveType) {

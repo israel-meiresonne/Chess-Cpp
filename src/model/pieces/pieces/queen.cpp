@@ -8,6 +8,9 @@ namespace Pieces {
 
     std::unordered_set<Move> &Queen::_moves(std::unordered_set<Move> &moves, int &nRow,
                                             int &nColumn) {
-        return moves;
+        verticalMoves(moves, nRow);
+        horizontalMoves(moves, nColumn);
+        bottomLeftDiagonalMoves(moves, nRow, nColumn);
+        return bottomRightDiagonalMoves(moves, nRow, nColumn);
     };
 } // namespace Pieces

@@ -34,6 +34,7 @@ TEST(RookTest, MovesCenter) {
                                                  Pieces::Move::Type::CAPTURE};
     for (const auto &moveType : moveTypes) {
         std::vector<Pieces::Move> newMoves = {
+            // Vertical moves
             Pieces::Move::createMove(&rook, initial, Position(row + 1, column), moveType),
             Pieces::Move::createMove(&rook, initial, Position(row + 2, column), moveType),
             Pieces::Move::createMove(&rook, initial, Position(row + 3, column), moveType),
@@ -41,6 +42,7 @@ TEST(RookTest, MovesCenter) {
             Pieces::Move::createMove(&rook, initial, Position(row - 1, column), moveType),
             Pieces::Move::createMove(&rook, initial, Position(row - 2, column), moveType),
             Pieces::Move::createMove(&rook, initial, Position(row - 3, column), moveType),
+            // Horizontal moves
             Pieces::Move::createMove(&rook, initial, Position(row, column + 1), moveType),
             Pieces::Move::createMove(&rook, initial, Position(row, column + 2), moveType),
             Pieces::Move::createMove(&rook, initial, Position(row, column + 3), moveType),
@@ -81,6 +83,7 @@ TEST(RookTest, MoveTopLeft) {
                                                  Pieces::Move::Type::CAPTURE};
     for (const auto &moveType : moveTypes) {
         std::vector<Pieces::Move> newMoves = {
+            // Vertical moves
             Pieces::Move::createMove(&rook, initial, Position(row - 1, column), moveType),
             Pieces::Move::createMove(&rook, initial, Position(row - 2, column), moveType),
             Pieces::Move::createMove(&rook, initial, Position(row - 3, column), moveType),
@@ -88,6 +91,7 @@ TEST(RookTest, MoveTopLeft) {
             Pieces::Move::createMove(&rook, initial, Position(row - 5, column), moveType),
             Pieces::Move::createMove(&rook, initial, Position(row - 6, column), moveType),
             Pieces::Move::createMove(&rook, initial, Position(row - 7, column), moveType),
+            // Horizontal moves
             Pieces::Move::createMove(&rook, initial, Position(row, column + 1), moveType),
             Pieces::Move::createMove(&rook, initial, Position(row, column + 2), moveType),
             Pieces::Move::createMove(&rook, initial, Position(row, column + 3), moveType),
@@ -132,6 +136,7 @@ TEST(RookTest, MoveBottomRight) {
                                                  Pieces::Move::Type::CAPTURE};
     for (const auto &moveType : moveTypes) {
         std::vector<Pieces::Move> newMoves = {
+            // Vertical moves
             Pieces::Move::createMove(&rook, initial, Position(row + 1, column), moveType),
             Pieces::Move::createMove(&rook, initial, Position(row + 2, column), moveType),
             Pieces::Move::createMove(&rook, initial, Position(row + 3, column), moveType),
@@ -139,6 +144,7 @@ TEST(RookTest, MoveBottomRight) {
             Pieces::Move::createMove(&rook, initial, Position(row + 5, column), moveType),
             Pieces::Move::createMove(&rook, initial, Position(row + 6, column), moveType),
             Pieces::Move::createMove(&rook, initial, Position(row + 7, column), moveType),
+            // Horizontal moves
             Pieces::Move::createMove(&rook, initial, Position(row, column - 1), moveType),
             Pieces::Move::createMove(&rook, initial, Position(row, column - 2), moveType),
             Pieces::Move::createMove(&rook, initial, Position(row, column - 3), moveType),

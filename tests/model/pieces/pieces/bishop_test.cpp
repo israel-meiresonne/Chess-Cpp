@@ -62,6 +62,7 @@ TEST(BishopTest, MovesCenter) {
         EXPECT_TRUE(moves.count(expectedMove));
     }
 }
+
 TEST(BishopTest, MoveTopLeft) {
     int nRow = 8;
     int nColumn = 8;
@@ -112,16 +113,15 @@ TEST(BishopTest, MoveBottomRight) {
                                                  Pieces::Move::Type::CAPTURE};
     for (const auto &moveType : moveTypes) {
         std::vector<Pieces::Move> newMoves = {
-            // Bottom Left Diagonal
+            // Bottom Left Diagonal: None
+            // Bottom Right Diagonal
             Pieces::Move::createMove(&bishop, initial, Position(row + 1, column - 1), moveType),
             Pieces::Move::createMove(&bishop, initial, Position(row + 2, column - 2), moveType),
             Pieces::Move::createMove(&bishop, initial, Position(row + 3, column - 3), moveType),
             Pieces::Move::createMove(&bishop, initial, Position(row + 4, column - 4), moveType),
             Pieces::Move::createMove(&bishop, initial, Position(row + 5, column - 5), moveType),
             Pieces::Move::createMove(&bishop, initial, Position(row + 6, column - 6), moveType),
-            Pieces::Move::createMove(&bishop, initial, Position(row + 7, column - 7), moveType)
-            // Bottom Right Diagonal: None
-        };
+            Pieces::Move::createMove(&bishop, initial, Position(row + 7, column - 7), moveType)};
         expectedMoves.insert(expectedMoves.end(), newMoves.begin(), newMoves.end());
     }
 
