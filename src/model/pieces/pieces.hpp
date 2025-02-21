@@ -5,7 +5,6 @@
 #include <unordered_set>
 #include <vector>
 
-#include "model/player/player.hpp"
 #include "model/position/position.hpp"
 #include "model/utils/templates.hpp"
 
@@ -41,16 +40,13 @@ namespace Pieces {
       private:
         Type _type;
         std::vector<Action> _actions;
-        Player _author;
 
       public:
         Move();
-        Move(const Player &author, const Type &type = Move::Type::DISPLACEMENT);
-        Move(const Type &type, const Player &author = Player());
+        Move(const Type type);
 
         Type type() const;
         std::vector<Action> actions() const;
-        Player author() const;
 
         void add(const Action &action);
 
@@ -66,8 +62,6 @@ namespace Pieces {
     class Piece {
       public:
         Piece();
-        Piece(const Position position);
-
         Position position() const;
         int nMoves() const;
 
@@ -81,10 +75,12 @@ namespace Pieces {
         friend std::ostream &operator<<(std::ostream &os, const Pieces::Piece &piece);
 
       protected:
+        Piece(const Position position);
+
         std::vector<Piece *> &opponents();
 
         virtual std::unordered_set<Move> &_moves(std::unordered_set<Move> &moves, int &nRow,
-                                                 int &nColumn) = 0;
+                                                 int &nColumn);
 
         std::unordered_set<Move> &verticalMoves(std::unordered_set<Move> &moves, int &nRow);
 

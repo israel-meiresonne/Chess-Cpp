@@ -32,6 +32,11 @@ namespace Pieces {
         return moves;
     };
 
+    std::unordered_set<Move> &Piece::_moves(std::unordered_set<Move> &moves, int &nRow,
+                                            int &nColumn) {
+        throw std::runtime_error("Child class must implement Piece::_moves method");
+    }
+
     std::unordered_set<Move> &Piece::verticalMoves(std::unordered_set<Move> &moves, int &nRow) {
         Position initialPosition = position();
         int initialRow = initialPosition.row();
