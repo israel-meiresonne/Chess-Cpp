@@ -6,6 +6,7 @@ Player::Player(const std::string &name)
     : _name(name) {};
 
 std::string Player::name() const { return _name; };
+std::unordered_map<Position, Pieces::Piece> &Player::pieces() { return _pieces; };
 
 int Player::hash() const { return std::hash<std::string>()(_name); }
 
