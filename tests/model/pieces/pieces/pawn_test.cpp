@@ -54,7 +54,7 @@ TEST(PawnTest, FirstMoveCenter) {
     }
 }
 
-TEST(PawnTest, FirstMoveTopLeft) {
+TEST(PawnTest, FirstMoves_WhenPieceAtTopLeft) {
     int nRow = 8;
     int nColumn = 8;
     int row = nRow - 1;
@@ -74,7 +74,7 @@ TEST(PawnTest, FirstMoveTopLeft) {
     EXPECT_EQ(moves.size(), 0);
 }
 
-TEST(PawnTest, FirstMoveBottomRight) {
+TEST(PawnTest, FirstMoves_WhenPieceAtBottomRight) {
     int nRow = 8;
     int nColumn = 8;
     int row = 0;
@@ -142,7 +142,7 @@ TEST(PawnTest, NotFirstMoveCenter) {
     }
 }
 
-TEST(PawnTest, NotFirstMoveTopLeft) {
+TEST(PawnTest, NotFirstMoves_WhenPieceAtTopLeft) {
     int nRow = 8;
     int nColumn = 8;
     int row = nRow - 1;
@@ -163,7 +163,7 @@ TEST(PawnTest, NotFirstMoveTopLeft) {
     EXPECT_EQ(moves.size(), 0);
 }
 
-TEST(PawnTest, NotFirstMoveBottomRight) {
+TEST(PawnTest, NotFirstMoves_WhenPieceAtBottomRight) {
     int nRow = 8;
     int nColumn = 8;
     int row = 0;

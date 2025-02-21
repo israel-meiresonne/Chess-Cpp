@@ -22,7 +22,7 @@ TEST(KnightTest, MovesEmpty) {
     EXPECT_TRUE(moves.empty());
 }
 
-TEST(KnightTest, MovesCenter) {
+TEST(KnightTest, Moves_WhenPieceAtTheCenter) {
     int nRow = 8;
     int nColumn = 8;
     int row = 3;
@@ -60,7 +60,7 @@ TEST(KnightTest, MovesCenter) {
     }
 }
 
-TEST(KnightTest, MoveTopLeft) {
+TEST(KnightTest, Moves_WhenPieceAtTopLeft) {
     int nRow = 8;
     int nColumn = 8;
     int row = nRow - 1;
@@ -91,7 +91,7 @@ TEST(KnightTest, MoveTopLeft) {
     }
 }
 
-TEST(KnightTest, MoveBottomRight) {
+TEST(KnightTest, Moves_WhenPieceAtBottomRight) {
     int nRow = 8;
     int nColumn = 8;
     int row = 0;

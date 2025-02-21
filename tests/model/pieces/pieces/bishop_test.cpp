@@ -21,7 +21,7 @@ TEST(BishopTest, MovesEmpty) {
     EXPECT_TRUE(moves.empty());
 }
 
-TEST(BishopTest, MovesCenter) {
+TEST(BishopTest, Moves_WhenPieceAtTheCenter) {
     int nRow = 8;
     int nColumn = 8;
     int row = 4;
@@ -63,7 +63,7 @@ TEST(BishopTest, MovesCenter) {
     }
 }
 
-TEST(BishopTest, MoveTopLeft) {
+TEST(BishopTest, Moves_WhenPieceAtTopLeft) {
     int nRow = 8;
     int nColumn = 8;
     int row = nRow - 1;
@@ -101,7 +101,7 @@ TEST(BishopTest, MoveTopLeft) {
     }
 }
 
-TEST(BishopTest, MoveBottomRight) {
+TEST(BishopTest, Moves_WhenPieceAtBottomRight) {
     int nRow = 8;
     int nColumn = 8;
     int row = 0;

@@ -38,7 +38,7 @@ TEST(KingTest, Moves_SurroundedByOpponents) {
     EXPECT_EQ(moves.size(), 0);
 }
 
-TEST(KingTest, MovesCenter) {
+TEST(KingTest, Moves_WhenPieceAtTheCenter) {
     int nRow = 8;
     int nColumn = 8;
     int row = 3;
@@ -76,7 +76,7 @@ TEST(KingTest, MovesCenter) {
     }
 }
 
-TEST(KingTest, MoveTopLeft) {
+TEST(KingTest, Moves_WhenPieceAtTopLeft) {
     int nRow = 8;
     int nColumn = 8;
     int row = nRow - 1;
@@ -109,7 +109,7 @@ TEST(KingTest, MoveTopLeft) {
     }
 }
 
-TEST(KingTest, MoveBottomRight) {
+TEST(KingTest, Moves_WhenPieceAtBottomRight) {
     int nRow = 8;
     int nColumn = 8;
     int row = 0;

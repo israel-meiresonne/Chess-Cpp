@@ -22,7 +22,7 @@ TEST(RookTest, MovesEmpty) {
     EXPECT_TRUE(moves.empty());
 }
 
-TEST(RookTest, MovesCenter) {
+TEST(RookTest, Moves_WhenPieceAtTheCenter) {
     int nRow = 8;
     int nColumn = 8;
     int row = 3;
@@ -67,7 +67,7 @@ TEST(RookTest, MovesCenter) {
     }
 }
 
-TEST(RookTest, MoveTopLeft) {
+TEST(RookTest, Moves_WhenPieceAtTopLeft) {
     int nRow = 8;
     int nColumn = 8;
     int row = nRow - 1;
@@ -120,7 +120,7 @@ TEST(RookTest, MoveTopLeft) {
     }
 }
 
-TEST(RookTest, MoveBottomRight) {
+TEST(RookTest, Moves_WhenPieceAtBottomRight) {
     int nRow = 8;
     int nColumn = 8;
     int row = 0;

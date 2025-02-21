@@ -22,7 +22,7 @@ TEST(QueenTest, MovesEmpty) {
     EXPECT_TRUE(moves.empty());
 }
 
-TEST(QueenTest, MovesCenter) {
+TEST(QueenTest, Moves_WhenPieceAtTheCenter) {
     int nRow = 8;
     int nColumn = 8;
     int row = 4;
@@ -80,7 +80,7 @@ TEST(QueenTest, MovesCenter) {
     }
 }
 
-TEST(QueenTest, MoveTopLeft) {
+TEST(QueenTest, Moves_WhenPieceAtTopLeft) {
     int nRow = 8;
     int nColumn = 8;
     int row = nRow - 1;
@@ -134,7 +134,7 @@ TEST(QueenTest, MoveTopLeft) {
     }
 }
 
-TEST(QueenTest, MoveBottomRight) {
+TEST(QueenTest, Moves_WhenPieceAtBottomRight) {
     int nRow = 8;
     int nColumn = 8;
     int row = 0;
