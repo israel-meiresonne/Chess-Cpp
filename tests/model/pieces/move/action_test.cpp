@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 
 #include "model/pieces/pieces.hpp"
-#include "model/position/position.hpp"
 
 class MockPiece : public Pieces::Piece {
   public:

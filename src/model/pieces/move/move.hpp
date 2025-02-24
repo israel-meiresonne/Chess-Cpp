@@ -1,0 +1,79 @@
+#ifndef MOVE_HPP
+#define MOVE_HPP
+
+#include <vector>
+
+#include "model/position/position.hpp"
+#include "model/utils/templates.hpp"
+
+namespace Pieces {
+    class Piece;
+
+    class Action {
+      public:
+        Action();
+        Action(const Piece *piece, const Position initial, const Position final);
+
+        bool isPieceNullptr() const;
+        const Piece &piece() const;
+        Position initial() const;
+        Position final() const;
+
+        int hash() const;
+
+        bool operator==(const Action &other) const;
+        friend std::ostream &operator<<(std::ostream &os, const Pieces::Action &action);
+
+        /**
+         * @brief The piece that is being moved
+         * @warning
+         *    - This pointer must Point to the original Piece store at
+         *      &Player.pieces()[position] because Player is the owner/source
+         *      of the Piece.
+         *    - If by any mistake it points to an intermediary this pointer
+         *      will dangle because all intermediaries will be destroy at some
+         *      point.
+         */
+        const Piece *_piece;
+        Position _initial;
+        Position _final;
+    };
+
+    class Move {
+      public:
+        enum class Type { DISPLACEMENT, CAPTURE, SWAP };
+        friend std::ostream &operator<<(std::ostream &os, const Type &moveType);
+
+      private:
+        Type _type;
+        std::vector<Action> _actions;
+
+      public:
+        Move();
+        Move(const Type type);
+
+        Type type() const;
+        std::vector<Action> actions() const;
+
+        void add(const Action &action);
+
+        int hash() const;
+
+        bool operator==(const Move &other) const;
+        friend std::ostream &operator<<(std::ostream &os, const Pieces::Move &move);
+
+        static Move createMove(Pieces::Piece &piece, Position initial, Position final,
+                               Pieces::Move::Type moveType = Pieces::Move::Type::DISPLACEMENT);
+    };
+
+} // namespace Pieces
+
+namespace std {
+    template <>
+    struct hash<Pieces::Move> {
+        size_t operator()(const Pieces::Move &o) const { return Utils::Templates::hash(o); }
+    };
+
+} // namespace std
+
+#endif // MOVE_HPP
