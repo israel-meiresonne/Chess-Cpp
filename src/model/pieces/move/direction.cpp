@@ -16,7 +16,7 @@ namespace Pieces {
     Move::Direction::Direction(_Direction direction)
         : _direction(direction) {}
 
-    Move::Direction::operator std::vector<int>() const {
+    Move::Direction::operator std::pair<int, int>() const {
         switch (_direction) {
         case _Direction::UP:
             return {1, 0};

@@ -1,6 +1,7 @@
 #ifndef MOVE_HPP
 #define MOVE_HPP
 
+#include <utility>
 #include <vector>
 
 #include "model/position/position.hpp"
@@ -95,7 +96,7 @@ namespace Pieces {
         explicit Direction();
         explicit Direction(_Direction direction);
 
-        operator std::vector<int>() const;
+        operator std::pair<int, int>() const;
 
       private:
         _Direction _direction;
