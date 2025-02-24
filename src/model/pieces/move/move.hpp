@@ -44,6 +44,8 @@ namespace Pieces {
         enum class Type { DISPLACEMENT, CAPTURE, SWAP };
         friend std::ostream &operator<<(std::ostream &os, const Type &moveType);
 
+        class Direction;
+
       private:
         Type _type;
         std::vector<Action> _actions;
@@ -64,6 +66,39 @@ namespace Pieces {
 
         static Move createMove(Pieces::Piece &piece, Position initial, Position final,
                                Pieces::Move::Type moveType = Pieces::Move::Type::DISPLACEMENT);
+    };
+
+    class Move::Direction {
+      public:
+        enum class _Direction {
+            UP,
+            DOWN,
+            LEFT,
+            RIGHT,
+            UP_LEFT,
+            UP_RIGHT,
+            DOWN_LEFT,
+            DOWN_RIGHT,
+            UNDEFINED = -1
+        };
+
+      public:
+        static const Direction UP;
+        static const Direction DOWN;
+        static const Direction LEFT;
+        static const Direction RIGHT;
+        static const Direction UP_LEFT;
+        static const Direction UP_RIGHT;
+        static const Direction DOWN_LEFT;
+        static const Direction DOWN_RIGHT;
+
+        explicit Direction();
+        explicit Direction(_Direction direction);
+
+        operator std::vector<int>() const;
+
+      private:
+        _Direction _direction;
     };
 
 } // namespace Pieces
