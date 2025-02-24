@@ -25,16 +25,6 @@ TEST(PlayerTest, NameGetter) {
     EXPECT_EQ(player.name(), "Bob");
 }
 
-TEST(PlayerTest, PiecesGetter) {
-    Player player("Charlie");
-    Position position(1, 1);
-    MockPiece1 piece(position);
-
-    player.pieces()[position] = piece;
-    EXPECT_FALSE(player.pieces().empty());
-    EXPECT_EQ(player.pieces().size(), 1);
-}
-
 TEST(PlayerTest, EqualityOperator) {
     Player player1("Alice");
     Player player2("Alice");

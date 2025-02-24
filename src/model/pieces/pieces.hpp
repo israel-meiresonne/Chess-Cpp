@@ -2,6 +2,7 @@
 #define PIECES_HPP
 
 #include <algorithm>
+#include <unordered_map>
 #include <unordered_set>
 #include <vector>
 
@@ -12,7 +13,16 @@ namespace Pieces {
     class Piece;
 
     class Action {
-      private:
+        /**
+         * @brief The piece that is being moved
+         * @warning
+         *    - This pointer must Point to the original Piece store at
+         *      &Player.pieces()[position] because Player is the owner/source
+         *      of the Piece.
+         *    - If by any mistake it points to an intermediary this pointer
+         *      will dangle because all intermediaries will be destroy at some
+         *      point.
+         */
         Piece *_piece;
         Position _initial;
         Position _final;
@@ -21,7 +31,8 @@ namespace Pieces {
         Action();
         Action(Piece *piece, const Position initial, const Position final);
 
-        Piece *piece() const;
+        bool isPieceNullptr() const;
+        const Piece &piece() const;
         Position initial() const;
         Position final() const;
 
@@ -55,18 +66,21 @@ namespace Pieces {
         bool operator==(const Move &other) const;
         friend std::ostream &operator<<(std::ostream &os, const Pieces::Move &move);
 
-        static Move createMove(Pieces::Piece *piece, Position initial, Position final,
+        static Move createMove(Pieces::Piece &piece, Position initial, Position final,
                                Pieces::Move::Type moveType = Pieces::Move::Type::DISPLACEMENT);
     };
 
     class Piece {
       public:
         Piece();
+
         Position position() const;
         int nMoves() const;
 
         void move(const Position position);
-        std::unordered_set<Move> moves(int nRow, int nColumn, std::vector<Piece *> opponents = {});
+        std::unordered_map<Position, Move> moves(std::unordered_map<Position, Piece> &friendlies,
+                                                 int nRow, int nColumn,
+                                                 std::unordered_map<Position, Piece> &opponents);
 
         static bool isInBounds(const Position &position, int nRow, int nColumn);
 
@@ -77,29 +91,35 @@ namespace Pieces {
       protected:
         Piece(const Position position);
 
-        std::vector<Piece *> &opponents();
+        std::unordered_map<Position, Piece> &friendlies();
+        std::unordered_map<Position, Piece> &opponents();
 
-        virtual std::unordered_set<Move> &_moves(std::unordered_set<Move> &moves, int &nRow,
-                                                 int &nColumn);
+        virtual std::unordered_map<Position, Move> &
+        _moves(std::unordered_map<Position, Move> &moves, int &nRow, int &nColumn);
 
-        std::unordered_set<Move> &verticalMoves(std::unordered_set<Move> &moves, int &nRow);
+        std::unordered_map<Position, Move> &verticalMoves(std::unordered_map<Position, Move> &moves,
+                                                          int &nRow);
 
-        std::unordered_set<Move> &horizontalMoves(std::unordered_set<Move> &moves, int &nRow);
+        std::unordered_map<Position, Move> &
+        horizontalMoves(std::unordered_map<Position, Move> &moves, int &nRow);
 
-        std::unordered_set<Move> &bottomLeftDiagonalMoves(std::unordered_set<Move> &moves,
-                                                          int &nRow, int &nColumn);
+        std::unordered_map<Position, Move> &
+        bottomLeftDiagonalMoves(std::unordered_map<Position, Move> &moves, int &nRow, int &nColumn);
 
-        std::unordered_set<Move> &bottomRightDiagonalMoves(std::unordered_set<Move> &moves,
-                                                           int &nRow, int &nColumn);
+        std::unordered_map<Position, Move> &
+        bottomRightDiagonalMoves(std::unordered_map<Position, Move> &moves, int &nRow,
+                                 int &nColumn);
 
-        std::unordered_set<Move> &genDirectionMoves(std::unordered_set<Move> &moves, Position start,
-                                                    Position end, int rowDiff, int columnDiff,
-                                                    Move::Type moveType = Move::Type::DISPLACEMENT);
+        std::unordered_map<Position, Move> &
+        genDirectionMoves(std::unordered_map<Position, Move> &moves, Position start, Position end,
+                          int rowDiff, int columnDiff,
+                          Move::Type moveType = Move::Type::DISPLACEMENT);
 
       private:
         Position _position;
         int _nMoves;
-        std::vector<Piece *> _opponents;
+        std::unordered_map<Position, Piece> *_friendlies;
+        std::unordered_map<Position, Piece> *_opponents;
     };
 
     class King : public Piece {
@@ -108,14 +128,14 @@ namespace Pieces {
         King(const Position &position);
 
       protected:
-        std::unordered_set<Move> &_moves(std::unordered_set<Move> &moves, int &nRow,
-                                         int &nColumn) override;
+        std::unordered_map<Position, Move> &_moves(std::unordered_map<Position, Move> &moves,
+                                                   int &nRow, int &nColumn) override;
 
       private:
         std::unordered_set<Position> threateningPositions(int nRow, int nColumn);
 
         void extractPositionsFromMoves(std::unordered_set<Position> &threatening,
-                                       std::unordered_set<Move> &moves);
+                                       std::unordered_map<Position, Move> &moves);
     };
 
     class Queen : public Piece {
@@ -124,8 +144,8 @@ namespace Pieces {
         Queen(const Position &position);
 
       protected:
-        std::unordered_set<Move> &_moves(std::unordered_set<Move> &moves, int &nRow,
-                                         int &nColumn) override;
+        std::unordered_map<Position, Move> &_moves(std::unordered_map<Position, Move> &moves,
+                                                   int &nRow, int &nColumn) override;
     };
 
     class Rook : public Piece {
@@ -134,8 +154,8 @@ namespace Pieces {
         Rook(const Position &position);
 
       protected:
-        std::unordered_set<Move> &_moves(std::unordered_set<Move> &moves, int &nRow,
-                                         int &nColumn) override;
+        std::unordered_map<Position, Move> &_moves(std::unordered_map<Position, Move> &moves,
+                                                   int &nRow, int &nColumn) override;
     };
 
     class Bishop : public Piece {
@@ -144,8 +164,8 @@ namespace Pieces {
         Bishop(const Position &position);
 
       protected:
-        std::unordered_set<Move> &_moves(std::unordered_set<Move> &moves, int &nRow,
-                                         int &nColumn) override;
+        std::unordered_map<Position, Move> &_moves(std::unordered_map<Position, Move> &moves,
+                                                   int &nRow, int &nColumn) override;
     };
 
     class Knight : public Piece {
@@ -154,8 +174,8 @@ namespace Pieces {
         Knight(const Position &position);
 
       protected:
-        std::unordered_set<Move> &_moves(std::unordered_set<Move> &moves, int &nRow,
-                                         int &nColumn) override;
+        std::unordered_map<Position, Move> &_moves(std::unordered_map<Position, Move> &moves,
+                                                   int &nRow, int &nColumn) override;
     };
 
     class Pawn : public Piece {
@@ -164,16 +184,13 @@ namespace Pieces {
         Pawn(const Position &position);
 
       protected:
-        std::unordered_set<Move> &_moves(std::unordered_set<Move> &moves, int &nRow,
-                                         int &nColumn) override;
+        std::unordered_map<Position, Move> &_moves(std::unordered_map<Position, Move> &moves,
+                                                   int &nRow, int &nColumn) override;
 
       private:
-        std::unordered_set<Move> &addFirstMoves(const Position &initialPosition, int nRow,
-                                                int nColumn, std::unordered_set<Move> &moves);
-        std::unordered_set<Move> &addNotFirstMoves(const Position &initialPosition, int nRow,
-                                                   int nColumn, std::unordered_set<Move> &moves);
-        std::unordered_set<Move> &addCaptureMoves(const Position &initialPosition, int nRow,
-                                                  int nColumn, std::unordered_set<Move> &moves);
+        std::unordered_map<Position, Move> firstMoves(int nRow, int nColumn);
+        std::unordered_map<Position, Move> notFirstMoves(int nRow, int nColumn);
+        std::unordered_map<Position, Move> captureMoves(int nRow, int nColumn);
     };
 
 } // namespace Pieces

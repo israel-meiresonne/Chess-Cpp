@@ -42,15 +42,15 @@ namespace Pieces {
         os << "Move(Type: " << move.type() << ", Actions: [";
         auto actions = move.actions();
         for (const auto &action : actions) {
-            os << action << " ";
+            os << action << (action == actions.back() ? "" : ", ");
         }
         os << "])";
         return os;
     }
 
-    Move Move::createMove(Pieces::Piece *piece, Position initial, Position final,
+    Move Move::createMove(Pieces::Piece &piece, Position initial, Position final,
                           Pieces::Move::Type moveType) {
-        Pieces::Action action(piece, initial, final);
+        Pieces::Action action(&piece, initial, final);
         Pieces::Move move(moveType);
         move.add(action);
         return move;

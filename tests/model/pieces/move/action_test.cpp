@@ -7,18 +7,13 @@ class MockPiece : public Pieces::Piece {
   public:
     MockPiece(const Position &position)
         : Pieces::Piece(position) {}
-
-  protected:
-    std::unordered_set<Pieces::Move> &_moves(std::unordered_set<Pieces::Move> &moves, int &nRow,
-                                             int &nColumn) {
-        return moves;
-    }
 };
 
 TEST(ActionTest, DefaultConstructor) {
     Pieces::Action action;
 
-    EXPECT_EQ(action.piece(), nullptr);
+    EXPECT_TRUE(action.isPieceNullptr());
+    EXPECT_THROW(action.piece(), std::runtime_error);
     EXPECT_EQ(typeid(action.initial()), typeid(Position));
     EXPECT_EQ(typeid(action.final()), typeid(Position));
 }
@@ -29,7 +24,8 @@ TEST(ActionTest, ParameterizedConstructor) {
     MockPiece piece(initial);
     Pieces::Action action(&piece, initial, final);
 
-    EXPECT_EQ(action.piece(), &piece);
+    EXPECT_FALSE(action.isPieceNullptr());
+    EXPECT_EQ(action.piece(), piece);
     EXPECT_EQ(action.initial(), initial);
     EXPECT_EQ(action.final(), final);
 }

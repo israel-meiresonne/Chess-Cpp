@@ -7,12 +7,16 @@ namespace Pieces {
         , _initial(Position())
         , _final(Position()) {}
 
-    Action::Action(Pieces::Piece *piece, const Position initial, const Position final)
+    Action::Action(const Pieces::Piece *piece, const Position initial, const Position final)
         : _piece(piece)
         , _initial(initial)
         , _final(final) {}
 
-    Pieces::Piece *Action::piece() const { return _piece; }
+    bool Action::isPieceNullptr() const { return _piece == nullptr; }
+    const Pieces::Piece &Action::piece() const {
+        if (isPieceNullptr()) throw std::runtime_error("Piece is nullptr");
+        return *_piece;
+    }
 
     Position Action::initial() const { return _initial; }
 
@@ -29,8 +33,12 @@ namespace Pieces {
     }
 
     std::ostream &operator<<(std::ostream &os, const Pieces::Action &action) {
-        os << "Action(" << *action.piece() << ", From: " << action.initial()
-           << " To: " << action.final() << ")";
+        if (action.isPieceNullptr()) {
+            os << "Action(nullptr, From: " << action.initial() << " To: " << action.final() << ")";
+        } else {
+            os << "Action(" << action.piece() << ", From: " << action.initial()
+               << " To: " << action.final() << ")";
+        }
         return os;
     }
 

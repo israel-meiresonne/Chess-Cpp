@@ -145,9 +145,9 @@ TEST(MoveTest, CreateMove) {
     Position initial(1, 1);
     Position final(2, 2);
 
-    Pieces::Move move1 = Pieces::Move::createMove(&piece1, initial, final);
+    Pieces::Move move1 = Pieces::Move::createMove(piece1, initial, final);
     Pieces::Move move2 =
-        Pieces::Move::createMove(&piece2, initial, final, Pieces::Move::Type::CAPTURE);
+        Pieces::Move::createMove(piece2, initial, final, Pieces::Move::Type::CAPTURE);
 
     EXPECT_EQ(move1.type(), Pieces::Move::Type::DISPLACEMENT);
     EXPECT_EQ(move2.type(), Pieces::Move::Type::CAPTURE);
@@ -156,12 +156,12 @@ TEST(MoveTest, CreateMove) {
     ASSERT_FALSE(move2.actions().empty());
 
     Pieces::Action action = move1.actions().front();
-    EXPECT_EQ(*action.piece(), piece1);
+    EXPECT_EQ(action.piece(), piece1);
     EXPECT_EQ(action.initial(), initial);
     EXPECT_EQ(action.final(), final);
 
     action = move2.actions().front();
-    EXPECT_EQ(*action.piece(), piece2);
+    EXPECT_EQ(action.piece(), piece2);
     EXPECT_EQ(action.initial(), initial);
     EXPECT_EQ(action.final(), final);
 }

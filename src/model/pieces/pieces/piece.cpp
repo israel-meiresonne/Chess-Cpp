@@ -4,40 +4,54 @@ namespace Pieces {
     Piece::Piece()
         : _position(Position())
         , _nMoves(0)
-        , _opponents({}) {};
+        , _friendlies(nullptr)
+        , _opponents(nullptr) {};
     Piece::Piece(const Position position)
         : _position(position)
         , _nMoves(0)
-        , _opponents({}) {};
+        , _friendlies(nullptr)
+        , _opponents(nullptr) {};
 
     Position Piece::position() const { return _position; };
     int Piece::nMoves() const { return _nMoves; };
-    std::vector<Piece *> &Piece::opponents() { return _opponents; };
+    std::unordered_map<Position, Piece> &Piece::friendlies() {
+        if (_friendlies == nullptr) throw std::runtime_error("Friendlies is nullptr");
+        return *_friendlies;
+    };
+    std::unordered_map<Position, Piece> &Piece::opponents() {
+        if (_friendlies == nullptr) throw std::runtime_error("Opponents is nullptr");
+        return *_opponents;
+    };
 
     void Piece::move(const Position position) {
         _position = position;
         _nMoves++;
     };
 
-    std::unordered_set<Move> Piece::moves(int nRow, int nColumn, std::vector<Piece *> opponents) {
-        _opponents = opponents;
-        std::unordered_set<Move> moves;
+    std::unordered_map<Position, Move>
+    Piece::moves(std::unordered_map<Position, Piece> &friendlies, int nRow, int nColumn,
+                 std::unordered_map<Position, Piece> &opponents) {
+        _friendlies = &friendlies;
+        _opponents = &opponents;
+        std::unordered_map<Position, Move> moves;
         if (!nRow && !nColumn) return moves;
 
         if (!isInBounds(position(), nRow, nColumn)) return moves;
 
         this->_moves(moves, nRow, nColumn);
 
-        _opponents = {};
+        _friendlies = nullptr;
+        _opponents = nullptr;
         return moves;
     };
 
-    std::unordered_set<Move> &Piece::_moves(std::unordered_set<Move> &moves, int &nRow,
-                                            int &nColumn) {
+    std::unordered_map<Position, Move> &Piece::_moves(std::unordered_map<Position, Move> &moves,
+                                                      int &nRow, int &nColumn) {
         throw std::runtime_error("Child class must implement Piece::_moves method");
     }
 
-    std::unordered_set<Move> &Piece::verticalMoves(std::unordered_set<Move> &moves, int &nRow) {
+    std::unordered_map<Position, Move> &
+    Piece::verticalMoves(std::unordered_map<Position, Move> &moves, int &nRow) {
         Position initialPosition = position();
         int initialRow = initialPosition.row();
         int initialColumn = initialPosition.column();
@@ -51,8 +65,8 @@ namespace Pieces {
                                        Move::Type::CAPTURE);
     }
 
-    std::unordered_set<Move> &Piece::horizontalMoves(std::unordered_set<Move> &moves,
-                                                     int &nColumn) {
+    std::unordered_map<Position, Move> &
+    Piece::horizontalMoves(std::unordered_map<Position, Move> &moves, int &nColumn) {
         Position initialPosition = position();
         int initialRow = initialPosition.row();
         int initialColumn = initialPosition.column();
@@ -66,8 +80,9 @@ namespace Pieces {
                                        Move::Type::CAPTURE);
     }
 
-    std::unordered_set<Move> &Piece::bottomLeftDiagonalMoves(std::unordered_set<Move> &moves,
-                                                             int &nRow, int &nColumn) {
+    std::unordered_map<Position, Move> &
+    Piece::bottomLeftDiagonalMoves(std::unordered_map<Position, Move> &moves, int &nRow,
+                                   int &nColumn) {
         Position initialPosition = position();
         int initialRow = initialPosition.row();
         int initialColumn = initialPosition.column();
@@ -89,8 +104,9 @@ namespace Pieces {
         return this->genDirectionMoves(moves, start, end, rowDiff, columnDiff, Move::Type::CAPTURE);
     }
 
-    std::unordered_set<Move> &Piece::bottomRightDiagonalMoves(std::unordered_set<Move> &moves,
-                                                              int &nRow, int &nColumn) {
+    std::unordered_map<Position, Move> &
+    Piece::bottomRightDiagonalMoves(std::unordered_map<Position, Move> &moves, int &nRow,
+                                    int &nColumn) {
         Position initialPosition = position();
         int initialRow = initialPosition.row();
         int initialColumn = initialPosition.column();
@@ -114,9 +130,9 @@ namespace Pieces {
         return this->genDirectionMoves(moves, start, end, rowDiff, columnDiff, Move::Type::CAPTURE);
     }
 
-    std::unordered_set<Move> &Piece::genDirectionMoves(std::unordered_set<Move> &moves,
-                                                       Position start, Position end, int rowDiff,
-                                                       int columnDiff, Move::Type moveType) {
+    std::unordered_map<Position, Move> &
+    Piece::genDirectionMoves(std::unordered_map<Position, Move> &moves, Position start,
+                             Position end, int rowDiff, int columnDiff, Move::Type moveType) {
         if ((rowDiff == 0) && (columnDiff == 0)) {
             throw std::runtime_error("rowDiff and columnDiff can't both equal zero");
         }
@@ -138,8 +154,8 @@ namespace Pieces {
             row += rowDiff, column += columnDiff;
             if (finalPosition == initialPosition) continue;
 
-            Move move = Move::createMove(this, initialPosition, finalPosition, moveType);
-            moves.insert(move);
+            Move move = Move::createMove(*this, initialPosition, finalPosition, moveType);
+            moves[finalPosition] = move;
         }
         return moves;
     }

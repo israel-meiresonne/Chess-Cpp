@@ -10,16 +10,17 @@ class MockPiece1 : public Pieces::Piece {
     MockPiece1(const Position &position)
         : Piece(position) {}
 
-    std::unordered_set<Pieces::Move> &_genDirectionMoves(std::unordered_set<Pieces::Move> &moves,
-                                                         Position start, Position end, int rowDiff,
-                                                         int columnDiff,
-                                                         Pieces::Move::Type moveType) {
+    std::unordered_map<Position, Pieces::Move> &
+    _genDirectionMoves(std::unordered_map<Position, Pieces::Move> &moves, Position start,
+                       Position end, int rowDiff, int columnDiff, Pieces::Move::Type moveType) {
         return genDirectionMoves(moves, start, end, rowDiff, columnDiff, moveType);
     }
+    std::unordered_map<Position, Pieces::Piece> &callFriendlies() { return friendlies(); };
+    std::unordered_map<Position, Pieces::Piece> &callOpponents() { return opponents(); };
 
   protected:
-    std::unordered_set<Pieces::Move> &_moves(std::unordered_set<Pieces::Move> &moves, int &nRow,
-                                             int &nColumn) {
+    std::unordered_map<Position, Pieces::Move> &
+    _moves(std::unordered_map<Position, Pieces::Move> &moves, int &nRow, int &nColumn) {
         return moves;
     }
 };
@@ -34,8 +35,6 @@ class MockPiece3 : public MockPiece1 {
   public:
     MockPiece3(const Position &position)
         : MockPiece1(position) {}
-
-    std::vector<Piece *> &callOpponents() { return opponents(); };
 };
 
 TEST(PieceTest, DefaultConstructor) {
@@ -52,18 +51,29 @@ TEST(PieceTest, PositionConstructor) {
 }
 
 TEST(PieceTest, Getter_Opponents) {
-    MockPiece3 piece(Position(3, 3));
-    std::vector<Pieces::Piece *> opponents = {&piece};
+    Position position(2, 3);
+    Position position2(3, 2);
+    MockPiece3 piece(position);
+    std::unordered_map<Position, Pieces::Piece> friendlies = {{position2, MockPiece3(position2)}};
+    std::unordered_map<Position, Pieces::Piece> opponents = {{position, piece}};
 
-    piece.callOpponents().push_back(&piece);
+    std::unordered_map<Position, Pieces::Move> moves = piece.moves(friendlies, 8, 8, opponents);
 
-    EXPECT_EQ(piece.callOpponents().size(), 1);
-    EXPECT_EQ(piece.callOpponents(), opponents);
+    EXPECT_THROW(piece.callOpponents(), std::runtime_error);
+    EXPECT_EQ(moves.size(), 0);
+}
 
-    piece.moves(8, 8, opponents);
+TEST(PieceTest, Getter_Friendlies) {
+    Position position(2, 3);
+    Position position2(3, 2);
+    MockPiece3 piece(position);
+    std::unordered_map<Position, Pieces::Piece> friendlies = {{position2, MockPiece3(position2)}};
+    std::unordered_map<Position, Pieces::Piece> opponents = {{position, piece}};
 
-    EXPECT_EQ(piece.callOpponents().size(), 0);
-    EXPECT_NE(piece.callOpponents(), opponents);
+    std::unordered_map<Position, Pieces::Move> moves = piece.moves(friendlies, 8, 8, opponents);
+
+    EXPECT_THROW(piece.callFriendlies(), std::runtime_error);
+    EXPECT_EQ(moves.size(), 0);
 }
 
 TEST(PieceTest, Move_IncrementsMoveCount) {
@@ -85,7 +95,7 @@ TEST(PieceTest, GenMovesDirection_ThrowsWhenRowDiffAndColumnDiffAreZero) {
     Position start(0, 0);
     Position end(5, 5);
     MockPiece1 piece(Position(3, 3));
-    std::unordered_set<Pieces::Move> moves;
+    std::unordered_map<Position, Pieces::Move> moves;
     int rowDiff = 0, columnDiff = 0;
     Pieces::Move::Type moveType = Pieces::Move::Type::CAPTURE;
 
@@ -97,123 +107,118 @@ TEST(PieceTest, GenDirectionMoves_StartIsAtEnd) {
     Position start(3, 4);
     Position end(3, 4);
     MockPiece1 piece(Position(3, 2));
-    std::unordered_set<Pieces::Move> moves;
+    Position piecePosition = piece.position();
+    std::unordered_map<Position, Pieces::Move> moves;
     int rowDiff = 1, columnDiff = -1;
     Pieces::Move::Type moveType = Pieces::Move::Type::CAPTURE;
 
-    std::vector<Pieces::Move> expectedMoves = {Pieces::Move::createMove(
-        &piece, piece.position(), Position(start.row(), start.column()), moveType)};
+    Pieces::Move::Type expectedMoveType = moveType;
+    Position expectedMoveInitialPosition = piecePosition;
+    Position expectedMoveFinalPosition = start;
+    Pieces::Move expectedMove = Pieces::Move::createMove(
+        piece, expectedMoveInitialPosition, expectedMoveFinalPosition, expectedMoveType);
+    std::unordered_map<Position, Pieces::Move> expectedMoves = {
+        {expectedMoveFinalPosition, expectedMove}};
 
     piece._genDirectionMoves(moves, start, end, rowDiff, columnDiff, moveType);
 
     EXPECT_EQ(moves.size(), expectedMoves.size());
-    for (const auto &expectedMove : expectedMoves) {
-        EXPECT_TRUE(moves.count(expectedMove));
+    for (auto &[expectedFinalPosition, expectedMove] : expectedMoves) {
+        EXPECT_TRUE(moves.count(expectedFinalPosition));
+        EXPECT_EQ(moves[expectedFinalPosition], expectedMove);
     }
 }
 
-TEST(PieceTest, GenDirectionMoves_DiffRowAndColumn) {
-    Position start(0, 5);
-    Position end(5, 0);
+TEST(PieceTest, GenDirectionMoves_WhenDiffRowAndDiffColumnAreNotZero) {
+    int startRow = 0, startColumn = 5;
+    int endRow = 5, endColumn = 0;
+    Position start(startRow, startColumn);
+    Position end(endRow, endColumn);
     MockPiece1 piece(Position(3, 2));
-    std::unordered_set<Pieces::Move> moves;
+    Position piecePosition = piece.position();
+    std::unordered_map<Position, Pieces::Move> moves;
     int rowDiff = 1, columnDiff = -1;
     Pieces::Move::Type moveType = Pieces::Move::Type::CAPTURE;
 
-    std::vector<Pieces::Move> expectedMoves = {
-        Pieces::Move::createMove(&piece, piece.position(), Position(start.row(), start.column()),
-                                 Pieces::Move::Type::CAPTURE),
-        Pieces::Move::createMove(&piece, piece.position(),
-                                 Position(start.row() + rowDiff, start.column() + columnDiff),
-                                 Pieces::Move::Type::CAPTURE),
-        Pieces::Move::createMove(
-            &piece, piece.position(),
-            Position(start.row() + 2 * rowDiff, start.column() + 2 * columnDiff),
-            Pieces::Move::Type::CAPTURE),
-        Pieces::Move::createMove(
-            &piece, piece.position(),
-            Position(start.row() + 4 * rowDiff, start.column() + 4 * columnDiff),
-            Pieces::Move::Type::CAPTURE),
-        Pieces::Move::createMove(
-            &piece, piece.position(),
-            Position(start.row() + 5 * rowDiff, start.column() + 5 * columnDiff),
-            Pieces::Move::Type::CAPTURE)};
+    std::unordered_map<Position, Pieces::Move> expectedMoves;
+    std::vector<int> diffFactorFinalPositions = {0, 1, 2, 4, 5};
+    for (const auto factor : diffFactorFinalPositions) {
+        int finalRow = startRow + factor * rowDiff;
+        int finalColumn = startColumn + factor * columnDiff;
+        Position finalPosition = Position(finalRow, finalColumn);
+
+        expectedMoves[finalPosition] = Pieces::Move::createMove(piece, piecePosition, finalPosition,
+                                                                Pieces::Move::Type::CAPTURE);
+    }
 
     piece._genDirectionMoves(moves, start, end, rowDiff, columnDiff, moveType);
 
     EXPECT_EQ(moves.size(), expectedMoves.size());
-    for (const auto &expectedMove : expectedMoves) {
-        EXPECT_TRUE(moves.count(expectedMove));
+    for (auto &[expectedFinalPosition, expectedMove] : expectedMoves) {
+        EXPECT_TRUE(moves.count(expectedFinalPosition));
+        EXPECT_EQ(moves[expectedFinalPosition], expectedMove);
     }
 }
 
 TEST(PieceTest, GenDirectionMoves_DiffRowOnly) {
-    Position start(5, 3);
-    Position end(0, 3);
+    int startRow = 5, startColumn = 3;
+    int endRow = 0, endColumn = 3;
+    Position start(startRow, startColumn);
+    Position end(endRow, endColumn);
     MockPiece1 piece(Position(3, 3));
-    std::unordered_set<Pieces::Move> moves;
+    Position piecePosition = piece.position();
+    std::unordered_map<Position, Pieces::Move> moves;
     int rowDiff = -1, columnDiff = 0;
     Pieces::Move::Type moveType = Pieces::Move::Type::CAPTURE;
 
-    std::vector<Pieces::Move> expectedMoves = {
-        Pieces::Move::createMove(&piece, piece.position(), Position(start.row(), start.column()),
-                                 Pieces::Move::Type::CAPTURE),
-        Pieces::Move::createMove(&piece, piece.position(),
-                                 Position(start.row() + rowDiff, start.column() + columnDiff),
-                                 Pieces::Move::Type::CAPTURE),
-        Pieces::Move::createMove(
-            &piece, piece.position(),
-            Position(start.row() + 3 * rowDiff, start.column() + 3 * columnDiff),
-            Pieces::Move::Type::CAPTURE),
-        Pieces::Move::createMove(
-            &piece, piece.position(),
-            Position(start.row() + 4 * rowDiff, start.column() + 4 * columnDiff),
-            Pieces::Move::Type::CAPTURE),
-        Pieces::Move::createMove(
-            &piece, piece.position(),
-            Position(start.row() + 5 * rowDiff, start.column() + 5 * columnDiff),
-            Pieces::Move::Type::CAPTURE)};
+    std::unordered_map<Position, Pieces::Move> expectedMoves;
+    std::vector<int> diffFactorFinalPositions = {0, 1, 3, 4, 5};
+    for (const auto factor : diffFactorFinalPositions) {
+        int finalRow = startRow + factor * rowDiff;
+        int finalColumn = startColumn + factor * columnDiff;
+        Position finalPosition = Position(finalRow, finalColumn);
+
+        expectedMoves[finalPosition] = Pieces::Move::createMove(piece, piecePosition, finalPosition,
+                                                                Pieces::Move::Type::CAPTURE);
+    }
 
     piece._genDirectionMoves(moves, start, end, rowDiff, columnDiff, moveType);
 
     EXPECT_EQ(moves.size(), expectedMoves.size());
-    for (const auto &expectedMove : expectedMoves) {
-        EXPECT_TRUE(moves.count(expectedMove));
+    for (auto &[expectedFinalPosition, expectedMove] : expectedMoves) {
+        EXPECT_TRUE(moves.count(expectedFinalPosition));
+        EXPECT_EQ(moves[expectedFinalPosition], expectedMove);
     }
 }
 
 TEST(PieceTest, GenDirectionMoves_DiffColumOnly) {
-    Position start(3, 5);
-    Position end(3, 0);
+    int startRow = 3, startColumn = 5;
+    int endRow = 3, endColumn = 0;
+    Position start(startRow, startColumn);
+    Position end(endRow, endColumn);
     MockPiece1 piece(Position(3, 3));
-    std::unordered_set<Pieces::Move> moves;
+    Position piecePosition = piece.position();
+    std::unordered_map<Position, Pieces::Move> moves;
     int rowDiff = 0, columnDiff = -1;
     Pieces::Move::Type moveType = Pieces::Move::Type::CAPTURE;
 
-    std::vector<Pieces::Move> expectedMoves = {
-        Pieces::Move::createMove(&piece, piece.position(), Position(start.row(), start.column()),
-                                 Pieces::Move::Type::CAPTURE),
-        Pieces::Move::createMove(&piece, piece.position(),
-                                 Position(start.row() + rowDiff, start.column() + columnDiff),
-                                 Pieces::Move::Type::CAPTURE),
-        Pieces::Move::createMove(
-            &piece, piece.position(),
-            Position(start.row() + 3 * rowDiff, start.column() + 3 * columnDiff),
-            Pieces::Move::Type::CAPTURE),
-        Pieces::Move::createMove(
-            &piece, piece.position(),
-            Position(start.row() + 4 * rowDiff, start.column() + 4 * columnDiff),
-            Pieces::Move::Type::CAPTURE),
-        Pieces::Move::createMove(
-            &piece, piece.position(),
-            Position(start.row() + 5 * rowDiff, start.column() + 5 * columnDiff),
-            Pieces::Move::Type::CAPTURE)};
+    std::unordered_map<Position, Pieces::Move> expectedMoves;
+    std::vector<int> diffFactorFinalPositions = {0, 1, 3, 4, 5};
+    for (const auto factor : diffFactorFinalPositions) {
+        int finalRow = startRow + factor * rowDiff;
+        int finalColumn = startColumn + factor * columnDiff;
+        Position finalPosition = Position(finalRow, finalColumn);
+
+        expectedMoves[finalPosition] = Pieces::Move::createMove(piece, piecePosition, finalPosition,
+                                                                Pieces::Move::Type::CAPTURE);
+    }
 
     piece._genDirectionMoves(moves, start, end, rowDiff, columnDiff, moveType);
 
     EXPECT_EQ(moves.size(), expectedMoves.size());
-    for (const auto &expectedMove : expectedMoves) {
-        EXPECT_TRUE(moves.count(expectedMove));
+    for (auto &[expectedFinalPosition, expectedMove] : expectedMoves) {
+        EXPECT_TRUE(moves.count(expectedFinalPosition));
+        EXPECT_EQ(moves[expectedFinalPosition], expectedMove);
     }
 }
 
