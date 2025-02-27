@@ -1,140 +1,164 @@
 #include <gtest/gtest.h>
 
-#include "model/pieces/pieces.hpp"
+#include <model/pieces/pieces.hpp>
+#include <model/pieces/pieces_test.hpp>
 
-TEST(BishopTest, DefaultConstructor) {
+using PiecesTest = ::Tests::Pieces::PiecesTest;
+using MockPiece1 = ::Tests::Pieces::MockPiece1;
+
+class BishopTest : public PiecesTest {
+  protected:
     Pieces::Bishop bishop;
+
+    void SetUp() override {
+        PiecesTest::SetUp();
+        bishop = Pieces::Bishop(initialPosition);
+    }
+};
+
+TEST_F(BishopTest, DefaultConstructor) {
+    Pieces::Bishop bishop;
+    EXPECT_EQ(bishop.type(), Pieces::Types::BISHOP);
     EXPECT_EQ(typeid(bishop.position()), typeid(Position));
     EXPECT_EQ(bishop.nMoves(), 0);
 }
 
-TEST(BishopTest, ParameterizedConstructor) {
+TEST_F(BishopTest, ParameterizedConstructor) {
     Position pos(2, 3);
     Pieces::Bishop bishop(pos);
+    EXPECT_EQ(bishop.type(), Pieces::Types::BISHOP);
     EXPECT_EQ(bishop.position(), pos);
     EXPECT_EQ(bishop.nMoves(), 0);
 }
 
-TEST(BishopTest, MovesEmpty) {
-    Pieces::Bishop bishop;
-    auto moves = bishop.moves(0, 0);
+TEST_F(BishopTest, MovesEmpty) {
+    moves = bishop.moves(friendlies, 0, 0, opponents);
     EXPECT_TRUE(moves.empty());
 }
 
-TEST(BishopTest, Moves_WhenPieceAtTheCenter) {
-    int nRow = 8;
-    int nColumn = 8;
-    int row = 4;
-    int column = 2;
-    Pieces::Bishop bishop(Position(row, column));
-    Position initial = bishop.position();
-    std::vector<Pieces::Move> expectedMoves;
-    std::vector<Pieces::Move::Type> moveTypes = {Pieces::Move::Type::DISPLACEMENT,
-                                                 Pieces::Move::Type::CAPTURE};
-    for (const auto &moveType : moveTypes) {
-        std::vector<Pieces::Move> newMoves = {
-            // Bottom Left Diagonal
-            Pieces::Move::createMove(&bishop, initial, Position(row - 1, column - 1), moveType),
-            Pieces::Move::createMove(&bishop, initial, Position(row - 2, column - 2), moveType),
-            Pieces::Move::createMove(&bishop, initial, Position(row + 1, column + 1), moveType),
-            Pieces::Move::createMove(&bishop, initial, Position(row + 2, column + 2), moveType),
-            Pieces::Move::createMove(&bishop, initial, Position(row + 3, column + 3), moveType),
-            // Bottom Right Diagonal
-            Pieces::Move::createMove(&bishop, initial, Position(row + 1, column - 1), moveType),
-            Pieces::Move::createMove(&bishop, initial, Position(row + 2, column - 2), moveType),
-            Pieces::Move::createMove(&bishop, initial, Position(row - 1, column + 1), moveType),
-            Pieces::Move::createMove(&bishop, initial, Position(row - 2, column + 2), moveType),
-            Pieces::Move::createMove(&bishop, initial, Position(row - 3, column + 3), moveType),
-            Pieces::Move::createMove(&bishop, initial, Position(row - 4, column + 4), moveType)};
-        expectedMoves.insert(expectedMoves.end(), newMoves.begin(), newMoves.end());
-    }
+TEST_F(BishopTest, Moves_AvailableDisplacements) {
+    std::vector<Position> expectedPositions = {// DownLeft to TopRight
+                                               Position(0, 0), Position(1, 1), Position(2, 2),
+                                               Position(4, 4), Position(5, 5), Position(6, 6),
+                                               Position(7, 7),
+                                               // DownRight to TopLeft
+                                               Position(6, 0), Position(5, 1), Position(4, 2),
+                                               Position(2, 4), Position(1, 5), Position(0, 6)};
 
-    auto moves = bishop.moves(nRow, nColumn);
-    EXPECT_EQ(moves.size(), expectedMoves.size());
+    moves = bishop.moves(friendlies, nRow, nColumn, opponents);
 
-    for (const auto &move : moves) {
-        for (const auto &action : move.actions()) {
-            EXPECT_TRUE(Pieces::Piece::isInBounds(action.initial(), nRow, nColumn));
-            EXPECT_TRUE(Pieces::Piece::isInBounds(action.final(), nRow, nColumn));
-        }
-    }
-    for (const auto &expectedMove : expectedMoves) {
-        EXPECT_TRUE(moves.count(expectedMove));
+    EXPECT_EQ(moves.size(), expectedPositions.size());
+    for (const auto &position : expectedPositions) {
+        EXPECT_TRUE(moves.count(position));
+        EXPECT_TRUE(moves.at(position).type() == Pieces::Move::Type::DISPLACEMENT);
+        EXPECT_EQ(moves.at(position).actions().size(), 1);
+        EXPECT_TRUE(moves.at(position).actions()[0].piece() == bishop);
     }
 }
 
-TEST(BishopTest, Moves_WhenPieceAtTopLeft) {
-    int nRow = 8;
-    int nColumn = 8;
-    int row = nRow - 1;
-    int column = 0;
-    Pieces::Bishop bishop(Position(row, column));
-    Position initial = bishop.position();
-    std::vector<Pieces::Move> expectedMoves;
-    std::vector<Pieces::Move::Type> moveTypes = {Pieces::Move::Type::DISPLACEMENT,
-                                                 Pieces::Move::Type::CAPTURE};
-    for (const auto &moveType : moveTypes) {
-        std::vector<Pieces::Move> newMoves = {
-            // Bottom Left Diagonal: None
-            // Bottom Right Diagonal
-            Pieces::Move::createMove(&bishop, initial, Position(row - 1, column + 1), moveType),
-            Pieces::Move::createMove(&bishop, initial, Position(row - 2, column + 2), moveType),
-            Pieces::Move::createMove(&bishop, initial, Position(row - 3, column + 3), moveType),
-            Pieces::Move::createMove(&bishop, initial, Position(row - 4, column + 4), moveType),
-            Pieces::Move::createMove(&bishop, initial, Position(row - 5, column + 5), moveType),
-            Pieces::Move::createMove(&bishop, initial, Position(row - 6, column + 6), moveType),
-            Pieces::Move::createMove(&bishop, initial, Position(row - 7, column + 7), moveType)};
-        expectedMoves.insert(expectedMoves.end(), newMoves.begin(), newMoves.end());
+TEST_F(BishopTest, Moves_AvailableCaptures) {
+    std::vector<Position> displacementPositions = {
+        Position(4, 2),
+        Position(4, 4),
+        Position(5, 5),
+    };
+
+    std::vector<Position> opponentPositions = {Position(5, 1), Position(6, 6), Position(2, 4),
+                                               Position(2, 2)};
+    for (const auto &position : opponentPositions) {
+        addOpponentAt(position);
     }
 
-    auto moves = bishop.moves(nRow, nColumn);
-    EXPECT_EQ(moves.size(), expectedMoves.size());
+    moves = bishop.moves(friendlies, nRow, nColumn, opponents);
 
-    for (const auto &move : moves) {
-        for (const auto &action : move.actions()) {
-            EXPECT_TRUE(Pieces::Piece::isInBounds(action.initial(), nRow, nColumn));
-            EXPECT_TRUE(Pieces::Piece::isInBounds(action.final(), nRow, nColumn));
-        }
+    EXPECT_EQ(moves.size(), displacementPositions.size() + opponentPositions.size());
+    for (const auto &position : displacementPositions) {
+        EXPECT_TRUE(moves.count(position));
+        EXPECT_TRUE(moves.at(position).type() == Pieces::Move::Type::DISPLACEMENT);
+        EXPECT_EQ(moves.at(position).actions().size(), 1);
+        EXPECT_TRUE(moves.at(position).actions()[0].piece() == bishop);
     }
-    for (const auto &expectedMove : expectedMoves) {
-        EXPECT_TRUE(moves.count(expectedMove));
+    for (const auto &position : opponentPositions) {
+        EXPECT_TRUE(moves.count(position));
+        EXPECT_TRUE(moves.at(position).type() == Pieces::Move::Type::CAPTURE);
+        EXPECT_EQ(moves.at(position).actions().size(), 2);
+        EXPECT_TRUE(moves.at(position).actions()[0].piece() == bishop);
+        EXPECT_FALSE(moves.at(position).actions()[1].piece() == bishop);
     }
 }
 
-TEST(BishopTest, Moves_WhenPieceAtBottomRight) {
-    int nRow = 8;
-    int nColumn = 8;
-    int row = 0;
-    int column = nColumn - 1;
-    Pieces::Bishop bishop(Position(row, column));
-    Position initial = bishop.position();
-    std::vector<Pieces::Move> expectedMoves;
-    std::vector<Pieces::Move::Type> moveTypes = {Pieces::Move::Type::DISPLACEMENT,
-                                                 Pieces::Move::Type::CAPTURE};
-    for (const auto &moveType : moveTypes) {
-        std::vector<Pieces::Move> newMoves = {
-            // Bottom Left Diagonal: None
-            // Bottom Right Diagonal
-            Pieces::Move::createMove(&bishop, initial, Position(row + 1, column - 1), moveType),
-            Pieces::Move::createMove(&bishop, initial, Position(row + 2, column - 2), moveType),
-            Pieces::Move::createMove(&bishop, initial, Position(row + 3, column - 3), moveType),
-            Pieces::Move::createMove(&bishop, initial, Position(row + 4, column - 4), moveType),
-            Pieces::Move::createMove(&bishop, initial, Position(row + 5, column - 5), moveType),
-            Pieces::Move::createMove(&bishop, initial, Position(row + 6, column - 6), moveType),
-            Pieces::Move::createMove(&bishop, initial, Position(row + 7, column - 7), moveType)};
-        expectedMoves.insert(expectedMoves.end(), newMoves.begin(), newMoves.end());
+TEST_F(BishopTest, Moves_StopAtFriendlies) {
+    std::vector<Position> displacementPositions = {
+        Position(4, 2),
+        Position(4, 4),
+        Position(5, 5),
+    };
+
+    std::vector<Position> friendlyPositions = {Position(5, 1), Position(6, 6), Position(2, 4),
+                                               Position(2, 2)};
+    for (const auto &position : friendlyPositions) {
+        addFriendlyAt(position);
     }
 
-    auto moves = bishop.moves(nRow, nColumn);
-    EXPECT_EQ(moves.size(), expectedMoves.size());
+    moves = bishop.moves(friendlies, nRow, nColumn, opponents);
 
-    for (const auto &move : moves) {
-        for (const auto &action : move.actions()) {
-            EXPECT_TRUE(Pieces::Piece::isInBounds(action.initial(), nRow, nColumn));
-            EXPECT_TRUE(Pieces::Piece::isInBounds(action.final(), nRow, nColumn));
-        }
+    EXPECT_EQ(moves.size(), displacementPositions.size());
+    for (const auto &position : displacementPositions) {
+        EXPECT_TRUE(moves.count(position));
+        EXPECT_TRUE(moves.at(position).type() == Pieces::Move::Type::DISPLACEMENT);
+        EXPECT_EQ(moves.at(position).actions().size(), 1);
+        EXPECT_TRUE(moves.at(position).actions()[0].piece() == bishop);
     }
-    for (const auto &expectedMove : expectedMoves) {
-        EXPECT_TRUE(moves.count(expectedMove));
+}
+
+TEST_F(BishopTest, Moves_TopLeft) {
+    Position corner(nRow - 1, 0);
+    Position outOfBounds1(corner.row() + 1, corner.column());
+    Position outOfBounds2(corner.row(), corner.column() - 1);
+    bishop = Pieces::Bishop(corner);
+
+    std::vector<Position> displacementPositions = {// DownRight to TopLeft
+                                                   Position(6, 1), Position(5, 2), Position(4, 3),
+                                                   Position(3, 4), Position(2, 5), Position(1, 6),
+                                                   Position(0, 7)};
+
+    moves = bishop.moves(friendlies, nRow, nColumn, opponents);
+
+    EXPECT_TRUE(Pieces::Piece::isInBounds(bishop.position(), nRow, nColumn));
+    EXPECT_FALSE(Pieces::Piece::isInBounds(outOfBounds1, nRow, nColumn));
+    EXPECT_FALSE(Pieces::Piece::isInBounds(outOfBounds2, nRow, nColumn));
+
+    EXPECT_EQ(moves.size(), displacementPositions.size());
+    for (const auto &position : displacementPositions) {
+        EXPECT_TRUE(moves.count(position));
+        EXPECT_TRUE(moves.at(position).type() == Pieces::Move::Type::DISPLACEMENT);
+        EXPECT_EQ(moves.at(position).actions().size(), 1);
+        EXPECT_TRUE(moves.at(position).actions()[0].piece() == bishop);
+    }
+}
+
+TEST_F(BishopTest, Moves_BottomRight) {
+    Position corner(0, nColumn - 1);
+    Position outOfBounds1(corner.row() - 1, corner.column());
+    Position outOfBounds2(corner.row(), corner.column() + 1);
+    bishop = Pieces::Bishop(corner);
+
+    std::vector<Position> displacementPositions = {// DownRight to TopLeft
+                                                   Position(7, 0), Position(6, 1), Position(5, 2),
+                                                   Position(4, 3), Position(3, 4), Position(2, 5),
+                                                   Position(1, 6)};
+
+    moves = bishop.moves(friendlies, nRow, nColumn, opponents);
+
+    EXPECT_TRUE(Pieces::Piece::isInBounds(bishop.position(), nRow, nColumn));
+    EXPECT_FALSE(Pieces::Piece::isInBounds(outOfBounds1, nRow, nColumn));
+    EXPECT_FALSE(Pieces::Piece::isInBounds(outOfBounds2, nRow, nColumn));
+
+    EXPECT_EQ(moves.size(), displacementPositions.size());
+    for (const auto &position : displacementPositions) {
+        EXPECT_TRUE(moves.count(position));
+        EXPECT_TRUE(moves.at(position).type() == Pieces::Move::Type::DISPLACEMENT);
+        EXPECT_EQ(moves.at(position).actions().size(), 1);
+        EXPECT_TRUE(moves.at(position).actions()[0].piece() == bishop);
     }
 }

@@ -1,17 +1,17 @@
-#include <unordered_set>
-
 #include "model/pieces/pieces.hpp"
 
 namespace Pieces {
     Bishop::Bishop()
-        : Piece() {};
+        : Piece(Types::BISHOP) {};
     Bishop::Bishop(const Position &position)
-        : Piece(position) {};
+        : Piece(position, Types::BISHOP) {};
 
-    std::unordered_set<Move> &Bishop::_moves(std::unordered_set<Move> &moves, int &nRow,
-                                             int &nColumn) {
-        bottomLeftDiagonalMoves(moves, nRow, nColumn);
-        return bottomRightDiagonalMoves(moves, nRow, nColumn);
+    std::unordered_map<Position, Move> &Bishop::_moves(std::unordered_map<Position, Move> &moves,
+                                                       int &nRow, int &nColumn) {
+        std::pair<int, int> boundaries = {nRow, nColumn};
+        downLeftDiagonalMoves(moves, boundaries);
+        downRightDiagonalMoves(moves, boundaries);
+        return removeMovesOutsideBounds(moves, boundaries);
     };
 
 } // namespace Pieces
