@@ -1,17 +1,17 @@
-#include <unordered_set>
-
 #include "model/pieces/pieces.hpp"
 
 namespace Pieces {
     Rook::Rook()
-        : Piece() {};
+        : Piece(Types::ROOK) {};
     Rook::Rook(const Position &position)
-        : Piece(position) {};
+        : Piece(position, Types::ROOK) {};
 
-    std::unordered_set<Move> &Rook::_moves(std::unordered_set<Move> &moves, int &nRow,
-                                           int &nColumn) {
-        verticalMoves(moves, nRow);
-        return horizontalMoves(moves, nColumn);
+    std::unordered_map<Position, Move> &Rook::_moves(std::unordered_map<Position, Move> &moves,
+                                                     int &nRow, int &nColumn) {
+        std::pair<int, int> boundaries = {nRow, nColumn};
+        verticalMoves(moves, boundaries);
+        horizontalMoves(moves, boundaries);
+        return removeMovesOutsideBounds(moves, boundaries);
     };
 
 } // namespace Pieces
