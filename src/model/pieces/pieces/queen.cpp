@@ -2,15 +2,17 @@
 
 namespace Pieces {
     Queen::Queen()
-        : Piece() {};
+        : Piece(Types::QUEEN) {};
     Queen::Queen(const Position &position)
-        : Piece(position) {};
+        : Piece(position, Types::QUEEN) {};
 
-    std::unordered_set<Move> &Queen::_moves(std::unordered_set<Move> &moves, int &nRow,
-                                            int &nColumn) {
-        verticalMoves(moves, nRow);
-        horizontalMoves(moves, nColumn);
-        bottomLeftDiagonalMoves(moves, nRow, nColumn);
-        return bottomRightDiagonalMoves(moves, nRow, nColumn);
+    std::unordered_map<Position, Move> &Queen::_moves(std::unordered_map<Position, Move> &moves,
+                                                      int &nRow, int &nColumn) {
+        std::pair<int, int> boundaries = {nRow, nColumn};
+        verticalMoves(moves, boundaries);
+        horizontalMoves(moves, boundaries);
+        downLeftDiagonalMoves(moves, boundaries);
+        downRightDiagonalMoves(moves, boundaries);
+        return removeMovesOutsideBounds(moves, boundaries);
     };
 } // namespace Pieces

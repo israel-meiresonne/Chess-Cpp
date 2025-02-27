@@ -1,189 +1,172 @@
-
 #include <gtest/gtest.h>
 
-#include "model/pieces/pieces.hpp"
+#include <model/pieces/pieces.hpp>
+#include <model/pieces/pieces_test.hpp>
 
-TEST(QueenTest, DefaultConstructor) {
+using PiecesTest = ::Tests::Pieces::PiecesTest;
+using MockPiece1 = ::Tests::Pieces::MockPiece1;
+
+class QueenTest : public PiecesTest {
+  protected:
     Pieces::Queen queen;
+
+    void SetUp() override {
+        PiecesTest::SetUp();
+        queen = Pieces::Queen(initialPosition);
+    }
+};
+
+TEST_F(QueenTest, DefaultConstructor) {
+    Pieces::Queen queen;
+    EXPECT_EQ(queen.type(), Pieces::Types::QUEEN);
     EXPECT_EQ(typeid(queen.position()), typeid(Position));
     EXPECT_EQ(queen.nMoves(), 0);
 }
 
-TEST(QueenTest, ParameterizedConstructor) {
+TEST_F(QueenTest, ParameterizedConstructor) {
     Position pos(2, 3);
     Pieces::Queen queen(pos);
+    EXPECT_EQ(queen.type(), Pieces::Types::QUEEN);
     EXPECT_EQ(queen.position(), pos);
     EXPECT_EQ(queen.nMoves(), 0);
 }
 
-TEST(QueenTest, MovesEmpty) {
-    Pieces::Queen queen;
-    auto moves = queen.moves(0, 0);
+TEST_F(QueenTest, MovesEmpty) {
+    moves = queen.moves(friendlies, 0, 0, opponents);
     EXPECT_TRUE(moves.empty());
 }
 
-TEST(QueenTest, Moves_WhenPieceAtTheCenter) {
-    int nRow = 8;
-    int nColumn = 8;
-    int row = 4;
-    int column = 2;
-    Pieces::Queen queen(Position(row, column));
-    Position initial = queen.position();
-    std::vector<Pieces::Move> expectedMoves;
-    std::vector<Pieces::Move::Type> moveTypes = {Pieces::Move::Type::DISPLACEMENT,
-                                                 Pieces::Move::Type::CAPTURE};
-    for (const auto &moveType : moveTypes) {
-        std::vector<Pieces::Move> newMoves = {
-            // Vertical moves
-            Pieces::Move::createMove(&queen, initial, Position(row + 1, column), moveType),
-            Pieces::Move::createMove(&queen, initial, Position(row + 2, column), moveType),
-            Pieces::Move::createMove(&queen, initial, Position(row + 3, column), moveType),
-            Pieces::Move::createMove(&queen, initial, Position(row - 1, column), moveType),
-            Pieces::Move::createMove(&queen, initial, Position(row - 2, column), moveType),
-            Pieces::Move::createMove(&queen, initial, Position(row - 3, column), moveType),
-            Pieces::Move::createMove(&queen, initial, Position(row - 4, column), moveType),
-            // Horizontal moves
-            Pieces::Move::createMove(&queen, initial, Position(row, column + 1), moveType),
-            Pieces::Move::createMove(&queen, initial, Position(row, column + 2), moveType),
-            Pieces::Move::createMove(&queen, initial, Position(row, column + 3), moveType),
-            Pieces::Move::createMove(&queen, initial, Position(row, column + 4), moveType),
-            Pieces::Move::createMove(&queen, initial, Position(row, column + 5), moveType),
-            Pieces::Move::createMove(&queen, initial, Position(row, column - 1), moveType),
-            Pieces::Move::createMove(&queen, initial, Position(row, column - 2), moveType),
-            // Bottom Left Diagonal
-            Pieces::Move::createMove(&queen, initial, Position(row - 1, column - 1), moveType),
-            Pieces::Move::createMove(&queen, initial, Position(row - 2, column - 2), moveType),
-            Pieces::Move::createMove(&queen, initial, Position(row + 1, column + 1), moveType),
-            Pieces::Move::createMove(&queen, initial, Position(row + 2, column + 2), moveType),
-            Pieces::Move::createMove(&queen, initial, Position(row + 3, column + 3), moveType),
-            // Bottom Right Diagonal
-            Pieces::Move::createMove(&queen, initial, Position(row + 1, column - 1), moveType),
-            Pieces::Move::createMove(&queen, initial, Position(row + 2, column - 2), moveType),
-            Pieces::Move::createMove(&queen, initial, Position(row - 1, column + 1), moveType),
-            Pieces::Move::createMove(&queen, initial, Position(row - 2, column + 2), moveType),
-            Pieces::Move::createMove(&queen, initial, Position(row - 3, column + 3), moveType),
-            Pieces::Move::createMove(&queen, initial, Position(row - 4, column + 4), moveType)};
-        expectedMoves.insert(expectedMoves.end(), newMoves.begin(), newMoves.end());
-    }
+TEST_F(QueenTest, Moves_AvailableDisplacements) {
+    std::vector<Position> expectedPositions = {
+        // Rook moves
+        Position(4, 3), Position(5, 3), Position(6, 3), Position(7, 3), Position(2, 3),
+        Position(1, 3), Position(0, 3), Position(3, 4), Position(3, 5), Position(3, 6),
+        Position(3, 7), Position(3, 2), Position(3, 1), Position(3, 0),
+        // Bishop moves
+        Position(4, 4), Position(5, 5), Position(6, 6), Position(7, 7), Position(2, 2),
+        Position(1, 1), Position(0, 0), Position(2, 4), Position(1, 5), Position(0, 6),
+        Position(4, 2), Position(5, 1), Position(6, 0)};
 
-    auto moves = queen.moves(nRow, nColumn);
-    EXPECT_EQ(moves.size(), expectedMoves.size());
+    moves = queen.moves(friendlies, nRow, nColumn, opponents);
 
-    for (const auto &move : moves) {
-        for (const auto &action : move.actions()) {
-            EXPECT_TRUE(Pieces::Piece::isInBounds(action.initial(), nRow, nColumn));
-            EXPECT_TRUE(Pieces::Piece::isInBounds(action.final(), nRow, nColumn));
-        }
-    }
-    for (const auto &expectedMove : expectedMoves) {
-        EXPECT_TRUE(moves.count(expectedMove));
+    EXPECT_EQ(moves.size(), expectedPositions.size());
+    for (const auto &position : expectedPositions) {
+        EXPECT_TRUE(moves.count(position));
+        EXPECT_TRUE(moves.at(position).type() == Pieces::Move::Type::DISPLACEMENT);
+        EXPECT_EQ(moves.at(position).actions().size(), 1);
+        EXPECT_TRUE(moves.at(position).actions()[0].piece() == queen);
     }
 }
 
-TEST(QueenTest, Moves_WhenPieceAtTopLeft) {
-    int nRow = 8;
-    int nColumn = 8;
-    int row = nRow - 1;
-    int column = 0;
-    Pieces::Queen queen(Position(row, column));
-    Position initial = queen.position();
-    std::vector<Pieces::Move> expectedMoves;
-    std::vector<Pieces::Move::Type> moveTypes = {Pieces::Move::Type::DISPLACEMENT,
-                                                 Pieces::Move::Type::CAPTURE};
-    for (const auto &moveType : moveTypes) {
-        std::vector<Pieces::Move> newMoves = {
-            // Vertical moves
-            Pieces::Move::createMove(&queen, initial, Position(row - 1, column), moveType),
-            Pieces::Move::createMove(&queen, initial, Position(row - 2, column), moveType),
-            Pieces::Move::createMove(&queen, initial, Position(row - 3, column), moveType),
-            Pieces::Move::createMove(&queen, initial, Position(row - 4, column), moveType),
-            Pieces::Move::createMove(&queen, initial, Position(row - 5, column), moveType),
-            Pieces::Move::createMove(&queen, initial, Position(row - 6, column), moveType),
-            Pieces::Move::createMove(&queen, initial, Position(row - 7, column), moveType),
-            // Horizontal moves
-            Pieces::Move::createMove(&queen, initial, Position(row, column + 1), moveType),
-            Pieces::Move::createMove(&queen, initial, Position(row, column + 2), moveType),
-            Pieces::Move::createMove(&queen, initial, Position(row, column + 3), moveType),
-            Pieces::Move::createMove(&queen, initial, Position(row, column + 4), moveType),
-            Pieces::Move::createMove(&queen, initial, Position(row, column + 5), moveType),
-            Pieces::Move::createMove(&queen, initial, Position(row, column + 6), moveType),
-            Pieces::Move::createMove(&queen, initial, Position(row, column + 7), moveType),
-            // Bottom Left Diagonal: None
-            // Bottom Right Diagonal
-            Pieces::Move::createMove(&queen, initial, Position(row - 1, column + 1), moveType),
-            Pieces::Move::createMove(&queen, initial, Position(row - 2, column + 2), moveType),
-            Pieces::Move::createMove(&queen, initial, Position(row - 3, column + 3), moveType),
-            Pieces::Move::createMove(&queen, initial, Position(row - 4, column + 4), moveType),
-            Pieces::Move::createMove(&queen, initial, Position(row - 5, column + 5), moveType),
-            Pieces::Move::createMove(&queen, initial, Position(row - 6, column + 6), moveType),
-            Pieces::Move::createMove(&queen, initial, Position(row - 7, column + 7), moveType)};
-        expectedMoves.insert(expectedMoves.end(), newMoves.begin(), newMoves.end());
+TEST_F(QueenTest, Moves_AvailableCaptures) {
+    std::vector<Position> displacementPositions = {
+        Position(6, 0), Position(3, 0), Position(5, 1), Position(3, 1), Position(4, 2),
+        Position(3, 2), Position(4, 3), Position(2, 4), Position(3, 4), Position(4, 4),
+        Position(2, 3), Position(3, 5), Position(5, 5), Position(1, 3), Position(0, 3)};
+    std::vector<Position> opponentPositions = {Position(5, 3), Position(2, 2), Position(1, 5),
+                                               Position(3, 6), Position(6, 6)};
+
+    for (const auto &position : opponentPositions) {
+        addOpponentAt(position);
     }
 
-    auto moves = queen.moves(nRow, nColumn);
-    EXPECT_EQ(moves.size(), expectedMoves.size());
+    moves = queen.moves(friendlies, nRow, nColumn, opponents);
 
-    for (const auto &move : moves) {
-        for (const auto &action : move.actions()) {
-            EXPECT_TRUE(Pieces::Piece::isInBounds(action.initial(), nRow, nColumn));
-            EXPECT_TRUE(Pieces::Piece::isInBounds(action.final(), nRow, nColumn));
-        }
+    EXPECT_EQ(moves.size(), displacementPositions.size() + opponentPositions.size());
+    for (const auto &position : displacementPositions) {
+        EXPECT_TRUE(moves.count(position));
+        EXPECT_TRUE(moves.at(position).type() == Pieces::Move::Type::DISPLACEMENT);
+        EXPECT_EQ(moves.at(position).actions().size(), 1);
+        EXPECT_TRUE(moves.at(position).actions()[0].piece() == queen);
     }
-    for (const auto &expectedMove : expectedMoves) {
-        EXPECT_TRUE(moves.count(expectedMove));
+    for (const auto &position : opponentPositions) {
+        EXPECT_TRUE(moves.count(position));
+        EXPECT_TRUE(moves.at(position).type() == Pieces::Move::Type::CAPTURE);
+        EXPECT_EQ(moves.at(position).actions().size(), 2);
+        EXPECT_TRUE(moves.at(position).actions()[0].piece() == queen);
+        EXPECT_FALSE(moves.at(position).actions()[1].piece() == queen);
     }
 }
 
-TEST(QueenTest, Moves_WhenPieceAtBottomRight) {
-    int nRow = 8;
-    int nColumn = 8;
-    int row = 0;
-    int column = nColumn - 1;
-    Pieces::Queen queen(Position(row, column));
-    Position initial = queen.position();
-    std::vector<Pieces::Move> expectedMoves;
-    std::vector<Pieces::Move::Type> moveTypes = {Pieces::Move::Type::DISPLACEMENT,
-                                                 Pieces::Move::Type::CAPTURE};
-    for (const auto &moveType : moveTypes) {
-        std::vector<Pieces::Move> newMoves = {
-            // Vertical moves
-            Pieces::Move::createMove(&queen, initial, Position(row + 1, column), moveType),
-            Pieces::Move::createMove(&queen, initial, Position(row + 2, column), moveType),
-            Pieces::Move::createMove(&queen, initial, Position(row + 3, column), moveType),
-            Pieces::Move::createMove(&queen, initial, Position(row + 4, column), moveType),
-            Pieces::Move::createMove(&queen, initial, Position(row + 5, column), moveType),
-            Pieces::Move::createMove(&queen, initial, Position(row + 6, column), moveType),
-            Pieces::Move::createMove(&queen, initial, Position(row + 7, column), moveType),
-            // Horizontal moves
-            Pieces::Move::createMove(&queen, initial, Position(row, column - 1), moveType),
-            Pieces::Move::createMove(&queen, initial, Position(row, column - 2), moveType),
-            Pieces::Move::createMove(&queen, initial, Position(row, column - 3), moveType),
-            Pieces::Move::createMove(&queen, initial, Position(row, column - 4), moveType),
-            Pieces::Move::createMove(&queen, initial, Position(row, column - 5), moveType),
-            Pieces::Move::createMove(&queen, initial, Position(row, column - 6), moveType),
-            Pieces::Move::createMove(&queen, initial, Position(row, column - 7), moveType),
-            // Bottom Left Diagonal: None
-            // Bottom Right Diagonal
-            Pieces::Move::createMove(&queen, initial, Position(row + 1, column - 1), moveType),
-            Pieces::Move::createMove(&queen, initial, Position(row + 2, column - 2), moveType),
-            Pieces::Move::createMove(&queen, initial, Position(row + 3, column - 3), moveType),
-            Pieces::Move::createMove(&queen, initial, Position(row + 4, column - 4), moveType),
-            Pieces::Move::createMove(&queen, initial, Position(row + 5, column - 5), moveType),
-            Pieces::Move::createMove(&queen, initial, Position(row + 6, column - 6), moveType),
-            Pieces::Move::createMove(&queen, initial, Position(row + 7, column - 7), moveType)};
-        expectedMoves.insert(expectedMoves.end(), newMoves.begin(), newMoves.end());
+TEST_F(QueenTest, Moves_StopAtFriendlies) {
+    std::vector<Position> displacementPositions = {
+        Position(6, 0), Position(3, 0), Position(5, 1), Position(3, 1), Position(4, 2),
+        Position(3, 2), Position(4, 3), Position(2, 4), Position(3, 4), Position(4, 4),
+        Position(2, 3), Position(3, 5), Position(5, 5), Position(1, 3), Position(0, 3)};
+    std::vector<Position> friendlyPositions = {Position(5, 3), Position(2, 2), Position(1, 5),
+                                               Position(3, 6), Position(6, 6)};
+
+    for (const auto &position : friendlyPositions) {
+        addFriendlyAt(position);
     }
 
-    auto moves = queen.moves(nRow, nColumn);
-    EXPECT_EQ(moves.size(), expectedMoves.size());
+    moves = queen.moves(friendlies, nRow, nColumn, opponents);
 
-    for (const auto &move : moves) {
-        for (const auto &action : move.actions()) {
-            EXPECT_TRUE(Pieces::Piece::isInBounds(action.initial(), nRow, nColumn));
-            EXPECT_TRUE(Pieces::Piece::isInBounds(action.final(), nRow, nColumn));
-        }
+    EXPECT_EQ(moves.size(), displacementPositions.size());
+    for (const auto &position : displacementPositions) {
+        EXPECT_TRUE(moves.count(position));
+        EXPECT_TRUE(moves.at(position).type() == Pieces::Move::Type::DISPLACEMENT);
+        EXPECT_EQ(moves.at(position).actions().size(), 1);
+        EXPECT_TRUE(moves.at(position).actions()[0].piece() == queen);
     }
-    for (const auto &expectedMove : expectedMoves) {
-        EXPECT_TRUE(moves.count(expectedMove));
+}
+
+TEST_F(QueenTest, Moves_TopLeft) {
+    Position corner(nRow - 1, 0);
+    Position outOfBounds1(corner.row() + 1, corner.column());
+    Position outOfBounds2(corner.row(), corner.column() - 1);
+    queen = Pieces::Queen(corner);
+
+    std::vector<Position> displacementPositions = {
+        // Horizontal and Vertical (Rook-like moves)
+        Position(7, 1), Position(7, 2), Position(7, 3), Position(7, 4), Position(7, 5),
+        Position(7, 6), Position(7, 7), Position(6, 0), Position(5, 0), Position(4, 0),
+        Position(3, 0), Position(2, 0), Position(1, 0), Position(0, 0),
+        // Diagonal (Bishop-like moves)
+        Position(6, 1), Position(5, 2), Position(4, 3), Position(3, 4), Position(2, 5),
+        Position(1, 6), Position(0, 7)};
+
+    moves = queen.moves(friendlies, nRow, nColumn, opponents);
+
+    EXPECT_TRUE(Pieces::Piece::isInBounds(queen.position(), nRow, nColumn));
+    EXPECT_FALSE(Pieces::Piece::isInBounds(outOfBounds1, nRow, nColumn));
+    EXPECT_FALSE(Pieces::Piece::isInBounds(outOfBounds2, nRow, nColumn));
+
+    EXPECT_EQ(moves.size(), displacementPositions.size());
+    for (const auto &position : displacementPositions) {
+        EXPECT_TRUE(moves.count(position));
+        EXPECT_TRUE(moves.at(position).type() == Pieces::Move::Type::DISPLACEMENT);
+        EXPECT_EQ(moves.at(position).actions().size(), 1);
+        EXPECT_TRUE(moves.at(position).actions()[0].piece() == queen);
+    }
+}
+
+TEST_F(QueenTest, Moves_BottomRight) {
+    Position corner(0, nColumn - 1);
+    Position outOfBounds1(corner.row() - 1, corner.column());
+    Position outOfBounds2(corner.row(), corner.column() + 1);
+    queen = Pieces::Queen(corner);
+
+    std::vector<Position> displacementPositions = {
+        // Horizontal and Vertical (Rook-like moves)
+        Position(0, 0), Position(0, 1), Position(0, 2), Position(0, 3), Position(0, 4),
+        Position(0, 5), Position(0, 6), Position(1, 7), Position(2, 7), Position(3, 7),
+        Position(4, 7), Position(5, 7), Position(6, 7), Position(7, 7),
+        // Diagonal (Bishop-like moves)
+        Position(7, 0), Position(6, 1), Position(5, 2), Position(4, 3), Position(3, 4),
+        Position(2, 5), Position(1, 6)};
+
+    moves = queen.moves(friendlies, nRow, nColumn, opponents);
+
+    EXPECT_TRUE(Pieces::Piece::isInBounds(queen.position(), nRow, nColumn));
+    EXPECT_FALSE(Pieces::Piece::isInBounds(outOfBounds1, nRow, nColumn));
+    EXPECT_FALSE(Pieces::Piece::isInBounds(outOfBounds2, nRow, nColumn));
+
+    EXPECT_EQ(moves.size(), displacementPositions.size());
+    for (const auto &position : displacementPositions) {
+        EXPECT_TRUE(moves.count(position));
+        EXPECT_TRUE(moves.at(position).type() == Pieces::Move::Type::DISPLACEMENT);
+        EXPECT_EQ(moves.at(position).actions().size(), 1);
+        EXPECT_TRUE(moves.at(position).actions()[0].piece() == queen);
     }
 }
