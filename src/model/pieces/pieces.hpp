@@ -11,6 +11,31 @@
 #include "model/utils/templates.hpp"
 
 namespace Pieces {
+    class Types {
+      public:
+        enum class _Types { KING, QUEEN, ROOK, BISHOP, KNIGHT, PAWN, UNDEFINED };
+
+      public:
+        static const Types KING;
+        static const Types QUEEN;
+        static const Types ROOK;
+        static const Types BISHOP;
+        static const Types KNIGHT;
+        static const Types PAWN;
+        static const Types UNDEFINED;
+
+        explicit Types(_Types type = _Types::UNDEFINED);
+
+        operator std::string() const;
+
+        int hash() const;
+
+        bool operator==(const Types &other) const;
+
+      private:
+        _Types _type;
+    };
+
     class Piece {
       public:
         Piece();
