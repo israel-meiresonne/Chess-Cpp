@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "model/pieces/pieces.hpp"
+#include <model/pieces/pieces.hpp>
 
 TEST(MoveTypeTest, EnumValues) {
     EXPECT_EQ(static_cast<int>(Pieces::Move::Type::DISPLACEMENT), 0);
