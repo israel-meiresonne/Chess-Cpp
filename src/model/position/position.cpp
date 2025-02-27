@@ -18,7 +18,11 @@ bool Position::operator==(const Position &other) const {
     return _row == other._row && _column == other._column;
 }
 
-std::ostream &operator<<(std::ostream &os, const Position &pos) {
-    os << "Position(" << pos.row() << ", " << pos.column() << ")";
-    return os;
+Position::operator std::string() const {
+    return "Position(" + std::to_string(_row) + ", " + std::to_string(_column) + ")";
+}
+
+std::ostream &operator<<(std::ostream &os, const Position &position) {
+    std::string positionStr = position;
+    return os << positionStr;
 }

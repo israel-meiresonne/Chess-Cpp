@@ -20,7 +20,10 @@ class Position {
     int hash() const;
 
     bool operator==(const Position &other) const;
-    friend std::ostream &operator<<(std::ostream &os, const Position &pos);
+
+    operator std::string() const;
+
+    friend std::ostream &operator<<(std::ostream &os, const Position &position);
 };
 
 namespace std {
