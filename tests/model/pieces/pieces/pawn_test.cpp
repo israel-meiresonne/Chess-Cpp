@@ -1,200 +1,149 @@
 
 #include <gtest/gtest.h>
 
-#include "model/pieces/pieces.hpp"
+#include <model/pieces/pieces.hpp>
+#include <model/pieces/pieces_test.hpp>
 
-TEST(PawnTest, DefaultConstructor) {
+using PiecesTest = ::Tests::Pieces::PiecesTest;
+
+class PawnTest : public PiecesTest {
+  protected:
     Pieces::Pawn pawn;
+
+    void SetUp() override {
+        PiecesTest::SetUp();
+        pawn = Pieces::Pawn(initialPosition);
+    }
+
+    std::vector<Position> addOpponentsFrom(Position position) {
+        std::vector<Position> opponents;
+        Position opponentPosition1(position.row() + 1, position.column() - 1);
+        Position opponentPosition2(position.row() + 1, position.column() + 1);
+
+        opponents.push_back(opponentPosition1);
+        opponents.push_back(opponentPosition2);
+
+        for (auto &opponent : opponents) {
+            addOpponentAt(opponent);
+        }
+        return opponents;
+    }
+};
+
+TEST_F(PawnTest, DefaultConstructor) {
+    Pieces::Pawn pawn;
+    EXPECT_EQ(pawn.type(), Pieces::Types::PAWN);
     EXPECT_EQ(typeid(pawn.position()), typeid(Position));
     EXPECT_EQ(pawn.nMoves(), 0);
 }
 
-TEST(PawnTest, ParameterizedConstructor) {
+TEST_F(PawnTest, ParameterizedConstructor) {
     Position pos(2, 3);
     Pieces::Pawn pawn(pos);
+    EXPECT_EQ(pawn.type(), Pieces::Types::PAWN);
     EXPECT_EQ(pawn.position(), pos);
     EXPECT_EQ(pawn.nMoves(), 0);
 }
 
-TEST(PawnTest, MovesEmpty) {
-    Pieces::Pawn pawn;
-    auto moves = pawn.moves(0, 0);
+TEST_F(PawnTest, MovesEmpty) {
+    moves = pawn.moves(friendlies, 0, 0, opponents);
     EXPECT_TRUE(moves.empty());
 }
 
-TEST(PawnTest, FirstMoveCenter) {
-    int nRow = 8;
-    int nColumn = 8;
-    int row = 4;
-    int column = 4;
-    Pieces::Pawn pawn(Position(row, column));
-    Position initial = pawn.position();
+TEST_F(PawnTest, Moves_InitialMoveAllowsOneOrTwoSteps) {
+    int nRow = 8, nColumn = 8;
+    moves = pawn.moves(friendlies, nRow, nColumn, opponents);
 
-    std::vector<Pieces::Move> expectedMoves = {
-        Pieces::Move::createMove(&pawn, initial, Position(row + 1, column),
-                                 Pieces::Move::Type::DISPLACEMENT),
-        Pieces::Move::createMove(&pawn, initial, Position(row + 2, column),
-                                 Pieces::Move::Type::DISPLACEMENT),
-        Pieces::Move::createMove(&pawn, initial, Position(row + 1, column - 1),
-                                 Pieces::Move::Type::CAPTURE),
-        Pieces::Move::createMove(&pawn, initial, Position(row + 1, column + 1),
-                                 Pieces::Move::Type::CAPTURE)};
+    Position oneStep(4, 3);
+    Position twoSteps(5, 3);
 
-    auto moves = pawn.moves(nRow, nColumn);
-    EXPECT_EQ(moves.size(), expectedMoves.size());
+    EXPECT_EQ(moves.size(), 2);
+    EXPECT_TRUE(moves.count(oneStep));
+    EXPECT_TRUE(moves.count(twoSteps));
+}
 
-    for (const auto &move : moves) {
-        for (const auto &action : move.actions()) {
-            EXPECT_TRUE(Pieces::Piece::isInBounds(action.initial(), nRow, nColumn));
-            EXPECT_TRUE(Pieces::Piece::isInBounds(action.final(), nRow, nColumn));
-        }
-    }
-    for (const auto &expectedMove : expectedMoves) {
-        EXPECT_TRUE(moves.count(expectedMove));
+TEST_F(PawnTest, Moves_MoveRestrictedAfterFirstMove) {
+    int nRow = 8, nColumn = 8;
+    Position firstFinalPosition(4, 3);
+    Position secondFinalPosition(5, 3);
+
+    pawn.move(firstFinalPosition);
+    moves = pawn.moves(friendlies, nRow, nColumn, opponents);
+
+    EXPECT_EQ(moves.size(), 1);
+    EXPECT_TRUE(moves.count(secondFinalPosition));
+}
+
+TEST_F(PawnTest, Moves_CaptureMoveAvailable) {
+    int nRow = 8, nColumn = 8;
+    Position oneStep(4, 3);
+    Position twoSteps(5, 3);
+    auto opponentPositions = addOpponentsFrom(pawn.position());
+
+    moves = pawn.moves(friendlies, nRow, nColumn, opponents);
+
+    EXPECT_EQ(moves.size(), 4);
+    EXPECT_TRUE(moves.count(oneStep));
+    EXPECT_TRUE(moves.count(twoSteps));
+    for (auto &opponentPosition : opponentPositions) {
+        EXPECT_TRUE(moves.count(opponentPosition));
     }
 }
 
-TEST(PawnTest, FirstMoves_WhenPieceAtTopLeft) {
-    int nRow = 8;
-    int nColumn = 8;
-    int row = nRow - 1;
-    int column = 0;
-    Pieces::Pawn pawn(Position(row, column));
+TEST_F(PawnTest, Moves_CannotMoveThroughPiece) {
+    int nRow = 8, nColumn = 8;
+    Position twoSteps(5, 3);
+    Position blockingPosition(4, 3);
+    Pieces::Pawn blocker(blockingPosition);
+    friendlies[blockingPosition] = blocker;
 
-    Position initial = pawn.position();
-    Position outsideCornerTop(pawn.position().row() + 1, pawn.position().column());
-    Position outsideCornerLeft(pawn.position().row(), pawn.position().column() - 1);
+    moves = pawn.moves(friendlies, nRow, nColumn, opponents);
 
-    auto moves = pawn.moves(nRow, nColumn);
+    EXPECT_EQ(moves.size(), 0);
+    EXPECT_FALSE(moves.count(twoSteps));
+}
+
+TEST_F(PawnTest, Moves_TopLeft) {
+    int nRow = 8, nColumn = 8;
+    Position corner(nRow - 1, 0);
+    Position outOfBounds1(corner.row() + 1, corner.column());
+    Position outOfBounds2(corner.row(), corner.column() - 1);
+
+    Pieces::Pawn pawn(corner);
+    addOpponentsFrom(pawn.position());
+
+    moves = pawn.moves(friendlies, nRow, nColumn, opponents);
 
     EXPECT_TRUE(Pieces::Piece::isInBounds(pawn.position(), nRow, nColumn));
-    EXPECT_FALSE(Pieces::Piece::isInBounds(outsideCornerTop, nRow, nColumn));
-    EXPECT_FALSE(Pieces::Piece::isInBounds(outsideCornerLeft, nRow, nColumn));
+    EXPECT_FALSE(Pieces::Piece::isInBounds(outOfBounds1, nRow, nColumn));
+    EXPECT_FALSE(Pieces::Piece::isInBounds(outOfBounds2, nRow, nColumn));
 
     EXPECT_EQ(moves.size(), 0);
 }
 
-TEST(PawnTest, FirstMoves_WhenPieceAtBottomRight) {
-    int nRow = 8;
-    int nColumn = 8;
-    int row = 0;
-    int column = nColumn - 1;
-    Pieces::Pawn pawn(Position(row, column));
+TEST_F(PawnTest, Moves_BottomRight) {
+    int nRow = 8, nColumn = 8;
+    Position corner(0, nColumn - 1);
+    Position outOfBounds1(corner.row() - 1, corner.column());
+    Position outOfBounds2(corner.row(), corner.column() + 1);
 
-    Position initial = pawn.position();
-    Position outsideCornerBottom(pawn.position().row() - 1, pawn.position().column());
-    Position outsideCornerRight(pawn.position().row(), pawn.position().column() + 1);
+    Pieces::Pawn pawn(corner);
+    addOpponentsFrom(pawn.position());
 
-    std::vector<Pieces::Move> expectedMoves = {
-        Pieces::Move::createMove(&pawn, initial, Position(row + 1, column),
-                                 Pieces::Move::Type::DISPLACEMENT),
-        Pieces::Move::createMove(&pawn, initial, Position(row + 2, column),
-                                 Pieces::Move::Type::DISPLACEMENT),
-        Pieces::Move::createMove(&pawn, initial, Position(row + 1, column - 1),
-                                 Pieces::Move::Type::CAPTURE)};
+    Position opponentPosition1(1, 6);
+    Position opponentPosition2(1, nRow);
+    Position oneStep(1, 7);
+    Position twoSteps(2, 7);
 
-    auto moves = pawn.moves(nRow, nColumn);
+    moves = pawn.moves(friendlies, nRow, nColumn, opponents);
 
     EXPECT_TRUE(Pieces::Piece::isInBounds(pawn.position(), nRow, nColumn));
-    EXPECT_FALSE(Pieces::Piece::isInBounds(outsideCornerBottom, nRow, nColumn));
-    EXPECT_FALSE(Pieces::Piece::isInBounds(outsideCornerRight, nRow, nColumn));
+    EXPECT_FALSE(Pieces::Piece::isInBounds(outOfBounds1, nRow, nColumn));
+    EXPECT_FALSE(Pieces::Piece::isInBounds(outOfBounds2, nRow, nColumn));
 
-    EXPECT_EQ(moves.size(), expectedMoves.size());
-    for (const auto &move : moves) {
-        for (const auto &action : move.actions()) {
-            EXPECT_TRUE(Pieces::Piece::isInBounds(action.initial(), nRow, nColumn));
-            EXPECT_TRUE(Pieces::Piece::isInBounds(action.final(), nRow, nColumn));
-        }
-    }
-    for (const auto &expectedMove : expectedMoves) {
-        EXPECT_TRUE(moves.count(expectedMove));
-    }
-}
-
-TEST(PawnTest, NotFirstMoveCenter) {
-    int nRow = 8;
-    int nColumn = 8;
-    int row = 4;
-    int column = 4;
-    Pieces::Pawn pawn(Position(row, column));
-    Position initial = pawn.position();
-
-    std::vector<Pieces::Move> expectedMoves = {
-        Pieces::Move::createMove(&pawn, initial, Position(row + 1, column),
-                                 Pieces::Move::Type::DISPLACEMENT),
-        Pieces::Move::createMove(&pawn, initial, Position(row + 1, column - 1),
-                                 Pieces::Move::Type::CAPTURE),
-        Pieces::Move::createMove(&pawn, initial, Position(row + 1, column + 1),
-                                 Pieces::Move::Type::CAPTURE)};
-
-    pawn.move(pawn.position());
-    auto moves = pawn.moves(nRow, nColumn);
-
-    EXPECT_EQ(moves.size(), expectedMoves.size());
-    for (const auto &move : moves) {
-        for (const auto &action : move.actions()) {
-            EXPECT_TRUE(Pieces::Piece::isInBounds(action.initial(), nRow, nColumn));
-            EXPECT_TRUE(Pieces::Piece::isInBounds(action.final(), nRow, nColumn));
-        }
-    }
-    for (const auto &expectedMove : expectedMoves) {
-        EXPECT_TRUE(moves.count(expectedMove));
-    }
-}
-
-TEST(PawnTest, NotFirstMoves_WhenPieceAtTopLeft) {
-    int nRow = 8;
-    int nColumn = 8;
-    int row = nRow - 1;
-    int column = 0;
-    Pieces::Pawn pawn(Position(row, column));
-
-    Position initial = pawn.position();
-    Position outsideCornerTop(pawn.position().row() + 1, pawn.position().column());
-    Position outsideCornerLeft(pawn.position().row(), pawn.position().column() - 1);
-
-    pawn.move(pawn.position());
-    auto moves = pawn.moves(nRow, nColumn);
-
-    EXPECT_TRUE(Pieces::Piece::isInBounds(pawn.position(), nRow, nColumn));
-    EXPECT_FALSE(Pieces::Piece::isInBounds(outsideCornerTop, nRow, nColumn));
-    EXPECT_FALSE(Pieces::Piece::isInBounds(outsideCornerLeft, nRow, nColumn));
-
-    EXPECT_EQ(moves.size(), 0);
-}
-
-TEST(PawnTest, NotFirstMoves_WhenPieceAtBottomRight) {
-    int nRow = 8;
-    int nColumn = 8;
-    int row = 0;
-    int column = nColumn - 1;
-    Pieces::Pawn pawn(Position(row, column));
-
-    Position initial = pawn.position();
-    Position outsideCornerBottom(pawn.position().row() - 1, pawn.position().column());
-    Position outsideCornerRight(pawn.position().row(), pawn.position().column() + 1);
-
-    std::vector<Pieces::Move> expectedMoves = {
-        Pieces::Move::createMove(&pawn, initial, Position(row + 1, column),
-                                 Pieces::Move::Type::DISPLACEMENT),
-        Pieces::Move::createMove(&pawn, initial, Position(row + 1, column - 1),
-                                 Pieces::Move::Type::CAPTURE)};
-
-    pawn.move(pawn.position());
-    auto moves = pawn.moves(nRow, nColumn);
-
-    EXPECT_TRUE(Pieces::Piece::isInBounds(pawn.position(), nRow, nColumn));
-    EXPECT_FALSE(Pieces::Piece::isInBounds(outsideCornerBottom, nRow, nColumn));
-    EXPECT_FALSE(Pieces::Piece::isInBounds(outsideCornerRight, nRow, nColumn));
-
-    EXPECT_EQ(moves.size(), expectedMoves.size());
-    for (const auto &move : moves) {
-        for (const auto &action : move.actions()) {
-            EXPECT_TRUE(Pieces::Piece::isInBounds(action.initial(), nRow, nColumn));
-            EXPECT_TRUE(Pieces::Piece::isInBounds(action.final(), nRow, nColumn));
-        }
-    }
-    for (const auto &expectedMove : expectedMoves) {
-        EXPECT_TRUE(moves.count(expectedMove));
-    }
+    EXPECT_EQ(moves.size(), 3);
+    EXPECT_TRUE(moves.count(oneStep));
+    EXPECT_TRUE(moves.count(twoSteps));
+    EXPECT_TRUE(moves.count(opponentPosition1));
+    EXPECT_FALSE(moves.count(opponentPosition2));
 }

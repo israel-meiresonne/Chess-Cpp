@@ -1,67 +1,63 @@
 #include "model/pieces/pieces.hpp"
 
 namespace Pieces {
-
     Pawn::Pawn()
-        : Piece() {}
-
+        : Piece(Types::PAWN) {}
     Pawn::Pawn(const Position &position)
-        : Piece(position) {}
+        : Piece(position, Types::PAWN) {}
 
-    std::unordered_set<Move> &Pawn::_moves(std::unordered_set<Move> &moves, int &nRow,
-                                           int &nColumn) {
+    std::unordered_map<Position, Move> &Pawn::_moves(std::unordered_map<Position, Move> &moves,
+                                                     int &nRow, int &nColumn) {
+        std::pair<int, int> boundaries = {nRow, nColumn};
+        return allMoves(moves, boundaries);
+    }
+
+    std::unordered_map<Position, Move> &Pawn::allMoves(std::unordered_map<Position, Move> &moves,
+                                                       std::pair<int, int> boundaries) {
+        std::unordered_map<Position, Move> captures = captureMoves(boundaries);
+        int nRow = boundaries.first, nColumn = boundaries.second;
+
         Position initialPosition = position();
-        addCaptureMoves(initialPosition, nRow, nColumn, moves);
-        if (nMoves() == 0) return addFirstMoves(initialPosition, nRow, nColumn, moves);
+        int initialRow = initialPosition.row();
+        int initialColumn = initialPosition.column();
 
-        return addNotFirstMoves(initialPosition, nRow, nColumn, moves);
+        int maxDisplacement = (nMoves() == 0) ? 2 : 1;
+        Position endDisplacement(initialRow + maxDisplacement, initialColumn);
+
+        genMovesInDirection(moves, endDisplacement, Move::Direction::UP, captures);
+        completeCaptureMoves(moves, captures);
+        return removeMovesOutsideBounds(moves, boundaries);
     }
 
-    std::unordered_set<Move> &Pawn::addNotFirstMoves(const Position &initialPosition, int nRow,
-                                                     int nColumn, std::unordered_set<Move> &moves) {
-        int newRow = initialPosition.row() + 1;
-        int newColumn = initialPosition.column();
-        Position newPosition(newRow, newColumn);
-        if (!isInBounds(newPosition, nRow, nColumn)) return moves;
-
-        Action action(this, initialPosition, newPosition);
-        Move move;
-        move.add(action);
-        moves.insert(move);
-        return moves;
-    }
-
-    std::unordered_set<Move> &Pawn::addCaptureMoves(const Position &initialPosition, int nRow,
-                                                    int nColumn, std::unordered_set<Move> &moves) {
-        int newRow = initialPosition.row() + 1;
-        int column = initialPosition.column();
-        std::vector<Position> capturePositions = {Position(newRow, column - 1),
-                                                  Position(newRow, column + 1)};
+    std::unordered_map<Position, Move> Pawn::captureMoves(std::pair<int, int> boundaries) {
+        std::unordered_map<Position, Move> moves;
+        int nRow = boundaries.first, nColumn = boundaries.second;
+        Position initialPosition = position();
+        int initialRow = initialPosition.row();
+        int initialColumn = initialPosition.column();
+        std::vector<Position> capturePositions = {Position(initialRow + 1, initialColumn - 1),
+                                                  Position(initialRow + 1, initialColumn + 1)};
 
         for (const Position &capturePosition : capturePositions) {
             if (!isInBounds(capturePosition, nRow, nColumn)) continue;
 
-            Action action(this, initialPosition, capturePosition);
-            Move move(Move::Type::CAPTURE);
-            move.add(action);
-            moves.insert(move);
+            moves[capturePosition] =
+                Move::createMove(*this, initialPosition, capturePosition, Move::Type::CAPTURE);
         }
         return moves;
     }
 
-    std::unordered_set<Move> &Pawn::addFirstMoves(const Position &initialPosition, int nRow,
-                                                  int nColumn, std::unordered_set<Move> &moves) {
-        for (int n = 1; n <= 2; ++n) {
-            int newRow = initialPosition.row() + n;
-            int newColumn = initialPosition.column();
-            Position newPosition(newRow, newColumn);
+    std::unordered_map<Position, Move> &
+    Pawn::completeCaptureMoves(std::unordered_map<Position, Move> &moves,
+                               std::unordered_map<Position, Move> &captures) {
+        const std::unordered_map<Position, Piece> &opponents = this->opponents();
+        for (auto &[finalPosition, capture] : captures) {
+            if (!opponents.count(finalPosition)) continue;
 
-            if (!isInBounds(newPosition, nRow, nColumn)) break;
-
-            Action action(this, initialPosition, newPosition);
-            Move move;
-            move.add(action);
-            moves.insert(move);
+            const Piece &opponent = opponents.at(finalPosition);
+            Position opponentPosition = opponent.position();
+            Move::addAction(capture, opponent, opponentPosition);
+            moves[opponentPosition] = capture;
         }
         return moves;
     }
