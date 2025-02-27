@@ -15,7 +15,7 @@ run_main() {
 run_tests() {
   test_files=$(_clean_var "$1" "")
 
-  headers_src="-I./src -I./libs/googletest/include -I./libs/googletest"
+  headers_src="-I./src -I./tests -I./libs/googletest/include -I./libs/googletest"
   gtest_src='./libs/googletest/src/gtest-all.cc'
   built_binary='./builds/main_test'
 
