@@ -1,123 +1,150 @@
 
 #include <gtest/gtest.h>
 
-#include "model/pieces/pieces.hpp"
+#include <model/pieces/pieces.hpp>
+#include <model/pieces/pieces_test.hpp>
 
-TEST(KnightTest, DefaultConstructor) {
+using PiecesTest = ::Tests::Pieces::PiecesTest;
+using MockPiece1 = ::Tests::Pieces::MockPiece1;
+
+class KnightTest : public PiecesTest {
+  protected:
     Pieces::Knight knight;
+
+    void SetUp() override {
+        PiecesTest::SetUp();
+        knight = Pieces::Knight(initialPosition);
+    }
+};
+
+TEST_F(KnightTest, DefaultConstructor) {
+    Pieces::Knight knight;
+    EXPECT_EQ(knight.type(), Pieces::Types::KNIGHT);
     EXPECT_EQ(typeid(knight.position()), typeid(Position));
     EXPECT_EQ(knight.nMoves(), 0);
 }
 
-TEST(KnightTest, ParameterizedConstructor) {
+TEST_F(KnightTest, ParameterizedConstructor) {
     Position pos(2, 3);
     Pieces::Knight knight(pos);
+    EXPECT_EQ(knight.type(), Pieces::Types::KNIGHT);
     EXPECT_EQ(knight.position(), pos);
     EXPECT_EQ(knight.nMoves(), 0);
 }
 
-TEST(KnightTest, MovesEmpty) {
-    Pieces::Knight knight;
-    auto moves = knight.moves(0, 0);
+TEST_F(KnightTest, MovesEmpty) {
+    moves = knight.moves(friendlies, 0, 0, opponents);
     EXPECT_TRUE(moves.empty());
 }
 
-TEST(KnightTest, Moves_WhenPieceAtTheCenter) {
-    int nRow = 8;
-    int nColumn = 8;
-    int row = 3;
-    int column = 3;
-    Pieces::Knight knight(Position(row, column));
-    Position initial = knight.position();
-    std::vector<Pieces::Move> expectedMoves;
-    std::vector<Pieces::Move::Type> moveTypes = {Pieces::Move::Type::DISPLACEMENT,
-                                                 Pieces::Move::Type::CAPTURE};
-    for (const auto &moveType : moveTypes) {
-        std::vector<Pieces::Move> newMoves = {
-            Pieces::Move::createMove(&knight, initial, Position(row + 2, column + 1), moveType),
-            Pieces::Move::createMove(&knight, initial, Position(row + 2, column - 1), moveType),
-            Pieces::Move::createMove(&knight, initial, Position(row - 2, column + 1), moveType),
-            Pieces::Move::createMove(&knight, initial, Position(row - 2, column - 1), moveType),
+TEST_F(KnightTest, Moves_AvailableDisplacements) {
+    std::vector<Position> expectedPositions = {Position(5, 2), Position(5, 4), Position(4, 5),
+                                               Position(2, 5), Position(1, 4), Position(1, 2),
+                                               Position(2, 1), Position(4, 1)};
 
-            Pieces::Move::createMove(&knight, initial, Position(row + 1, column + 2), moveType),
-            Pieces::Move::createMove(&knight, initial, Position(row - 1, column + 2), moveType),
-            Pieces::Move::createMove(&knight, initial, Position(row + 1, column - 2), moveType),
-            Pieces::Move::createMove(&knight, initial, Position(row - 1, column - 2), moveType)};
-        expectedMoves.insert(expectedMoves.end(), newMoves.begin(), newMoves.end());
-    }
+    moves = knight.moves(friendlies, nRow, nColumn, opponents);
 
-    auto moves = knight.moves(nRow, nColumn);
-    EXPECT_EQ(moves.size(), expectedMoves.size());
-
-    for (const auto &move : moves) {
-        for (const auto &action : move.actions()) {
-            EXPECT_TRUE(Pieces::Piece::isInBounds(action.initial(), nRow, nColumn));
-            EXPECT_TRUE(Pieces::Piece::isInBounds(action.final(), nRow, nColumn));
-        }
-    }
-    for (const auto &expectedMove : expectedMoves) {
-        EXPECT_TRUE(moves.count(expectedMove));
+    EXPECT_EQ(moves.size(), expectedPositions.size());
+    for (const auto &position : expectedPositions) {
+        EXPECT_TRUE(moves.count(position));
+        EXPECT_TRUE(moves.at(position).type() == Pieces::Move::Type::DISPLACEMENT);
+        EXPECT_EQ(moves.at(position).actions().size(), 1);
+        EXPECT_TRUE(moves.at(position).actions()[0].piece() == knight);
     }
 }
 
-TEST(KnightTest, Moves_WhenPieceAtTopLeft) {
-    int nRow = 8;
-    int nColumn = 8;
-    int row = nRow - 1;
-    int column = 0;
-    Pieces::Knight knight(Position(row, column));
-    Position initial = knight.position();
-    std::vector<Pieces::Move> expectedMoves;
-    std::vector<Pieces::Move::Type> moveTypes = {Pieces::Move::Type::DISPLACEMENT,
-                                                 Pieces::Move::Type::CAPTURE};
-    for (const auto &moveType : moveTypes) {
-        std::vector<Pieces::Move> newMoves = {
-            Pieces::Move::createMove(&knight, initial, Position(row - 2, column + 1), moveType),
-            Pieces::Move::createMove(&knight, initial, Position(row - 1, column + 2), moveType)};
-        expectedMoves.insert(expectedMoves.end(), newMoves.begin(), newMoves.end());
+TEST_F(KnightTest, Moves_AvailableCaptures) {
+    std::vector<Position> displacementPositions = {Position(5, 4), Position(4, 5), Position(1, 2),
+                                                   Position(4, 1)};
+
+    std::vector<Position> opponentPositions = {Position(5, 2), Position(2, 5), Position(1, 4),
+                                               Position(2, 1)};
+
+    for (const auto &position : opponentPositions) {
+        addOpponentAt(position);
     }
 
-    auto moves = knight.moves(nRow, nColumn);
-    EXPECT_EQ(moves.size(), expectedMoves.size());
+    moves = knight.moves(friendlies, nRow, nColumn, opponents);
 
-    for (const auto &move : moves) {
-        for (const auto &action : move.actions()) {
-            EXPECT_TRUE(Pieces::Piece::isInBounds(action.initial(), nRow, nColumn));
-            EXPECT_TRUE(Pieces::Piece::isInBounds(action.final(), nRow, nColumn));
-        }
+    EXPECT_EQ(moves.size(), displacementPositions.size() + opponentPositions.size());
+    for (const auto &position : displacementPositions) {
+        EXPECT_TRUE(moves.count(position));
+        EXPECT_TRUE(moves.at(position).type() == Pieces::Move::Type::DISPLACEMENT);
+        EXPECT_EQ(moves.at(position).actions().size(), 1);
+        EXPECT_TRUE(moves.at(position).actions()[0].piece() == knight);
     }
-    for (const auto &expectedMove : expectedMoves) {
-        EXPECT_TRUE(moves.count(expectedMove));
+    for (const auto &position : opponentPositions) {
+        EXPECT_TRUE(moves.count(position));
+        EXPECT_TRUE(moves.at(position).type() == Pieces::Move::Type::CAPTURE);
+        EXPECT_EQ(moves.at(position).actions().size(), 2);
+        EXPECT_TRUE(moves.at(position).actions()[0].piece() == knight);
+        EXPECT_FALSE(moves.at(position).actions()[1].piece() == knight);
     }
 }
 
-TEST(KnightTest, Moves_WhenPieceAtBottomRight) {
-    int nRow = 8;
-    int nColumn = 8;
-    int row = 0;
-    int column = nColumn - 1;
-    Pieces::Knight knight(Position(row, column));
-    Position initial = knight.position();
-    std::vector<Pieces::Move> expectedMoves;
-    std::vector<Pieces::Move::Type> moveTypes = {Pieces::Move::Type::DISPLACEMENT,
-                                                 Pieces::Move::Type::CAPTURE};
-    for (const auto &moveType : moveTypes) {
-        std::vector<Pieces::Move> newMoves = {
-            Pieces::Move::createMove(&knight, initial, Position(row + 2, column - 1), moveType),
-            Pieces::Move::createMove(&knight, initial, Position(row + 1, column - 2), moveType)};
-        expectedMoves.insert(expectedMoves.end(), newMoves.begin(), newMoves.end());
+TEST_F(KnightTest, Moves_StopAtFriendlies) {
+    std::vector<Position> displacementPositions = {Position(5, 4), Position(4, 5), Position(1, 2),
+                                                   Position(4, 1)};
+    std::vector<Position> friendlyPositions = {Position(5, 2), Position(2, 5), Position(1, 4),
+                                               Position(2, 1)};
+
+    for (const auto &position : friendlyPositions) {
+        addFriendlyAt(position);
     }
 
-    auto moves = knight.moves(nRow, nColumn);
-    EXPECT_EQ(moves.size(), expectedMoves.size());
+    moves = knight.moves(friendlies, nRow, nColumn, opponents);
 
-    for (const auto &move : moves) {
-        for (const auto &action : move.actions()) {
-            EXPECT_TRUE(Pieces::Piece::isInBounds(action.initial(), nRow, nColumn));
-            EXPECT_TRUE(Pieces::Piece::isInBounds(action.final(), nRow, nColumn));
-        }
+    EXPECT_EQ(moves.size(), displacementPositions.size());
+    for (const auto &position : displacementPositions) {
+        EXPECT_TRUE(moves.count(position));
+        EXPECT_TRUE(moves.at(position).type() == Pieces::Move::Type::DISPLACEMENT);
+        EXPECT_EQ(moves.at(position).actions().size(), 1);
+        EXPECT_TRUE(moves.at(position).actions()[0].piece() == knight);
     }
-    for (const auto &expectedMove : expectedMoves) {
-        EXPECT_TRUE(moves.count(expectedMove));
+}
+
+TEST_F(KnightTest, Moves_TopLeft) {
+    Position corner(nRow - 1, 0);
+    Position outOfBounds1(corner.row() + 1, corner.column());
+    Position outOfBounds2(corner.row(), corner.column() - 1);
+    knight = Pieces::Knight(corner);
+
+    std::vector<Position> displacementPositions = {Position(6, 2), Position(5, 1)};
+
+    moves = knight.moves(friendlies, nRow, nColumn, opponents);
+
+    EXPECT_TRUE(Pieces::Piece::isInBounds(knight.position(), nRow, nColumn));
+    EXPECT_FALSE(Pieces::Piece::isInBounds(outOfBounds1, nRow, nColumn));
+    EXPECT_FALSE(Pieces::Piece::isInBounds(outOfBounds2, nRow, nColumn));
+
+    EXPECT_EQ(moves.size(), displacementPositions.size());
+    for (const auto &position : displacementPositions) {
+        EXPECT_TRUE(moves.count(position));
+        EXPECT_TRUE(moves.at(position).type() == Pieces::Move::Type::DISPLACEMENT);
+        EXPECT_EQ(moves.at(position).actions().size(), 1);
+        EXPECT_TRUE(moves.at(position).actions()[0].piece() == knight);
+    }
+}
+
+TEST_F(KnightTest, Moves_BottomRight) {
+    Position corner(0, nColumn - 1);
+    Position outOfBounds1(corner.row() - 1, corner.column());
+    Position outOfBounds2(corner.row(), corner.column() + 1);
+    knight = Pieces::Knight(corner);
+
+    std::vector<Position> displacementPositions = {Position(2, 6), Position(1, 5)};
+
+    moves = knight.moves(friendlies, nRow, nColumn, opponents);
+
+    EXPECT_TRUE(Pieces::Piece::isInBounds(knight.position(), nRow, nColumn));
+    EXPECT_FALSE(Pieces::Piece::isInBounds(outOfBounds1, nRow, nColumn));
+    EXPECT_FALSE(Pieces::Piece::isInBounds(outOfBounds2, nRow, nColumn));
+
+    EXPECT_EQ(moves.size(), displacementPositions.size());
+    for (const auto &position : displacementPositions) {
+        EXPECT_TRUE(moves.count(position));
+        EXPECT_TRUE(moves.at(position).type() == Pieces::Move::Type::DISPLACEMENT);
+        EXPECT_EQ(moves.at(position).actions().size(), 1);
+        EXPECT_TRUE(moves.at(position).actions()[0].piece() == knight);
     }
 }
