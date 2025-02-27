@@ -80,6 +80,7 @@ namespace Pieces {
             UP_RIGHT,
             DOWN_LEFT,
             DOWN_RIGHT,
+            CUSTOM,
             UNDEFINED = -1
         };
 
@@ -95,11 +96,15 @@ namespace Pieces {
 
         explicit Direction();
         explicit Direction(_Direction direction);
+        explicit Direction(int rowDiff, int columnDiff);
+        explicit Direction(Position initial, Position final);
 
         operator std::pair<int, int>() const;
 
       private:
         _Direction _direction;
+        int _rowDiff;
+        int _columnDiff;
     };
 
 } // namespace Pieces

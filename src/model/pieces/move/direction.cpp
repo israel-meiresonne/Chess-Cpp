@@ -12,9 +12,18 @@ namespace Pieces {
         Direction(Direction::_Direction::DOWN_RIGHT);
 
     Move::Direction::Direction()
-        : _direction(_Direction::UNDEFINED){};
+        : _direction(_Direction::UNDEFINED) {};
     Move::Direction::Direction(_Direction direction)
         : _direction(direction) {}
+    Move::Direction::Direction(int rowDiff, int columnDiff)
+        : _direction(_Direction::CUSTOM)
+        , _rowDiff(rowDiff)
+        , _columnDiff(columnDiff) {}
+    Move::Direction::Direction(Position initial, Position final)
+        : _direction(_Direction::CUSTOM) {
+        _rowDiff = final.row() - initial.row();
+        _columnDiff = final.column() - initial.column();
+    }
 
     Move::Direction::operator std::pair<int, int>() const {
         switch (_direction) {
@@ -34,6 +43,8 @@ namespace Pieces {
             return {-1, -1};
         case _Direction::DOWN_RIGHT:
             return {-1, 1};
+        case _Direction::CUSTOM:
+            return {_rowDiff, _columnDiff};
         default:
             throw std::runtime_error("Undefined direction: '" +
                                      std::to_string(static_cast<int>(_direction)) + "'");
