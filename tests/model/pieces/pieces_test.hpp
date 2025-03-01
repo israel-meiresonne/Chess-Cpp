@@ -27,18 +27,18 @@ namespace Tests {
                 return genCapturesInDirection(moves, end, direction);
             }
 
-            const std::unordered_map<Position, ::Pieces::Piece> &callFriendlies() {
+            std::unordered_map<Position, ::Pieces::Piece *> &callFriendlies() {
                 return friendlies();
             };
-            void
-            callSetFriendlies(const std::unordered_map<Position, ::Pieces::Piece> &friendlies) {
+
+            void callSetFriendlies(std::unordered_map<Position, ::Pieces::Piece *> &friendlies) {
                 this->friendlies(friendlies);
             };
 
-            const std::unordered_map<Position, ::Pieces::Piece> &callOpponents() {
+            std::unordered_map<Position, ::Pieces::Piece *> &callOpponents() {
                 return opponents();
             };
-            void callSetOpponents(const std::unordered_map<Position, ::Pieces::Piece> &opponents) {
+            void callSetOpponents(std::unordered_map<Position, ::Pieces::Piece *> &opponents) {
                 this->opponents(opponents);
             };
 
@@ -68,26 +68,41 @@ namespace Tests {
             int nRow;
             int nColumn;
             ::Position initialPosition;
+            ::Pieces::Piece *piece;
             std::unordered_map<::Position, ::Pieces::Move> moves;
-            std::unordered_map<::Position, ::Pieces::Piece> friendlies;
-            std::unordered_map<::Position, ::Pieces::Piece> opponents;
+            std::unordered_map<::Position, ::Pieces::Piece *> friendlies;
+            std::unordered_map<::Position, ::Pieces::Piece *> opponents;
 
             void SetUp() override {
                 boundaries = {8, 8};
                 nRow = boundaries.first;
                 nColumn = boundaries.second;
                 initialPosition = Position(3, 3);
+                piece = nullptr;
             }
 
             void TearDown() override {
+                for (auto &[position, piece] : opponents) {
+                    delete piece;
+                }
+                for (auto &[position, piece] : friendlies) {
+                    delete piece;
+                }
+                if (piece != nullptr) {
+                    delete piece;
+                }
                 friendlies.clear();
                 opponents.clear();
                 moves.clear();
             }
 
-            void addOpponentAt(::Position position) { opponents[position] = MockPiece1(position); }
+            void addOpponentAt(::Position position) {
+                opponents[position] = new MockPiece1(position);
+            }
 
-            void addFriendlyAt(::Position position) { friendlies[position] = MockPiece1(position); }
+            void addFriendlyAt(::Position position) {
+                friendlies[position] = new MockPiece1(position);
+            }
         };
 
     } // namespace Pieces

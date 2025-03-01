@@ -13,9 +13,11 @@ namespace Pieces {
         , _final(final) {}
 
     bool Action::isPieceNullptr() const { return _piece == nullptr; }
-    const Pieces::Piece &Action::piece() const {
+
+    const Pieces::Piece *Action::piece() const {
         if (isPieceNullptr()) throw std::runtime_error("Piece is nullptr");
-        return *_piece;
+
+        return &*_piece;
     }
 
     Position Action::initial() const { return _initial; }

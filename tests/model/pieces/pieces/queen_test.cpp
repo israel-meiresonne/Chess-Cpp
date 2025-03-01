@@ -54,7 +54,10 @@ TEST_F(QueenTest, Moves_AvailableDisplacements) {
         EXPECT_TRUE(moves.count(position));
         EXPECT_TRUE(moves.at(position).type() == Pieces::Move::Type::DISPLACEMENT);
         EXPECT_EQ(moves.at(position).actions().size(), 1);
-        EXPECT_TRUE(moves.at(position).actions()[0].piece() == queen);
+
+        auto &expectedPiece1 = *moves.at(position).actions()[0].piece();
+        ASSERT_EQ(expectedPiece1, queen);
+        ASSERT_EQ(typeid(expectedPiece1), typeid(Pieces::Queen));
     }
 }
 
@@ -77,14 +80,23 @@ TEST_F(QueenTest, Moves_AvailableCaptures) {
         EXPECT_TRUE(moves.count(position));
         EXPECT_TRUE(moves.at(position).type() == Pieces::Move::Type::DISPLACEMENT);
         EXPECT_EQ(moves.at(position).actions().size(), 1);
-        EXPECT_TRUE(moves.at(position).actions()[0].piece() == queen);
+
+        auto &expectedPiece1 = *moves.at(position).actions()[0].piece();
+        ASSERT_EQ(expectedPiece1, queen);
+        ASSERT_EQ(typeid(expectedPiece1), typeid(Pieces::Queen));
     }
     for (const auto &position : opponentPositions) {
         EXPECT_TRUE(moves.count(position));
         EXPECT_TRUE(moves.at(position).type() == Pieces::Move::Type::CAPTURE);
         EXPECT_EQ(moves.at(position).actions().size(), 2);
-        EXPECT_TRUE(moves.at(position).actions()[0].piece() == queen);
-        EXPECT_FALSE(moves.at(position).actions()[1].piece() == queen);
+
+        auto &expectedPiece1 = *moves.at(position).actions()[0].piece();
+        ASSERT_EQ(expectedPiece1, queen);
+        ASSERT_EQ(typeid(expectedPiece1), typeid(Pieces::Queen));
+
+        auto &expectedPiece2 = *moves.at(position).actions()[1].piece();
+        ASSERT_EQ(expectedPiece2, *opponents[position]);
+        ASSERT_EQ(typeid(expectedPiece2), typeid(MockPiece1));
     }
 }
 
@@ -107,7 +119,10 @@ TEST_F(QueenTest, Moves_StopAtFriendlies) {
         EXPECT_TRUE(moves.count(position));
         EXPECT_TRUE(moves.at(position).type() == Pieces::Move::Type::DISPLACEMENT);
         EXPECT_EQ(moves.at(position).actions().size(), 1);
-        EXPECT_TRUE(moves.at(position).actions()[0].piece() == queen);
+
+        auto &expectedPiece1 = *moves.at(position).actions()[0].piece();
+        ASSERT_EQ(expectedPiece1, queen);
+        ASSERT_EQ(typeid(expectedPiece1), typeid(Pieces::Queen));
     }
 }
 
@@ -137,7 +152,10 @@ TEST_F(QueenTest, Moves_TopLeft) {
         EXPECT_TRUE(moves.count(position));
         EXPECT_TRUE(moves.at(position).type() == Pieces::Move::Type::DISPLACEMENT);
         EXPECT_EQ(moves.at(position).actions().size(), 1);
-        EXPECT_TRUE(moves.at(position).actions()[0].piece() == queen);
+
+        auto &expectedPiece1 = *moves.at(position).actions()[0].piece();
+        ASSERT_EQ(expectedPiece1, queen);
+        ASSERT_EQ(typeid(expectedPiece1), typeid(Pieces::Queen));
     }
 }
 
@@ -167,6 +185,9 @@ TEST_F(QueenTest, Moves_BottomRight) {
         EXPECT_TRUE(moves.count(position));
         EXPECT_TRUE(moves.at(position).type() == Pieces::Move::Type::DISPLACEMENT);
         EXPECT_EQ(moves.at(position).actions().size(), 1);
-        EXPECT_TRUE(moves.at(position).actions()[0].piece() == queen);
+
+        auto &expectedPiece1 = *moves.at(position).actions()[0].piece();
+        ASSERT_EQ(expectedPiece1, queen);
+        ASSERT_EQ(typeid(expectedPiece1), typeid(Pieces::Queen));
     }
 }

@@ -38,4 +38,6 @@ namespace Pieces {
 
     bool Types::operator==(const Types &other) const { return _type == other._type; };
 
+    bool Types::operator!=(const Types &other) const { return !(_type == other._type); };
+
 } // namespace Pieces

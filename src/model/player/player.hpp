@@ -13,7 +13,7 @@ class Player {
     Player(const std::string &name);
 
     std::string name() const;
-    const std::unordered_map<Position, Pieces::Piece> &pieces() const;
+    const std::unordered_map<Position, Pieces::Piece *> &pieces() const;
 
     int hash() const;
 
@@ -22,7 +22,7 @@ class Player {
 
   private:
     std::string _name;
-    std::unordered_map<Position, Pieces::Piece> _pieces;
+    std::unordered_map<Position, Pieces::Piece *> _pieces;
 };
 
 #endif // PLAYER_HPP

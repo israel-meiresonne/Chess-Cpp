@@ -1,12 +1,9 @@
 #include <gtest/gtest.h>
 
-#include "model/pieces/pieces.hpp"
+#include <model/pieces/pieces.hpp>
+#include <model/pieces/pieces_test.hpp>
 
-class MockPiece : public Pieces::Piece {
-  public:
-    MockPiece(const Position &position)
-        : Pieces::Piece(position) {}
-};
+using MockPiece1 = ::Tests::Pieces::MockPiece1;
 
 TEST(ActionTest, DefaultConstructor) {
     Pieces::Action action;
@@ -20,11 +17,14 @@ TEST(ActionTest, DefaultConstructor) {
 TEST(ActionTest, ParameterizedConstructor) {
     Position initial(1, 2);
     Position final(3, 4);
-    MockPiece piece(initial);
+    MockPiece1 piece(initial);
     Pieces::Action action(&piece, initial, final);
 
+    auto &expectedPiece = *action.piece();
+
     EXPECT_FALSE(action.isPieceNullptr());
-    EXPECT_EQ(action.piece(), piece);
+    EXPECT_EQ(typeid(expectedPiece), typeid(piece));
+    EXPECT_EQ(*action.piece(), piece);
     EXPECT_EQ(action.initial(), initial);
     EXPECT_EQ(action.final(), final);
 }
@@ -32,7 +32,7 @@ TEST(ActionTest, ParameterizedConstructor) {
 TEST(ActionTest, EqualityOperator) {
     Position initial(1, 2);
     Position final(3, 4);
-    MockPiece piece(initial);
+    MockPiece1 piece(initial);
     Pieces::Action action1(&piece, initial, final);
     Pieces::Action action2(&piece, initial, final);
     Pieces::Action action3(&piece, final, initial);
@@ -44,7 +44,7 @@ TEST(ActionTest, EqualityOperator) {
 TEST(ActionTest, Hash) {
     Position initial(1, 2);
     Position final(3, 4);
-    MockPiece piece(initial);
+    MockPiece1 piece(initial);
     Pieces::Action action1;
     Pieces::Action action2(&piece, initial, final);
     Pieces::Action action3(&piece, initial, final);

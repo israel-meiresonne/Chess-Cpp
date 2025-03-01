@@ -50,13 +50,13 @@ namespace Pieces {
     std::unordered_map<Position, Move> &
     Pawn::completeCaptureMoves(std::unordered_map<Position, Move> &moves,
                                std::unordered_map<Position, Move> &captures) {
-        const std::unordered_map<Position, Piece> &opponents = this->opponents();
+        std::unordered_map<Position, Piece *> &opponents = this->opponents();
         for (auto &[finalPosition, capture] : captures) {
             if (!opponents.count(finalPosition)) continue;
 
-            const Piece &opponent = opponents.at(finalPosition);
-            Position opponentPosition = opponent.position();
-            Move::addAction(capture, opponent, opponentPosition);
+            Piece *opponent = &*opponents.at(finalPosition);
+            Position opponentPosition = opponent->position();
+            Move::addAction(capture, &*opponent, opponentPosition);
             moves[opponentPosition] = capture;
         }
         return moves;

@@ -1,18 +1,9 @@
 #include <gtest/gtest.h>
 
 #include <model/pieces/pieces.hpp>
+#include <model/pieces/pieces_test.hpp>
 
-class MockPiece : public Pieces::Piece {
-  public:
-    MockPiece(Position pos)
-        : Piece(pos) {}
-
-  protected:
-    std::unordered_set<Pieces::Move> &_moves(std::unordered_set<Pieces::Move> &moves, int &nRow,
-                                             int &nColumn) {
-        return moves;
-    }
-};
+using MockPiece1 = ::Tests::Pieces::MockPiece1;
 
 TEST(MoveTest, DefaultConstructor) {
     Pieces::Move move;
@@ -139,8 +130,8 @@ TEST(MoveTest, Hash) {
 }
 
 TEST(MoveTest, StaticCreateMove) {
-    MockPiece piece1(Position(1, 1));
-    MockPiece piece2(Position(2, 2));
+    MockPiece1 piece1(Position(1, 1));
+    MockPiece1 piece2(Position(2, 2));
     Position initial(1, 1);
     Position final(2, 2);
 
@@ -155,43 +146,58 @@ TEST(MoveTest, StaticCreateMove) {
     ASSERT_FALSE(move2.actions().empty());
 
     Pieces::Action action = move1.actions().front();
-    EXPECT_EQ(action.piece(), piece1);
+    auto &expectedPiece1 = *action.piece();
+
+    EXPECT_EQ(typeid(expectedPiece1), typeid(piece1));
+    EXPECT_EQ(*action.piece(), piece1);
     EXPECT_EQ(action.initial(), initial);
     EXPECT_EQ(action.final(), final);
 
     action = move2.actions().front();
-    EXPECT_EQ(action.piece(), piece2);
+    auto &expectedPiece2 = *action.piece();
+
+    EXPECT_EQ(typeid(expectedPiece2), typeid(piece2));
+    EXPECT_EQ(*action.piece(), piece2);
     EXPECT_EQ(action.initial(), initial);
     EXPECT_EQ(action.final(), final);
 }
 
 TEST(MoveTest, StaticAddAction) {
-    MockPiece piece1(Position(1, 1));
-    MockPiece piece2(Position(2, 2));
+    MockPiece1 piece1(Position(1, 1));
+    MockPiece1 piece2(Position(2, 2));
     Position position1(1, 1);
     Position position2(2, 2);
 
     Pieces::Move move1 = Pieces::Move::createMove(piece1, position1, position2);
     Pieces::Move move2 = Pieces::Move::createMove(piece2, position2, position1);
 
-    Pieces::Move::addAction(move1, piece2, position2);
-    Pieces::Move::addAction(move2, piece1, position1, position2);
+    Pieces::Move::addAction(move1, &piece2, position2);
+    Pieces::Move::addAction(move2, &piece1, position1, position2);
 
     ASSERT_EQ(move1.actions().size(), 2);
     ASSERT_EQ(move2.actions().size(), 2);
 
     Pieces::Action action = move1.actions().front();
-    EXPECT_EQ(action.piece(), piece1);
+    auto &expectedPiece1 = *action.piece();
+
+    EXPECT_EQ(typeid(expectedPiece1), typeid(piece1));
+    EXPECT_EQ(*action.piece(), piece1);
     EXPECT_EQ(action.initial(), position1);
     EXPECT_EQ(action.final(), position2);
 
     action = move1.actions().back();
-    EXPECT_EQ(action.piece(), piece2);
+    auto &expectedPiece2 = *action.piece();
+
+    EXPECT_EQ(typeid(expectedPiece2), typeid(piece2));
+    EXPECT_EQ(*action.piece(), piece2);
     EXPECT_EQ(action.initial(), position2);
     EXPECT_EQ(action.final(), Position());
 
     action = move2.actions().front();
-    EXPECT_EQ(action.piece(), piece2);
+    auto &expectedPiece3 = *action.piece();
+
+    EXPECT_EQ(typeid(expectedPiece3), typeid(piece2));
+    EXPECT_EQ(*action.piece(), piece2);
     EXPECT_EQ(action.initial(), position2);
     EXPECT_EQ(action.final(), position1);
 }

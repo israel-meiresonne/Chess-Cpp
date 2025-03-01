@@ -18,19 +18,19 @@ namespace Pieces {
     Position Piece::position() const { return _position; };
     int Piece::nMoves() const { return _nMoves; };
 
-    const std::unordered_map<Position, Piece> &Piece::friendlies() {
+    std::unordered_map<Position, Piece *> &Piece::friendlies() {
         if (_friendlies == nullptr) throw std::runtime_error("Friendlies is nullptr");
         return *_friendlies;
     };
-    void Piece::friendlies(const std::unordered_map<Position, Piece> &friendlies) {
+    void Piece::friendlies(std::unordered_map<Position, Piece *> &friendlies) {
         _friendlies = &friendlies;
     };
 
-    const std::unordered_map<Position, Piece> &Piece::opponents() {
+    std::unordered_map<Position, Piece *> &Piece::opponents() {
         if (_friendlies == nullptr) throw std::runtime_error("Opponents is nullptr");
         return *_opponents;
     };
-    void Piece::opponents(const std::unordered_map<Position, Piece> &opponents) {
+    void Piece::opponents(std::unordered_map<Position, Piece *> &opponents) {
         _opponents = &opponents;
     };
 
@@ -40,8 +40,8 @@ namespace Pieces {
     };
 
     std::unordered_map<Position, Move>
-    Piece::moves(const std::unordered_map<Position, Piece> &friendlies, int nRow, int nColumn,
-                 const std::unordered_map<Position, Piece> &opponents) {
+    Piece::moves(std::unordered_map<Position, Piece *> &friendlies, int nRow, int nColumn,
+                 std::unordered_map<Position, Piece *> &opponents) {
         _friendlies = &friendlies;
         _opponents = &opponents;
         std::unordered_map<Position, Move> moves;
@@ -209,8 +209,8 @@ namespace Pieces {
                                std::unordered_map<Position, Move> &captures) {
         std::pair<int, int> directionPair = direction;
         int rowDiff = directionPair.first, columnDiff = directionPair.second;
-        const std::unordered_map<Position, Piece> &allies = this->friendlies();
-        const std::unordered_map<Position, Piece> &opponents = this->opponents();
+        std::unordered_map<Position, Piece *> &allies = this->friendlies();
+        std::unordered_map<Position, Piece *> &opponents = this->opponents();
 
         Position initialPosition = position();
         int startRow = initialPosition.row(), row = startRow;
@@ -237,9 +237,9 @@ namespace Pieces {
 
             if (opponents.count(finalPosition)) {
                 if (captures.count(finalPosition)) {
-                    const Piece &opponent = opponents.at(finalPosition);
+                    Piece *opponent = &*opponents.at(finalPosition);
                     Move &capture = captures.at(finalPosition);
-                    Move::addAction(capture, opponent, finalPosition);
+                    Move::addAction(capture, &*opponent, finalPosition);
                     moves[finalPosition] = capture;
                 }
                 break;
@@ -264,8 +264,9 @@ namespace Pieces {
 
     bool Piece::operator==(const Piece &other) const { return this->hash() == other.hash(); };
 
-    std::ostream &operator<<(std::ostream &os, const Pieces::Piece &piece) {
-        os << "Piece(" << piece.type() << typeid(piece).name() << ", " << piece.position() << ")";
+    std::ostream &operator<<(std::ostream &os, const Pieces::Piece *piece) {
+        std::string pieceStr = *piece;
+        os << pieceStr;
         return os;
     }
 

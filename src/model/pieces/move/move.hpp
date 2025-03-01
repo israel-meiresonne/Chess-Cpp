@@ -16,7 +16,7 @@ namespace Pieces {
         Action(const Piece *piece, const Position initial, const Position final);
 
         bool isPieceNullptr() const;
-        const Piece &piece() const;
+        const Piece *piece() const;
         Position initial() const;
         Position final() const;
 
@@ -68,7 +68,7 @@ namespace Pieces {
         static Move createMove(Pieces::Piece &piece, Position initial, Position final,
                                Pieces::Move::Type moveType = Pieces::Move::Type::DISPLACEMENT);
 
-        static Move &addAction(Move &move, const Piece &piece, Position &initial,
+        static Move &addAction(Move &move, const Piece *piece, Position &initial,
                                Position final = Position());
     };
 

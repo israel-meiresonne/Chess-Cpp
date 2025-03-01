@@ -31,6 +31,7 @@ namespace Pieces {
         int hash() const;
 
         bool operator==(const Types &other) const;
+        bool operator!=(const Types &other) const;
 
       private:
         _Types _type;
@@ -39,15 +40,16 @@ namespace Pieces {
     class Piece {
       public:
         Piece(Types type = Types::UNDEFINED);
+        virtual ~Piece() = default;
 
         Types type() const;
         Position position() const;
         int nMoves() const;
 
         void move(const Position position);
-        std::unordered_map<Position, Move>
-        moves(const std::unordered_map<Position, Piece> &friendlies, int nRow, int nColumn,
-              const std::unordered_map<Position, Piece> &opponents);
+        std::unordered_map<Position, Move> moves(std::unordered_map<Position, Piece *> &friendlies,
+                                                 int nRow, int nColumn,
+                                                 std::unordered_map<Position, Piece *> &opponents);
 
         static bool isInBounds(const Position &position, int rowMaxBound, int columnMaxBound,
                                int rowMinBound = 0, int columnMinBound = 0);
@@ -58,19 +60,19 @@ namespace Pieces {
 
         operator std::string() const;
 
-        friend std::ostream &operator<<(std::ostream &os, const Pieces::Piece &piece);
+        friend std::ostream &operator<<(std::ostream &os, const Pieces::Piece *piece);
 
       protected:
         Piece(const Position position, Types type = Types::UNDEFINED);
 
-        const std::unordered_map<Position, Piece> &friendlies();
-        void friendlies(const std::unordered_map<Position, Piece> &friendlies);
+        std::unordered_map<Position, Piece *> &friendlies();
+        void friendlies(std::unordered_map<Position, Piece *> &friendlies);
 
-        const std::unordered_map<Position, Piece> &opponents();
-        void opponents(const std::unordered_map<Position, Piece> &opponents);
+        std::unordered_map<Position, Piece *> &opponents();
+        void opponents(std::unordered_map<Position, Piece *> &opponents);
 
         virtual std::unordered_map<Position, Move> &
-        _moves(std::unordered_map<Position, Move> &moves, int &nRow, int &nColumn);
+        _moves(std::unordered_map<Position, Move> &moves, int &nRow, int &nColumn) = 0;
 
         std::unordered_map<Position, Move> &
         removeMovesOutsideBounds(std::unordered_map<Position, Move> &moves,
@@ -103,8 +105,8 @@ namespace Pieces {
         Types _type;
         Position _position;
         int _nMoves;
-        const std::unordered_map<Position, Piece> *_friendlies;
-        const std::unordered_map<Position, Piece> *_opponents;
+        std::unordered_map<Position, Piece *> *_friendlies;
+        std::unordered_map<Position, Piece *> *_opponents;
     };
 
     class King : public Piece {
@@ -127,9 +129,9 @@ namespace Pieces {
         std::unordered_map<Position, Move> &castlingMoves(std::unordered_map<Position, Move> &moves,
                                                           std::pair<int, int> boundaries);
 
-        std::unordered_map<Position, const Piece *> validRooks(std::pair<int, int> boundaries);
+        std::unordered_map<Position, Piece *> validRooks(std::pair<int, int> boundaries);
 
-        bool isPathToRookValid(std::pair<int, int> boundaries, const Piece &rook);
+        bool isPathToRookValid(std::pair<int, int> boundaries, const Piece *rook);
 
         std::unordered_set<Position> threateningPositions(std::pair<int, int> boundaries);
 

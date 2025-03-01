@@ -18,6 +18,12 @@ TEST(PiecesTypesTest, EqualityOperator) {
     EXPECT_FALSE(Pieces::Types::KING == Pieces::Types::QUEEN);
 }
 
+TEST(PiecesTypesTest, InequalityOperator) {
+    EXPECT_FALSE(Pieces::Types::KING != Pieces::Types(Pieces::Types::_Types::KING));
+    EXPECT_FALSE(Pieces::Types::QUEEN != Pieces::Types(Pieces::Types::_Types::QUEEN));
+    EXPECT_TRUE(Pieces::Types::KING != Pieces::Types::QUEEN);
+}
+
 TEST(PiecesTypesTest, HashFunction) {
     EXPECT_EQ(Pieces::Types::KING.hash(), static_cast<int>(Pieces::Types::_Types::KING) << 1);
     EXPECT_EQ(Pieces::Types::QUEEN.hash(), static_cast<int>(Pieces::Types::_Types::QUEEN) << 1);

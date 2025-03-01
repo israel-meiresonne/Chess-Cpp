@@ -8,24 +8,29 @@ using MockPiece1 = ::Tests::Pieces::MockPiece1;
 
 class KingTest : public PiecesTest {
   protected:
-    Pieces::King king;
+    Pieces::King *king;
 
     void SetUp() override {
         PiecesTest::SetUp();
-        king = Pieces::King(initialPosition);
+        king = new Pieces::King(initialPosition);
+        friendlies[king->position()] = king;
     }
 
-    void addFriendlyRookAt(::Position position) { friendlies[position] = Pieces::Rook(position); }
+    void addFriendlyRookAt(::Position position) {
+        friendlies[position] = new Pieces::Rook(position);
+    }
 
     void addFriendlyBishopAt(::Position position) {
-        friendlies[position] = Pieces::Bishop(position);
+        friendlies[position] = new Pieces::Bishop(position);
     }
 
     void addOpponentBishopAt(::Position position) {
-        opponents[position] = Pieces::Bishop(position);
+        opponents[position] = new Pieces::Bishop(position);
     }
 
-    void addOpponentPawnAt(::Position position) { opponents[position] = Pieces::Pawn(position); }
+    void addOpponentPawnAt(::Position position) {
+        opponents[position] = new Pieces::Pawn(position);
+    }
 };
 
 TEST_F(KingTest, DefaultConstructor) {
@@ -44,7 +49,7 @@ TEST_F(KingTest, ParameterizedConstructor) {
 }
 
 TEST_F(KingTest, MovesEmpty) {
-    moves = king.moves(friendlies, 0, 0, opponents);
+    moves = king->moves(friendlies, 0, 0, opponents);
     EXPECT_TRUE(moves.empty());
 }
 
@@ -53,47 +58,56 @@ TEST_F(KingTest, Moves_AvailableDisplacements) {
                                           Position(3, 4), Position(3, 2), Position(2, 2),
                                           Position(2, 3), Position(2, 4)};
 
-    moves = king.moves(friendlies, nRow, nColumn, opponents);
+    moves = king->moves(friendlies, nRow, nColumn, opponents);
 
     EXPECT_EQ(moves.size(), displacement.size());
     for (const auto &position : displacement) {
         EXPECT_TRUE(moves.count(position));
         EXPECT_TRUE(moves.at(position).type() == Pieces::Move::Type::DISPLACEMENT);
         EXPECT_EQ(moves.at(position).actions().size(), 1);
-        EXPECT_TRUE(moves.at(position).actions()[0].piece() == king);
+
+        auto &expectedPiece1 = *moves.at(position).actions()[0].piece();
+        ASSERT_EQ(expectedPiece1, *king);
+        ASSERT_EQ(typeid(expectedPiece1), typeid(Pieces::King));
     }
 }
 
-/*
 TEST_F(KingTest, Moves_AvailableCaptures) {
-    // Fix: Remove wrong Moves
     std::vector<Position> displacement = {Position(4, 4), Position(2, 2), Position(2, 4)};
 
     std::vector<Position> opponentPositions = {Position(4, 2), Position(3, 4), Position(2, 3)};
-    std::vector<Position> opponentCapturable = {Position(4, 2), Position(2, 3)};
+    std::vector<Position> opponentCapturable = {Position(4, 2)};
 
     for (const auto &position : opponentPositions) {
-        addOpponentPawnAt(position);
+        addOpponentBishopAt(position);
     }
 
-    moves = king.moves(friendlies, nRow, nColumn, opponents);
+    moves = king->moves(friendlies, nRow, nColumn, opponents);
 
     EXPECT_EQ(moves.size(), displacement.size() + opponentCapturable.size());
     for (const auto &position : displacement) {
         EXPECT_TRUE(moves.count(position));
         EXPECT_TRUE(moves.at(position).type() == Pieces::Move::Type::DISPLACEMENT);
         EXPECT_EQ(moves.at(position).actions().size(), 1);
-        EXPECT_TRUE(moves.at(position).actions()[0].piece() == king);
+
+        auto &expectedPiece1 = *moves.at(position).actions()[0].piece();
+        ASSERT_EQ(expectedPiece1, *king);
+        ASSERT_EQ(typeid(expectedPiece1), typeid(Pieces::King));
     }
     for (const auto &position : opponentCapturable) {
         EXPECT_TRUE(moves.count(position));
         EXPECT_TRUE(moves.at(position).type() == Pieces::Move::Type::CAPTURE);
         EXPECT_EQ(moves.at(position).actions().size(), 2);
-        EXPECT_TRUE(moves.at(position).actions()[0].piece() == king);
-        EXPECT_FALSE(moves.at(position).actions()[1].piece() == king);
+
+        auto &expectedPiece1 = *moves.at(position).actions()[0].piece();
+        ASSERT_EQ(expectedPiece1, *king);
+        ASSERT_EQ(typeid(expectedPiece1), typeid(Pieces::King));
+
+        auto &expectedPiece2 = *moves.at(position).actions()[1].piece();
+        ASSERT_EQ(expectedPiece2, *opponents[position]);
+        ASSERT_EQ(typeid(expectedPiece2), typeid(Pieces::Bishop));
     }
 }
-*/
 
 TEST_F(KingTest, Moves_StopAtFriendlies) {
     std::vector<Position> displacement = {Position(4, 3), Position(4, 4), Position(3, 2),
@@ -104,14 +118,17 @@ TEST_F(KingTest, Moves_StopAtFriendlies) {
         addFriendlyAt(position);
     }
 
-    moves = king.moves(friendlies, nRow, nColumn, opponents);
+    moves = king->moves(friendlies, nRow, nColumn, opponents);
 
     EXPECT_EQ(moves.size(), displacement.size());
     for (const auto &position : displacement) {
         EXPECT_TRUE(moves.count(position));
         EXPECT_TRUE(moves.at(position).type() == Pieces::Move::Type::DISPLACEMENT);
         EXPECT_EQ(moves.at(position).actions().size(), 1);
-        EXPECT_TRUE(moves.at(position).actions()[0].piece() == king);
+
+        auto &expectedPiece1 = *moves.at(position).actions()[0].piece();
+        ASSERT_EQ(expectedPiece1, *king);
+        ASSERT_EQ(typeid(expectedPiece1), typeid(Pieces::King));
     }
 }
 
@@ -119,7 +136,7 @@ TEST_F(KingTest, Moves_TopLeft) {
     Position corner(nRow - 1, 0);
     Position outOfBounds1(corner.row() + 1, corner.column());
     Position outOfBounds2(corner.row(), corner.column() - 1);
-    king = Pieces::King(corner);
+    Pieces::King king = Pieces::King(corner);
 
     std::vector<Position> displacement = {Position(7, 1), Position(6, 1), Position(6, 0)};
 
@@ -134,7 +151,10 @@ TEST_F(KingTest, Moves_TopLeft) {
         EXPECT_TRUE(moves.count(position));
         EXPECT_TRUE(moves.at(position).type() == Pieces::Move::Type::DISPLACEMENT);
         EXPECT_EQ(moves.at(position).actions().size(), 1);
-        EXPECT_TRUE(moves.at(position).actions()[0].piece() == king);
+
+        auto &expectedPiece1 = *moves.at(position).actions()[0].piece();
+        ASSERT_EQ(expectedPiece1, king);
+        ASSERT_EQ(typeid(expectedPiece1), typeid(Pieces::King));
     }
 }
 
@@ -142,7 +162,7 @@ TEST_F(KingTest, Moves_BottomRight) {
     Position corner(0, nColumn - 1);
     Position outOfBounds1(corner.row() - 1, corner.column());
     Position outOfBounds2(corner.row(), corner.column() + 1);
-    king = Pieces::King(corner);
+    Pieces::King king = Pieces::King(corner);
 
     std::vector<Position> displacement = {Position(0, 6), Position(1, 6), Position(1, 7)};
 
@@ -157,12 +177,15 @@ TEST_F(KingTest, Moves_BottomRight) {
         EXPECT_TRUE(moves.count(position));
         EXPECT_TRUE(moves.at(position).type() == Pieces::Move::Type::DISPLACEMENT);
         EXPECT_EQ(moves.at(position).actions().size(), 1);
-        EXPECT_TRUE(moves.at(position).actions()[0].piece() == king);
+
+        auto &expectedPiece1 = *moves.at(position).actions()[0].piece();
+        ASSERT_EQ(expectedPiece1, king);
+        ASSERT_EQ(typeid(expectedPiece1), typeid(Pieces::King));
     }
 }
 
 TEST_F(KingTest, Moves_Castling) {
-    king = Pieces::King(Position(0, 4));
+    Pieces::King king = Pieces::King(Position(0, 4));
     std::vector<Position> expectedPositions = {Position(1, 3), Position(1, 4), Position(1, 5),
                                                Position(0, 5), Position(0, 3)};
 
@@ -180,19 +203,27 @@ TEST_F(KingTest, Moves_Castling) {
         EXPECT_TRUE(moves.count(position));
         EXPECT_TRUE(moves.at(position).type() == Pieces::Move::Type::DISPLACEMENT);
         EXPECT_EQ(moves.at(position).actions().size(), 1);
-        EXPECT_TRUE(moves.at(position).actions()[0].piece() == king);
+
+        auto &expectedPiece1 = *moves.at(position).actions()[0].piece();
+        ASSERT_EQ(expectedPiece1, king);
+        ASSERT_EQ(typeid(expectedPiece1), typeid(Pieces::King));
     }
     for (const auto &position : castingPositions) {
         EXPECT_TRUE(moves.count(position));
         EXPECT_TRUE(moves.at(position).type() == Pieces::Move::Type::SWAP);
         EXPECT_EQ(moves.at(position).actions().size(), 2);
-        EXPECT_TRUE(moves.at(position).actions()[0].piece() == king);
-        EXPECT_EQ(moves.at(position).actions()[1].piece().type(), Pieces::Types::ROOK);
+
+        auto &expectedPiece1 = *moves.at(position).actions()[0].piece();
+        ASSERT_EQ(expectedPiece1, king);
+        ASSERT_EQ(typeid(expectedPiece1), typeid(Pieces::King));
+
+        auto &expectedPiece2 = *moves.at(position).actions()[1].piece();
+        ASSERT_EQ(typeid(expectedPiece2), typeid(Pieces::Rook));
     }
 }
 
 TEST_F(KingTest, Moves_CastlingWhenKingHasMoved) {
-    king.move(Position(0, 4));
+    king->move(Position(0, 4));
     std::vector<Position> expectedPositions = {Position(1, 3), Position(1, 4), Position(1, 5),
                                                Position(0, 5), Position(0, 3)};
 
@@ -201,19 +232,22 @@ TEST_F(KingTest, Moves_CastlingWhenKingHasMoved) {
     for (const auto &position : rookPositions) {
         addFriendlyRookAt(position);
     }
-    moves = king.moves(friendlies, nRow, nColumn, opponents);
+    moves = king->moves(friendlies, nRow, nColumn, opponents);
 
     EXPECT_EQ(moves.size(), expectedPositions.size());
     for (const auto &position : expectedPositions) {
         EXPECT_TRUE(moves.count(position));
         EXPECT_TRUE(moves.at(position).type() == Pieces::Move::Type::DISPLACEMENT);
         EXPECT_EQ(moves.at(position).actions().size(), 1);
-        EXPECT_TRUE(moves.at(position).actions()[0].piece() == king);
+
+        auto &expectedPiece1 = *moves.at(position).actions()[0].piece();
+        ASSERT_EQ(expectedPiece1, *king);
+        ASSERT_EQ(typeid(expectedPiece1), typeid(Pieces::King));
     }
 }
 
 TEST_F(KingTest, Moves_CastlingWhenRookHasMoved) {
-    king = Pieces::King(Position(0, 4));
+    Pieces::King king = Pieces::King(Position(0, 4));
     std::vector<Position> expectedPositions = {Position(1, 3), Position(1, 4), Position(1, 5),
                                                Position(0, 5), Position(0, 3)};
 
@@ -221,7 +255,7 @@ TEST_F(KingTest, Moves_CastlingWhenRookHasMoved) {
 
     for (const auto &position : rookPositions) {
         addFriendlyRookAt(position);
-        friendlies.at(position).move(position);
+        friendlies.at(position)->move(position);
     }
     moves = king.moves(friendlies, nRow, nColumn, opponents);
 
@@ -230,14 +264,16 @@ TEST_F(KingTest, Moves_CastlingWhenRookHasMoved) {
         EXPECT_TRUE(moves.count(position));
         EXPECT_TRUE(moves.at(position).type() == Pieces::Move::Type::DISPLACEMENT);
         EXPECT_EQ(moves.at(position).actions().size(), 1);
-        EXPECT_TRUE(moves.at(position).actions()[0].piece() == king);
+
+        auto &expectedPiece1 = *moves.at(position).actions()[0].piece();
+        ASSERT_EQ(expectedPiece1, king);
+        ASSERT_EQ(typeid(expectedPiece1), typeid(Pieces::King));
     }
 }
 
-/*
 TEST_F(KingTest, Moves_CastlingWhenPathToRookIsNotFree) {
     // Deactivate until Piece become abstract again
-    king = Pieces::King(Position(0, 4));
+    Pieces::King king = Pieces::King(Position(0, 4));
     std::vector<Position> expectedPositions = {Position(1, 3), Position(1, 4), Position(1, 5),
                                                Position(0, 5), Position(0, 3)};
 
@@ -256,13 +292,15 @@ TEST_F(KingTest, Moves_CastlingWhenPathToRookIsNotFree) {
         EXPECT_TRUE(moves.count(position));
         EXPECT_TRUE(moves.at(position).type() == Pieces::Move::Type::DISPLACEMENT);
         EXPECT_EQ(moves.at(position).actions().size(), 1);
-        EXPECT_TRUE(moves.at(position).actions()[0].piece() == king);
+
+        auto &expectedPiece1 = *moves.at(position).actions()[0].piece();
+        ASSERT_EQ(expectedPiece1, king);
+        ASSERT_EQ(typeid(expectedPiece1), typeid(Pieces::King));
     }
 }
 
 TEST_F(KingTest, Moves_CastlingWhenKingFinalPositionIsThreatened) {
-    // Deactivate until Piece become abstract again
-    king = Pieces::King(Position(0, 4));
+    Pieces::King king = Pieces::King(Position(0, 4));
     std::vector<Position> expectedPositions = {Position(1, 3), Position(1, 4), Position(1, 5),
                                                Position(0, 5), Position(0, 3)};
 
@@ -281,13 +319,15 @@ TEST_F(KingTest, Moves_CastlingWhenKingFinalPositionIsThreatened) {
         EXPECT_TRUE(moves.count(position));
         EXPECT_TRUE(moves.at(position).type() == Pieces::Move::Type::DISPLACEMENT);
         EXPECT_EQ(moves.at(position).actions().size(), 1);
-        EXPECT_TRUE(moves.at(position).actions()[0].piece() == king);
+
+        auto &expectedPiece1 = *moves.at(position).actions()[0].piece();
+        ASSERT_EQ(expectedPiece1, king);
+        ASSERT_EQ(typeid(expectedPiece1), typeid(Pieces::King));
     }
 }
 
 TEST_F(KingTest, Moves_CastlingWhenRookFinalPositionIsThreatened) {
-    // Deactivate until Piece become abstract again
-    king = Pieces::King(Position(0, 4));
+    Pieces::King king = Pieces::King(Position(0, 4));
     std::vector<Position> expectedPositions = {Position(1, 3), Position(1, 4), Position(1, 5)};
 
     std::vector<Position> rookPositions = {Position(0, 0), Position(0, 7)};
@@ -305,7 +345,9 @@ TEST_F(KingTest, Moves_CastlingWhenRookFinalPositionIsThreatened) {
         EXPECT_TRUE(moves.count(position));
         EXPECT_TRUE(moves.at(position).type() == Pieces::Move::Type::DISPLACEMENT);
         EXPECT_EQ(moves.at(position).actions().size(), 1);
-        EXPECT_TRUE(moves.at(position).actions()[0].piece() == king);
+
+        auto &expectedPiece1 = *moves.at(position).actions()[0].piece();
+        ASSERT_EQ(expectedPiece1, king);
+        ASSERT_EQ(typeid(expectedPiece1), typeid(Pieces::King));
     }
 }
-*/

@@ -3,18 +3,17 @@
 #include <model/pieces/pieces.hpp>
 #include <model/pieces/pieces_test.hpp>
 
+using PiecesTest = ::Tests::Pieces::PiecesTest;
 using MockPiece1 = ::Tests::Pieces::MockPiece1;
 using MockPiece2 = ::Tests::Pieces::MockPiece2;
 using MockPiece3 = ::Tests::Pieces::MockPiece3;
 
-class PieceTest : public ::testing::Test {
+class PieceTest : public PiecesTest {
   protected:
     Position initialPosition;
     MockPiece1 piece;
     std::unordered_map<Position, ::Pieces::Move> moves;
     std::unordered_map<Position, ::Pieces::Move> captures;
-    std::unordered_map<Position, ::Pieces::Piece> friendlies;
-    std::unordered_map<Position, ::Pieces::Piece> opponents;
 
     void SetUp() override {
         initialPosition = Position(3, 3);
@@ -42,26 +41,28 @@ TEST_F(PieceTest, PositionConstructor) {
 TEST_F(PieceTest, Getter_Opponents) {
     Position position(2, 3);
     Position position2(3, 2);
-    MockPiece3 piece(position);
-    std::unordered_map<Position, Pieces::Piece> friendlies = {{position2, MockPiece3(position2)}};
-    std::unordered_map<Position, Pieces::Piece> opponents = {{position, piece}};
+    MockPiece3 *piece = new MockPiece3(position);
+    MockPiece3 *piece2 = new MockPiece3(position);
+    friendlies[position2] = piece2;
+    opponents[position] = piece;
 
-    std::unordered_map<Position, Pieces::Move> moves = piece.moves(friendlies, 8, 8, opponents);
+    std::unordered_map<Position, Pieces::Move> moves = piece->moves(friendlies, 8, 8, opponents);
 
-    EXPECT_THROW(piece.callOpponents(), std::runtime_error);
+    EXPECT_THROW(piece->callOpponents(), std::runtime_error);
     EXPECT_EQ(moves.size(), 0);
 }
 
 TEST_F(PieceTest, Getter_Friendlies) {
     Position position(2, 3);
     Position position2(3, 2);
-    MockPiece3 piece(position);
-    std::unordered_map<Position, Pieces::Piece> friendlies = {{position2, MockPiece3(position2)}};
-    std::unordered_map<Position, Pieces::Piece> opponents = {{position, piece}};
+    MockPiece3 *piece = new MockPiece3(position);
+    MockPiece3 *piece2 = new MockPiece3(position2);
+    friendlies[position2] = piece2;
+    opponents[position] = piece;
 
-    std::unordered_map<Position, Pieces::Move> moves = piece.moves(friendlies, 8, 8, opponents);
+    std::unordered_map<Position, Pieces::Move> moves = piece->moves(friendlies, 8, 8, opponents);
 
-    EXPECT_THROW(piece.callFriendlies(), std::runtime_error);
+    EXPECT_THROW(piece->callFriendlies(), std::runtime_error);
     EXPECT_EQ(moves.size(), 0);
 }
 
@@ -98,7 +99,8 @@ TEST_F(PieceTest, genMovesInDirection_StopsAtFriendlyPiece) {
     Position endPosition(6, 6);
     Pieces::Move::Direction direction = Pieces::Move::Direction::UP_RIGHT;
     Position friendlyPosition(5, 5);
-    friendlies[friendlyPosition] = MockPiece1(friendlyPosition);
+    MockPiece1 *friendly = new MockPiece1(friendlyPosition);
+    friendlies[friendlyPosition] = friendly;
 
     piece._genMovesInDirection(moves, endPosition, direction, captures);
 
@@ -110,7 +112,7 @@ TEST_F(PieceTest, genMovesInDirection_CapturesOpponentPiece) {
     Position endPosition(6, 6);
     Pieces::Move::Direction direction = Pieces::Move::Direction::UP_RIGHT;
     Position opponentPosition(5, 5);
-    MockPiece1 opponentPiece(opponentPosition);
+    MockPiece1 *opponentPiece = new MockPiece1(opponentPosition);
     opponents[opponentPosition] = opponentPiece;
     captures[opponentPosition] = Pieces::Move(Pieces::Move::Type::CAPTURE);
 
@@ -151,10 +153,11 @@ TEST_F(PieceTest, genCapturesInDirection_UP_LEFT) {
         ASSERT_TRUE(moves.count(expectedPosition));
         ASSERT_TRUE(moves.at(expectedPosition).type() == Pieces::Move::Type::CAPTURE);
         ASSERT_EQ(moves.at(expectedPosition).actions().size(), 1);
-        ASSERT_TRUE(moves.at(expectedPosition).actions()[0].piece() == piece);
+        auto &expectedPiece = *moves.at(expectedPosition).actions()[0].piece();
+        ASSERT_TRUE(expectedPiece == piece);
+        ASSERT_TRUE(typeid(expectedPiece) == typeid(MockPiece1));
     }
 }
-
 TEST_F(PieceTest, genCapturesInDirection_UP) {
     Position end(6, 3);
     std::vector<Position> expectedPositions = {Position(4, 3), Position(5, 3), end};
@@ -166,7 +169,9 @@ TEST_F(PieceTest, genCapturesInDirection_UP) {
         ASSERT_TRUE(moves.count(expectedPosition));
         ASSERT_TRUE(moves.at(expectedPosition).type() == Pieces::Move::Type::CAPTURE);
         ASSERT_EQ(moves.at(expectedPosition).actions().size(), 1);
-        ASSERT_TRUE(moves.at(expectedPosition).actions()[0].piece() == piece);
+        auto &expectedPiece = *moves.at(expectedPosition).actions()[0].piece();
+        ASSERT_TRUE(expectedPiece == piece);
+        ASSERT_TRUE(typeid(expectedPiece) == typeid(MockPiece1));
     }
 }
 
@@ -181,7 +186,9 @@ TEST_F(PieceTest, genCapturesInDirection_UP_RIGHT) {
         ASSERT_TRUE(moves.count(expectedPosition));
         ASSERT_TRUE(moves.at(expectedPosition).type() == Pieces::Move::Type::CAPTURE);
         ASSERT_EQ(moves.at(expectedPosition).actions().size(), 1);
-        ASSERT_TRUE(moves.at(expectedPosition).actions()[0].piece() == piece);
+        auto &expectedPiece = *moves.at(expectedPosition).actions()[0].piece();
+        ASSERT_TRUE(expectedPiece == piece);
+        ASSERT_TRUE(typeid(expectedPiece) == typeid(MockPiece1));
     }
 }
 
@@ -196,7 +203,9 @@ TEST_F(PieceTest, genCapturesInDirection_RIGHT) {
         ASSERT_TRUE(moves.count(expectedPosition));
         ASSERT_TRUE(moves.at(expectedPosition).type() == Pieces::Move::Type::CAPTURE);
         ASSERT_EQ(moves.at(expectedPosition).actions().size(), 1);
-        ASSERT_TRUE(moves.at(expectedPosition).actions()[0].piece() == piece);
+        auto &expectedPiece = *moves.at(expectedPosition).actions()[0].piece();
+        ASSERT_TRUE(expectedPiece == piece);
+        ASSERT_TRUE(typeid(expectedPiece) == typeid(MockPiece1));
     }
 }
 
@@ -211,7 +220,9 @@ TEST_F(PieceTest, genCapturesInDirection_DOWN_RIGHT) {
         ASSERT_TRUE(moves.count(expectedPosition));
         ASSERT_TRUE(moves.at(expectedPosition).type() == Pieces::Move::Type::CAPTURE);
         ASSERT_EQ(moves.at(expectedPosition).actions().size(), 1);
-        ASSERT_TRUE(moves.at(expectedPosition).actions()[0].piece() == piece);
+        auto &expectedPiece = *moves.at(expectedPosition).actions()[0].piece();
+        ASSERT_TRUE(expectedPiece == piece);
+        ASSERT_TRUE(typeid(expectedPiece) == typeid(MockPiece1));
     }
 }
 
@@ -226,7 +237,9 @@ TEST_F(PieceTest, genCapturesInDirection_DOWN) {
         ASSERT_TRUE(moves.count(expectedPosition));
         ASSERT_TRUE(moves.at(expectedPosition).type() == Pieces::Move::Type::CAPTURE);
         ASSERT_EQ(moves.at(expectedPosition).actions().size(), 1);
-        ASSERT_TRUE(moves.at(expectedPosition).actions()[0].piece() == piece);
+        auto &expectedPiece = *moves.at(expectedPosition).actions()[0].piece();
+        ASSERT_TRUE(expectedPiece == piece);
+        ASSERT_TRUE(typeid(expectedPiece) == typeid(MockPiece1));
     }
 }
 
@@ -241,7 +254,9 @@ TEST_F(PieceTest, genCapturesInDirection_DOWN_LEFT) {
         ASSERT_TRUE(moves.count(expectedPosition));
         ASSERT_TRUE(moves.at(expectedPosition).type() == Pieces::Move::Type::CAPTURE);
         ASSERT_EQ(moves.at(expectedPosition).actions().size(), 1);
-        ASSERT_TRUE(moves.at(expectedPosition).actions()[0].piece() == piece);
+        auto &expectedPiece = *moves.at(expectedPosition).actions()[0].piece();
+        ASSERT_TRUE(expectedPiece == piece);
+        ASSERT_TRUE(typeid(expectedPiece) == typeid(MockPiece1));
     }
 }
 
@@ -256,7 +271,9 @@ TEST_F(PieceTest, genCapturesInDirection_LEFT) {
         ASSERT_TRUE(moves.count(expectedPosition));
         ASSERT_TRUE(moves.at(expectedPosition).type() == Pieces::Move::Type::CAPTURE);
         ASSERT_EQ(moves.at(expectedPosition).actions().size(), 1);
-        ASSERT_TRUE(moves.at(expectedPosition).actions()[0].piece() == piece);
+        auto &expectedPiece = *moves.at(expectedPosition).actions()[0].piece();
+        ASSERT_TRUE(expectedPiece == piece);
+        ASSERT_TRUE(typeid(expectedPiece) == typeid(MockPiece1));
     }
 }
 

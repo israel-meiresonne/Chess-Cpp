@@ -94,7 +94,7 @@ TEST_F(PawnTest, Moves_CannotMoveThroughPiece) {
     int nRow = 8, nColumn = 8;
     Position twoSteps(5, 3);
     Position blockingPosition(4, 3);
-    Pieces::Pawn blocker(blockingPosition);
+    Pieces::Pawn *blocker = new Pieces::Pawn(blockingPosition);
     friendlies[blockingPosition] = blocker;
 
     moves = pawn.moves(friendlies, nRow, nColumn, opponents);
