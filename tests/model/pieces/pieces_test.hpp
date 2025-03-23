@@ -13,6 +13,8 @@ namespace Tests {
                 : Piece() {}
             MockPiece1(const Position &position)
                 : Piece(position) {}
+            MockPiece1(const Position &position, ::Pieces::Player *player)
+                : Piece(position, player) {}
 
             std::unordered_map<Position, ::Pieces::Move> &
             _genMovesInDirection(std::unordered_map<Position, ::Pieces::Move> &moves, Position end,

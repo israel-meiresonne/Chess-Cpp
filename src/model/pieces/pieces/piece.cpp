@@ -5,18 +5,34 @@ namespace Pieces {
         : _type(type)
         , _position(Position())
         , _nMoves(0)
+        , _player(nullptr)
         , _friendlies(nullptr)
         , _opponents(nullptr) {};
     Piece::Piece(const Position position, Types type)
         : _type(type)
         , _position(position)
         , _nMoves(0)
+        , _player(nullptr)
+        , _friendlies(nullptr)
+        , _opponents(nullptr) {};
+    Piece::Piece(const Position position, Player *player, Types type)
+        : _type(type)
+        , _position(position)
+        , _nMoves(0)
+        , _player(player)
         , _friendlies(nullptr)
         , _opponents(nullptr) {};
 
     Types Piece::type() const { return _type; }
     Position Piece::position() const { return _position; };
     int Piece::nMoves() const { return _nMoves; };
+
+    bool Piece::isPlayerNullptr() const { return _player == nullptr; }
+
+    Player *Piece::player() const {
+        if (this->isPlayerNullptr()) throw std::runtime_error("Player is nullptr");
+        return _player;
+    };
 
     std::unordered_map<Position, Piece *> &Piece::friendlies() {
         if (_friendlies == nullptr) throw std::runtime_error("Friendlies is nullptr");
@@ -258,8 +274,9 @@ namespace Pieces {
     }
 
     int Piece::hash() const {
+        int playerHash = (this->isPlayerNullptr()) ? 0 : _player->hash();
         return typeid(*this).hash_code() ^ (_position.hash() << 1) ^ (_nMoves << 2) ^
-               (_type.hash() << 3);
+               (_type.hash() << 3) ^ (playerHash << 4);
     };
 
     bool Piece::operator==(const Piece &other) const { return this->hash() == other.hash(); };

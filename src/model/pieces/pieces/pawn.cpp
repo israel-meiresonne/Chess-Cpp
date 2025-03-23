@@ -5,6 +5,8 @@ namespace Pieces {
         : Piece(Types::PAWN) {}
     Pawn::Pawn(const Position &position)
         : Piece(position, Types::PAWN) {}
+    Pawn::Pawn(const Position &position, Player *player)
+        : Piece(position, player, Types::PAWN) {}
 
     std::unordered_map<Position, Move> &Pawn::_moves(std::unordered_map<Position, Move> &moves,
                                                      int &nRow, int &nColumn) {

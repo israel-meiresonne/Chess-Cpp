@@ -28,6 +28,7 @@ TEST_F(PieceTest, DefaultConstructor) {
     EXPECT_EQ(piece.type(), Pieces::Types::UNDEFINED);
     EXPECT_EQ(typeid(piece.position()), typeid(Position));
     EXPECT_EQ(piece.nMoves(), 0);
+    EXPECT_THROW(piece.player(), std::runtime_error);
 }
 
 TEST_F(PieceTest, PositionConstructor) {
@@ -36,6 +37,17 @@ TEST_F(PieceTest, PositionConstructor) {
     EXPECT_EQ(piece.type(), Pieces::Types::UNDEFINED);
     EXPECT_EQ(piece.position(), pos);
     EXPECT_EQ(piece.nMoves(), 0);
+    EXPECT_THROW(piece.player(), std::runtime_error);
+}
+
+TEST_F(PieceTest, Constructor_WithPositionAndPlayer) {
+    Position position(2, 3);
+    Pieces::Player player("Alice");
+    MockPiece1 piece(position, &player);
+
+    EXPECT_EQ(piece.position(), position);
+    EXPECT_EQ(piece.type(), Pieces::Types::UNDEFINED);
+    EXPECT_EQ(piece.player(), &player);
 }
 
 TEST_F(PieceTest, Getter_Opponents) {
@@ -300,14 +312,28 @@ TEST_F(PieceTest, IsInBounds_InvalidPositions) {
 }
 
 TEST_F(PieceTest, EqualityOperator) {
-    MockPiece1 piece1(Position(1, 1));
-    MockPiece1 piece2(Position(1, 1));
-    MockPiece1 piece3(Position(2, 2));
-    MockPiece2 piece4(Position(2, 2));
+    Pieces::Player player1("Alice");
+    Pieces::Player player2("Bob");
+    Position position1(1, 1);
+    Position position2(2, 2);
+    MockPiece1 piece1(position1);
+    MockPiece1 piece2(position1);
+    MockPiece1 piece3(position2);
+    MockPiece1 piece4(position2);
+    Pieces::Pawn piece5(position2);
+    Pieces::Pawn piece6(position2);
+    Pieces::Pawn piece7(position2, &player1);
+    Pieces::Pawn piece8(position2, &player1);
+    Pieces::Pawn piece9(position2, &player2);
 
     EXPECT_TRUE(piece1 == piece2);
-    EXPECT_FALSE(piece1 == piece3);
-    EXPECT_FALSE(piece3 == piece4);
+    EXPECT_FALSE(piece2 == piece3);
+    EXPECT_TRUE(piece3 == piece4);
+    EXPECT_FALSE(piece4 == piece5);
+    EXPECT_TRUE(piece5 == piece6);
+    EXPECT_FALSE(piece6 == piece7);
+    EXPECT_TRUE(piece7 == piece8);
+    EXPECT_FALSE(piece8 == piece9);
 }
 
 TEST_F(PieceTest, Hash) {

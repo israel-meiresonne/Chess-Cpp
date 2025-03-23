@@ -35,14 +35,18 @@ TEST_F(PawnTest, DefaultConstructor) {
     EXPECT_EQ(pawn.type(), Pieces::Types::PAWN);
     EXPECT_EQ(typeid(pawn.position()), typeid(Position));
     EXPECT_EQ(pawn.nMoves(), 0);
+    EXPECT_THROW(pawn.player(), std::runtime_error);
 }
 
 TEST_F(PawnTest, ParameterizedConstructor) {
-    Position pos(2, 3);
-    Pieces::Pawn pawn(pos);
+    Position position(2, 3);
+    Pieces::Player player("Alice");
+    Pieces::Pawn pawn(position, &player);
+
     EXPECT_EQ(pawn.type(), Pieces::Types::PAWN);
-    EXPECT_EQ(pawn.position(), pos);
+    EXPECT_EQ(pawn.position(), position);
     EXPECT_EQ(pawn.nMoves(), 0);
+    EXPECT_EQ(pawn.player(), &player);
 }
 
 TEST_F(PawnTest, MovesEmpty) {

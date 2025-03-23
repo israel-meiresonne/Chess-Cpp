@@ -1,6 +1,7 @@
 #ifndef MOVE_HPP
 #define MOVE_HPP
 
+#include <iostream>
 #include <utility>
 #include <vector>
 
@@ -28,9 +29,7 @@ namespace Pieces {
         /**
          * @brief The piece that is being moved
          * @warning
-         *    - This pointer must Point to the original Piece store at
-         *      &Player.pieces()[position] because Player is the owner/source
-         *      of the Piece.
+         *    - This pointer must Point to the original Piece at the source of truth.
          *    - If by any mistake it points to an intermediary this pointer
          *      will dangle because all intermediaries will be destroy at some
          *      point.

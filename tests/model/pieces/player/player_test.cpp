@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include <model/player/player.hpp>
+#include <model/pieces/pieces.hpp>
 
 class MockPiece1 : public Pieces::Piece {
   public:
@@ -9,43 +9,49 @@ class MockPiece1 : public Pieces::Piece {
 };
 
 TEST(PlayerTest, DefaultConstructor) {
-    Player player;
+    Pieces::Player player;
     EXPECT_EQ(player.name(), "");
-    EXPECT_TRUE(player.pieces().empty());
 }
 
 TEST(PlayerTest, ParameterizedConstructor) {
-    Player player("Alice");
+    Pieces::Player player("Alice");
     EXPECT_EQ(player.name(), "Alice");
-    EXPECT_TRUE(player.pieces().empty());
 }
 
 TEST(PlayerTest, NameGetter) {
-    Player player("Bob");
+    Pieces::Player player("Bob");
     EXPECT_EQ(player.name(), "Bob");
 }
 
 TEST(PlayerTest, EqualityOperator) {
-    Player player1("Alice");
-    Player player2("Alice");
-    Player player3("Bob");
+    Pieces::Player player1("Alice");
+    Pieces::Player player2("Alice");
+    Pieces::Player player3("Bob");
 
     EXPECT_TRUE(player1 == player2);
     EXPECT_FALSE(player1 == player3);
 }
 
 TEST(PlayerTest, Hash) {
-    Player player1("Alice");
-    Player player2("Alice");
-    Player player3("Bob");
+    Pieces::Player player1("Alice");
+    Pieces::Player player2("Alice");
+    Pieces::Player player3("Bob");
 
     EXPECT_EQ(player1.hash(), player2.hash());
     EXPECT_NE(player1.hash(), player3.hash());
 }
 
+TEST(PlayerTest, StringConversion) {
+    Pieces::Player player("Alice");
+    std::string playerStr = player;
+
+    EXPECT_EQ(playerStr, "Player(Alice)");
+}
+
 TEST(PlayerTest, StreamOperator) {
-    Player player("Henry");
+    Pieces::Player player("Alice");
     std::ostringstream os;
     os << player;
-    EXPECT_EQ(os.str(), "Player(Henry)");
+
+    EXPECT_EQ(os.str(), "Player(Alice)");
 }

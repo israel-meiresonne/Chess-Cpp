@@ -21,14 +21,18 @@ TEST_F(QueenTest, DefaultConstructor) {
     EXPECT_EQ(queen.type(), Pieces::Types::QUEEN);
     EXPECT_EQ(typeid(queen.position()), typeid(Position));
     EXPECT_EQ(queen.nMoves(), 0);
+    EXPECT_THROW(queen.player(), std::runtime_error);
 }
 
 TEST_F(QueenTest, ParameterizedConstructor) {
-    Position pos(2, 3);
-    Pieces::Queen queen(pos);
+    Position position(2, 3);
+    Pieces::Player player("Alice");
+    Pieces::Queen queen(position, &player);
+
     EXPECT_EQ(queen.type(), Pieces::Types::QUEEN);
-    EXPECT_EQ(queen.position(), pos);
+    EXPECT_EQ(queen.position(), position);
     EXPECT_EQ(queen.nMoves(), 0);
+    EXPECT_EQ(queen.player(), &player);
 }
 
 TEST_F(QueenTest, MovesEmpty) {

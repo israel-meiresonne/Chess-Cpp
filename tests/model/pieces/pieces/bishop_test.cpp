@@ -21,14 +21,18 @@ TEST_F(BishopTest, DefaultConstructor) {
     EXPECT_EQ(bishop.type(), Pieces::Types::BISHOP);
     EXPECT_EQ(typeid(bishop.position()), typeid(Position));
     EXPECT_EQ(bishop.nMoves(), 0);
+    EXPECT_THROW(bishop.player(), std::runtime_error);
 }
 
 TEST_F(BishopTest, ParameterizedConstructor) {
-    Position pos(2, 3);
-    Pieces::Bishop bishop(pos);
+    Position position(2, 3);
+    Pieces::Player player("Alice");
+    Pieces::Bishop bishop(position, &player);
+
     EXPECT_EQ(bishop.type(), Pieces::Types::BISHOP);
-    EXPECT_EQ(bishop.position(), pos);
+    EXPECT_EQ(bishop.position(), position);
     EXPECT_EQ(bishop.nMoves(), 0);
+    EXPECT_EQ(bishop.player(), &player);
 }
 
 TEST_F(BishopTest, MovesEmpty) {

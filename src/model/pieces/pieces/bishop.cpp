@@ -4,7 +4,9 @@ namespace Pieces {
     Bishop::Bishop()
         : Piece(Types::BISHOP) {};
     Bishop::Bishop(const Position &position)
-        : Piece(position, Types::BISHOP) {};
+        : Piece(position, Types::BISHOP) {}
+    Bishop::Bishop(const Position &position, Player *player)
+        : Piece(position, player, Types::BISHOP) {};
 
     std::unordered_map<Position, Move> &Bishop::_moves(std::unordered_map<Position, Move> &moves,
                                                        int &nRow, int &nColumn) {

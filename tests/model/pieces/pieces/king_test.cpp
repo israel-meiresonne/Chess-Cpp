@@ -38,14 +38,18 @@ TEST_F(KingTest, DefaultConstructor) {
     EXPECT_EQ(king.type(), Pieces::Types::KING);
     EXPECT_EQ(typeid(king.position()), typeid(Position));
     EXPECT_EQ(king.nMoves(), 0);
+    EXPECT_THROW(king.player(), std::runtime_error);
 }
 
 TEST_F(KingTest, ParameterizedConstructor) {
-    Position pos(2, 3);
-    Pieces::King king(pos);
+    Position position(2, 3);
+    Pieces::Player player("Alice");
+    Pieces::King king(position, &player);
+
     EXPECT_EQ(king.type(), Pieces::Types::KING);
-    EXPECT_EQ(king.position(), pos);
+    EXPECT_EQ(king.position(), position);
     EXPECT_EQ(king.nMoves(), 0);
+    EXPECT_EQ(king.player(), &player);
 }
 
 TEST_F(KingTest, MovesEmpty) {

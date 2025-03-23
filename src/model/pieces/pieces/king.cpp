@@ -4,7 +4,9 @@ namespace Pieces {
     King::King()
         : Piece(Types::KING) {};
     King::King(const Position &position)
-        : Piece(position, Types::KING) {};
+        : Piece(position, Types::KING) {}
+    King::King(const Position &position, Player *player)
+        : Piece(position, player, Types::KING) {};
 
     std::unordered_map<Position, Move> &King::_moves(std::unordered_map<Position, Move> &moves,
                                                      int &nRow, int &nColumn) {
