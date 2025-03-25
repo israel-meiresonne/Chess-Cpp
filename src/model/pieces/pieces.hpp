@@ -50,7 +50,7 @@ namespace Pieces {
         int nMoves() const;
 
         bool isPlayerNullptr() const;
-        Player *player() const;
+        Player *owner() const;
 
         void move(const Position position);
         std::unordered_map<Position, Move> moves(std::unordered_map<Position, Piece *> &friendlies,
@@ -70,7 +70,7 @@ namespace Pieces {
 
       protected:
         Piece(const Position position, Types type = Types::UNDEFINED);
-        Piece(const Position position, Player *player, Types type = Types::UNDEFINED);
+        Piece(const Position position, Player *owner, Types type = Types::UNDEFINED);
 
         std::unordered_map<Position, Piece *> &friendlies();
         void friendlies(std::unordered_map<Position, Piece *> &friendlies);
@@ -112,7 +112,7 @@ namespace Pieces {
         Types _type;
         Position _position;
         int _nMoves;
-        Player *_player;
+        Player *_owner;
         std::unordered_map<Position, Piece *> *_friendlies;
         std::unordered_map<Position, Piece *> *_opponents;
     };
@@ -121,7 +121,7 @@ namespace Pieces {
       public:
         King();
         King(const Position &position);
-        King(const Position &position, Player *player);
+        King(const Position &position, Player *owner);
 
       protected:
         std::unordered_map<Position, Move> &_moves(std::unordered_map<Position, Move> &moves,
@@ -152,7 +152,7 @@ namespace Pieces {
       public:
         Queen();
         Queen(const Position &position);
-        Queen(const Position &position, Player *player);
+        Queen(const Position &position, Player *owner);
 
       protected:
         std::unordered_map<Position, Move> &_moves(std::unordered_map<Position, Move> &moves,
@@ -163,7 +163,7 @@ namespace Pieces {
       public:
         Rook();
         Rook(const Position &position);
-        Rook(const Position &position, Player *player);
+        Rook(const Position &position, Player *owner);
 
       protected:
         std::unordered_map<Position, Move> &_moves(std::unordered_map<Position, Move> &moves,
@@ -174,7 +174,7 @@ namespace Pieces {
       public:
         Bishop();
         Bishop(const Position &position);
-        Bishop(const Position &position, Player *player);
+        Bishop(const Position &position, Player *owner);
 
       protected:
         std::unordered_map<Position, Move> &_moves(std::unordered_map<Position, Move> &moves,
@@ -185,7 +185,7 @@ namespace Pieces {
       public:
         Knight();
         Knight(const Position &position);
-        Knight(const Position &position, Player *player);
+        Knight(const Position &position, Player *owner);
 
       protected:
         std::unordered_map<Position, Move> &_moves(std::unordered_map<Position, Move> &moves,
@@ -201,7 +201,7 @@ namespace Pieces {
       public:
         Pawn();
         Pawn(const Position &position);
-        Pawn(const Position &position, Player *player);
+        Pawn(const Position &position, Player *owner);
 
       protected:
         std::unordered_map<Position, Move> &_moves(std::unordered_map<Position, Move> &moves,

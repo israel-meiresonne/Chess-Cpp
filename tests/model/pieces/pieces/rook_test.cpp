@@ -22,7 +22,7 @@ TEST_F(RookTest, DefaultConstructor) {
     EXPECT_EQ(rook.type(), Pieces::Types::ROOK);
     EXPECT_EQ(typeid(rook.position()), typeid(Position));
     EXPECT_EQ(rook.nMoves(), 0);
-    EXPECT_THROW(rook.player(), std::runtime_error);
+    EXPECT_THROW(rook.owner(), std::runtime_error);
 }
 
 TEST_F(RookTest, ParameterizedConstructor) {
@@ -33,7 +33,7 @@ TEST_F(RookTest, ParameterizedConstructor) {
     EXPECT_EQ(rook.type(), Pieces::Types::ROOK);
     EXPECT_EQ(rook.position(), position);
     EXPECT_EQ(rook.nMoves(), 0);
-    EXPECT_EQ(rook.player(), &player);
+    EXPECT_EQ(rook.owner(), &player);
 }
 
 TEST_F(RookTest, MovesEmpty) {

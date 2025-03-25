@@ -35,7 +35,7 @@ TEST_F(PawnTest, DefaultConstructor) {
     EXPECT_EQ(pawn.type(), Pieces::Types::PAWN);
     EXPECT_EQ(typeid(pawn.position()), typeid(Position));
     EXPECT_EQ(pawn.nMoves(), 0);
-    EXPECT_THROW(pawn.player(), std::runtime_error);
+    EXPECT_THROW(pawn.owner(), std::runtime_error);
 }
 
 TEST_F(PawnTest, ParameterizedConstructor) {
@@ -46,7 +46,7 @@ TEST_F(PawnTest, ParameterizedConstructor) {
     EXPECT_EQ(pawn.type(), Pieces::Types::PAWN);
     EXPECT_EQ(pawn.position(), position);
     EXPECT_EQ(pawn.nMoves(), 0);
-    EXPECT_EQ(pawn.player(), &player);
+    EXPECT_EQ(pawn.owner(), &player);
 }
 
 TEST_F(PawnTest, MovesEmpty) {

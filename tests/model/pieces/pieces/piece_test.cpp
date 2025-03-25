@@ -28,7 +28,7 @@ TEST_F(PieceTest, DefaultConstructor) {
     EXPECT_EQ(piece.type(), Pieces::Types::UNDEFINED);
     EXPECT_EQ(typeid(piece.position()), typeid(Position));
     EXPECT_EQ(piece.nMoves(), 0);
-    EXPECT_THROW(piece.player(), std::runtime_error);
+    EXPECT_THROW(piece.owner(), std::runtime_error);
 }
 
 TEST_F(PieceTest, PositionConstructor) {
@@ -37,7 +37,7 @@ TEST_F(PieceTest, PositionConstructor) {
     EXPECT_EQ(piece.type(), Pieces::Types::UNDEFINED);
     EXPECT_EQ(piece.position(), pos);
     EXPECT_EQ(piece.nMoves(), 0);
-    EXPECT_THROW(piece.player(), std::runtime_error);
+    EXPECT_THROW(piece.owner(), std::runtime_error);
 }
 
 TEST_F(PieceTest, Constructor_WithPositionAndPlayer) {
@@ -47,7 +47,7 @@ TEST_F(PieceTest, Constructor_WithPositionAndPlayer) {
 
     EXPECT_EQ(piece.position(), position);
     EXPECT_EQ(piece.type(), Pieces::Types::UNDEFINED);
-    EXPECT_EQ(piece.player(), &player);
+    EXPECT_EQ(piece.owner(), &player);
 }
 
 TEST_F(PieceTest, Getter_Opponents) {
