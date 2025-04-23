@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include <model/game/status.hpp>
+#include <model/game/game.hpp>
 
 // Test that the Status enum values exist and are distinct
 TEST(StatusTest, EnumValues) {

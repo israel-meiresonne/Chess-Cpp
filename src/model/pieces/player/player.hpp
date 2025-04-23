@@ -16,6 +16,8 @@ namespace Pieces {
 
         bool operator==(const Player &other) const;
 
+        bool operator!=(const Player &other) const;
+
         operator std::string() const;
 
         friend std::ostream &operator<<(std::ostream &os, const Player &player);

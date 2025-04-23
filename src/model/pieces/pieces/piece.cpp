@@ -281,6 +281,8 @@ namespace Pieces {
 
     bool Piece::operator==(const Piece &other) const { return this->hash() == other.hash(); };
 
+    bool Piece::operator!=(const Piece &other) const { return *this != other; };
+
     std::ostream &operator<<(std::ostream &os, const Pieces::Piece *piece) {
         std::string pieceStr = *piece;
         os << pieceStr;

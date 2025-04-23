@@ -14,11 +14,14 @@ namespace Pieces {
     class Action {
       public:
         Action();
-        Action(const Piece *piece, const Position initial, const Position final);
+        Action(Piece *piece, const Position initial, const Position final);
 
         bool isPieceNullptr() const;
-        const Piece *piece() const;
+
+        Piece *piece() const;
+
         Position initial() const;
+
         Position final() const;
 
         int hash() const;
@@ -34,7 +37,7 @@ namespace Pieces {
          *      will dangle because all intermediaries will be destroy at some
          *      point.
          */
-        const Piece *_piece;
+        Piece *_piece;
         Position _initial;
         Position _final;
     };

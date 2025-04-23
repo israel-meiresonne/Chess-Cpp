@@ -46,7 +46,7 @@ namespace Pieces {
         case _Direction::CUSTOM:
             return {_rowDiff, _columnDiff};
         default:
-            throw std::runtime_error("Undefined direction: '" +
+            throw std::runtime_error("Undefined Pieces::Direction: '" +
                                      std::to_string(static_cast<int>(_direction)) + "'");
         }
     }

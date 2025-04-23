@@ -63,6 +63,7 @@ namespace Pieces {
         int hash() const;
 
         bool operator==(const Piece &other) const;
+        bool operator!=(const Piece &other) const;
 
         operator std::string() const;
 
