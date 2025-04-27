@@ -56,9 +56,9 @@ namespace Pieces {
         return move;
     }
 
-    Move &Move::addAction(Move &move, const Piece *piece, Position &initial, Position final) {
-        Action captureOpponent = Action(&*piece, initial, final);
-        move.add(captureOpponent);
+    Move &Move::addAction(Move &move, Piece *piece, Position &initial, Position final) {
+        Action action = Action(piece, initial, final);
+        move.add(action);
         return move;
     }
 

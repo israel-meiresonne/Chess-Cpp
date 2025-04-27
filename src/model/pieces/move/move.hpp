@@ -27,6 +27,7 @@ namespace Pieces {
         int hash() const;
 
         bool operator==(const Action &other) const;
+        operator std::string() const;
         friend std::ostream &operator<<(std::ostream &os, const Pieces::Action &action);
 
         /**
@@ -70,7 +71,7 @@ namespace Pieces {
         static Move createMove(Pieces::Piece &piece, Position initial, Position final,
                                Pieces::Move::Type moveType = Pieces::Move::Type::DISPLACEMENT);
 
-        static Move &addAction(Move &move, const Piece *piece, Position &initial,
+        static Move &addAction(Move &move, Piece *piece, Position &initial,
                                Position final = Position());
     };
 

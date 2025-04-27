@@ -34,14 +34,16 @@ namespace Pieces {
         return _piece == other._piece && _initial == other._initial && _final == other._final;
     }
 
+    Action::operator std::string() const {
+        std::string str, from = this->initial(), to = this->final();
+
+        if (this->isPieceNullptr()) return "Action(nullptr, From: " + from + " To: " + to + ")";
+
+        return "Action(" + std::string(*this->piece()) + ", From: " + from + " To: " + to + ")";
+    }
+
     std::ostream &operator<<(std::ostream &os, const Pieces::Action &action) {
-        if (action.isPieceNullptr()) {
-            os << "Action(nullptr, From: " << action.initial() << " To: " << action.final() << ")";
-        } else {
-            os << "Action(" << action.piece() << ", From: " << action.initial()
-               << " To: " << action.final() << ")";
-        }
-        return os;
+        return os << std::string(action);
     }
 
 } // namespace Pieces
