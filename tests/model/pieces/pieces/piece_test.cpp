@@ -311,7 +311,7 @@ TEST_F(PieceTest, IsInBounds_InvalidPositions) {
     EXPECT_FALSE(Pieces::Piece::isInBounds(Position(3, 9), 8, 8));
 }
 
-TEST_F(PieceTest, EqualityOperator) {
+TEST_F(PieceTest, EqualityOperators) {
     Pieces::Player player1("Alice");
     Pieces::Player player2("Bob");
     Position position1(1, 1);
@@ -325,15 +325,19 @@ TEST_F(PieceTest, EqualityOperator) {
     Pieces::Pawn piece7(position2, &player1);
     Pieces::Pawn piece8(position2, &player1);
     Pieces::Pawn piece9(position2, &player2);
+    Pieces::Pawn piece10;
+    Pieces::Pawn piece11;
 
     EXPECT_TRUE(piece1 == piece2);
-    EXPECT_FALSE(piece2 == piece3);
+    EXPECT_TRUE(piece2 != piece3);
     EXPECT_TRUE(piece3 == piece4);
-    EXPECT_FALSE(piece4 == piece5);
+    EXPECT_TRUE(piece4 != piece5);
     EXPECT_TRUE(piece5 == piece6);
-    EXPECT_FALSE(piece6 == piece7);
+    EXPECT_TRUE(piece6 != piece7);
     EXPECT_TRUE(piece7 == piece8);
-    EXPECT_FALSE(piece8 == piece9);
+    EXPECT_TRUE(piece8 != piece9);
+    EXPECT_TRUE(piece9 != piece10);
+    EXPECT_TRUE(piece10 == piece11);
 }
 
 TEST_F(PieceTest, Hash) {
@@ -343,6 +347,6 @@ TEST_F(PieceTest, Hash) {
     MockPiece2 piece4(Position(2, 2));
 
     EXPECT_EQ(piece1.hash(), piece2.hash());
-    EXPECT_NE(piece1.hash(), piece3.hash());
-    EXPECT_NE(piece3.hash(), piece4.hash());
+    EXPECT_NE(piece2.hash(), piece3.hash());
+    EXPECT_EQ(piece3.hash(), piece4.hash());
 }

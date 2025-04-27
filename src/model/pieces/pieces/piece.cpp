@@ -273,15 +273,11 @@ namespace Pieces {
                position.column() >= columnMinBound && position.column() < columnMaxBound;
     }
 
-    int Piece::hash() const {
-        int playerHash = (this->isPlayerNullptr()) ? 0 : _owner->hash();
-        return typeid(*this).hash_code() ^ (_position.hash() << 1) ^ (_nMoves << 2) ^
-               (_type.hash() << 3) ^ (playerHash << 4);
-    };
+    int Piece::hash() const { return std::hash<std::string>()(*this); };
 
     bool Piece::operator==(const Piece &other) const { return this->hash() == other.hash(); };
 
-    bool Piece::operator!=(const Piece &other) const { return *this != other; };
+    bool Piece::operator!=(const Piece &other) const { return !(*this == other); };
 
     std::ostream &operator<<(std::ostream &os, const Pieces::Piece *piece) {
         std::string pieceStr = *piece;
@@ -291,8 +287,9 @@ namespace Pieces {
 
     Piece::operator std::string() const {
         std::string type = _type;
-        std::string position = this->position();
-        return "Piece(" + type + ", " + typeid(*this).name() + ", " + position + ")";
+        std::string position = this->_position;
+        std::string owner = this->isPlayerNullptr() ? "nullptr" : std::string(*this->_owner);
+        return "Piece(" + type + ", " + position + ", " + owner + ")";
     }
 
 } // namespace Pieces
