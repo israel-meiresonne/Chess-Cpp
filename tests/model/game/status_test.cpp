@@ -3,11 +3,11 @@
 #include <model/game/game.hpp>
 
 TEST(StatusTest, StringConversion) {
-    EXPECT_EQ(static_cast<std::string>(Game::Status::NOT_STARTED), "NOT_STARTED");
-    EXPECT_EQ(static_cast<std::string>(Game::Status::IN_PROGRESS), "IN_PROGRESS");
-    EXPECT_EQ(static_cast<std::string>(Game::Status::ENDED_CHECKMATE), "ENDED_CHECKMATE");
-    EXPECT_EQ(static_cast<std::string>(Game::Status::ENDED_STALEMATE), "ENDED_STALEMATE");
-    EXPECT_EQ(static_cast<std::string>(Game::Status::UNDEFINED), "UNDEFINED");
+    EXPECT_EQ(std::string(Game::Status::NOT_STARTED), "NOT_STARTED");
+    EXPECT_EQ(std::string(Game::Status::IN_PROGRESS), "IN_PROGRESS");
+    EXPECT_EQ(std::string(Game::Status::ENDED_CHECKMATE), "ENDED_CHECKMATE");
+    EXPECT_EQ(std::string(Game::Status::ENDED_STALEMATE), "ENDED_STALEMATE");
+    EXPECT_EQ(std::string(Game::Status::UNDEFINED), "UNDEFINED");
 }
 
 TEST(StatusTest, EqualityOperator) {
