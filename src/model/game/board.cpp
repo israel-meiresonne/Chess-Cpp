@@ -18,13 +18,18 @@ namespace Game {
     Board::~Board() {
         for (auto *piece : _pieces) {
             delete piece;
+            piece = nullptr;
         }
         _pieces.clear();
     }
 
     std::pair<int, int> Board::boundaries() const { return this->_boundaries; }
 
+    int Board::nMoves() const { return this->_nMoves; }
+
     Status Board::status() const { return this->_status; }
+
+    Utils::Templates::UndoRedo<Pieces::Move> Board::moves() const { return this->_moves; }
 
     const std::vector<Pieces::Piece *> &Board::pieces() const { return this->_pieces; }
 
@@ -45,7 +50,6 @@ namespace Game {
 
         auto moves = this->moves(piece, to);
         auto actions = this->actions(piece, to, moves);
-
         Pieces::Player *owner = piece->owner();
         this->playMove(*owner, actions);
 
@@ -101,7 +105,7 @@ namespace Game {
     void Board::promote(Pieces::Piece *piece, Pieces::Types promotion) {}
 
     bool Board::opponentKingIsLastPiece(Pieces::Player &player) {
-        auto opponents = this->playerPieces(player, false);
+        auto opponents = this->playerPieces(player, false, false);
         return (opponents.size() == 1) && findKing(opponents);
     }
 
@@ -133,7 +137,7 @@ namespace Game {
         return false;
     }
 
-    static Pieces::Piece *findKing(std::unordered_map<Position, Pieces::Piece *> pieces) {
+    Pieces::Piece *Board::findKing(std::unordered_map<Position, Pieces::Piece *> pieces) {
         std::vector<Pieces::Piece *> vPieces;
         for (auto &[_, piece] : pieces) {
             vPieces.push_back(piece);
@@ -141,8 +145,8 @@ namespace Game {
         return findPieces(vPieces, Pieces::Types::KING, true)[0];
     }
 
-    static std::vector<Pieces::Piece *> findPieces(std::vector<Pieces::Piece *> pieces,
-                                                   Pieces::Types type, bool throwNotFound = false) {
+    std::vector<Pieces::Piece *> Board::findPieces(std::vector<Pieces::Piece *> pieces,
+                                                   Pieces::Types type, bool throwNotFound) {
         std::vector<Pieces::Piece *> founds;
         for (auto *piece : pieces) {
             if (piece->type() != type) continue;
@@ -159,14 +163,23 @@ namespace Game {
     std::vector<Pieces::Piece *> Board::initializePieces(Pieces::Player &player,
                                                          bool isFirstPlayer) {
         std::vector<Pieces::Piece *> pieces;
-        int initialRow = isFirstPlayer ? this->_boundaries.first - 1 : 0;
-        int pawnRow = isFirstPlayer ? initialRow - 1 : 1;
+        int initialRow = isFirstPlayer ? 0 : (this->_boundaries.first - 1);
+        int pawnRow = isFirstPlayer ? (initialRow + 1) : (initialRow - 1);
+
+        Position kingPosition(initialRow, 4);
+        Position queenPosition(initialRow, 3);
+        if (!isFirstPlayer) {
+            kingPosition = Position(initialRow, 3);
+            queenPosition = Position(initialRow, 4);
+        }
 
         pieces.push_back(new Pieces::Rook(Position(initialRow, 0), &player));
         pieces.push_back(new Pieces::Knight(Position(initialRow, 1), &player));
         pieces.push_back(new Pieces::Bishop(Position(initialRow, 2), &player));
-        pieces.push_back(new Pieces::Queen(Position(initialRow, 3), &player));
-        pieces.push_back(new Pieces::King(Position(initialRow, 4), &player));
+
+        pieces.push_back(new Pieces::Queen(queenPosition, &player));
+        pieces.push_back(new Pieces::King(kingPosition, &player));
+
         pieces.push_back(new Pieces::Bishop(Position(initialRow, 5), &player));
         pieces.push_back(new Pieces::Knight(Position(initialRow, 6), &player));
         pieces.push_back(new Pieces::Rook(Position(initialRow, 7), &player));
@@ -186,11 +199,14 @@ namespace Game {
         throw std::runtime_error("This Piece does not exist: piece='" + pieceStr + "'");
     }
 
-    std::unordered_map<Position, Pieces::Piece *> Board::playerPieces(Pieces::Player &player,
-                                                                      bool isFriendly) {
+    std::unordered_map<Position, Pieces::Piece *>
+    Board::playerPieces(Pieces::Player &player, bool isFriendly, bool keepCaptured) {
         std::unordered_map<Position, Pieces::Piece *> mPieces;
+        Position capturedPosition;
         for (auto *piece : this->_pieces) {
             if ((*piece->owner() == player) != isFriendly) continue;
+
+            if (!keepCaptured && (piece->position() == capturedPosition)) continue;
 
             mPieces[piece->position()] = piece;
         }

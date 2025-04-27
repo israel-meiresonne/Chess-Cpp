@@ -45,7 +45,11 @@ namespace Game {
 
         std::pair<int, int> boundaries() const;
 
+        int nMoves() const;
+
         Status status() const;
+
+        Utils::Templates::UndoRedo<Pieces::Move> moves() const;
 
         const std::vector<Pieces::Piece *> &pieces() const;
 
@@ -74,8 +78,8 @@ namespace Game {
 
         bool pieceExists(Pieces::Piece *piece);
 
-        std::unordered_map<Position, Pieces::Piece *> playerPieces(Pieces::Player &player,
-                                                                   bool isFriendly);
+        std::unordered_map<Position, Pieces::Piece *>
+        playerPieces(Pieces::Player &player, bool isFriendly, bool keepCaptured = true);
 
         std::unordered_map<Position, Pieces::Move> moves(Pieces::Piece *piece, Position &to);
 
@@ -85,6 +89,12 @@ namespace Game {
         void playMove(Pieces::Player &player, std::vector<Pieces::Action> &actions);
 
         void unPlayMove();
+
+        static Pieces::Piece *findKing(std::unordered_map<Position, Pieces::Piece *> pieces);
+
+        static std::vector<Pieces::Piece *> findPieces(std::vector<Pieces::Piece *> pieces,
+                                                       Pieces::Types type,
+                                                       bool throwNotFound = false);
 
       private:
         std::pair<int, int> _boundaries;
