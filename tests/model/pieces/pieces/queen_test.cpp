@@ -21,7 +21,7 @@ TEST_F(QueenTest, DefaultConstructor) {
     EXPECT_EQ(queen.type(), Pieces::Types::QUEEN);
     EXPECT_EQ(typeid(queen.position()), typeid(Position));
     EXPECT_EQ(queen.nMoves(), 0);
-    EXPECT_THROW(queen.player(), std::runtime_error);
+    EXPECT_THROW(queen.owner(), std::runtime_error);
 }
 
 TEST_F(QueenTest, ParameterizedConstructor) {
@@ -32,7 +32,7 @@ TEST_F(QueenTest, ParameterizedConstructor) {
     EXPECT_EQ(queen.type(), Pieces::Types::QUEEN);
     EXPECT_EQ(queen.position(), position);
     EXPECT_EQ(queen.nMoves(), 0);
-    EXPECT_EQ(queen.player(), &player);
+    EXPECT_EQ(queen.owner(), &player);
 }
 
 TEST_F(QueenTest, MovesEmpty) {

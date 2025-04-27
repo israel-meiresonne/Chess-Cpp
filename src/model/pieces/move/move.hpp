@@ -14,16 +14,20 @@ namespace Pieces {
     class Action {
       public:
         Action();
-        Action(const Piece *piece, const Position initial, const Position final);
+        Action(Piece *piece, const Position initial, const Position final);
 
         bool isPieceNullptr() const;
-        const Piece *piece() const;
+
+        Piece *piece() const;
+
         Position initial() const;
+
         Position final() const;
 
         int hash() const;
 
         bool operator==(const Action &other) const;
+        operator std::string() const;
         friend std::ostream &operator<<(std::ostream &os, const Pieces::Action &action);
 
         /**
@@ -34,7 +38,7 @@ namespace Pieces {
          *      will dangle because all intermediaries will be destroy at some
          *      point.
          */
-        const Piece *_piece;
+        Piece *_piece;
         Position _initial;
         Position _final;
     };
@@ -67,7 +71,7 @@ namespace Pieces {
         static Move createMove(Pieces::Piece &piece, Position initial, Position final,
                                Pieces::Move::Type moveType = Pieces::Move::Type::DISPLACEMENT);
 
-        static Move &addAction(Move &move, const Piece *piece, Position &initial,
+        static Move &addAction(Move &move, Piece *piece, Position &initial,
                                Position final = Position());
     };
 

@@ -11,6 +11,8 @@ namespace Pieces {
     int Player::hash() const { return std::hash<std::string>()(_name); }
 
     bool Player::operator==(const Player &other) const { return this->hash() == other.hash(); }
+    
+    bool Player::operator!=(const Player &other) const { return !(*this == other); }
 
     Player::operator std::string() const { return "Player(" + _name + ")"; }
 

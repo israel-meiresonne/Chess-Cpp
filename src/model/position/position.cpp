@@ -18,6 +18,8 @@ bool Position::operator==(const Position &other) const {
     return _row == other._row && _column == other._column;
 }
 
+bool Position::operator!=(const Position &other) const { return !(*this == other); }
+
 Position::operator std::string() const {
     return "Position(" + std::to_string(_row) + ", " + std::to_string(_column) + ")";
 }

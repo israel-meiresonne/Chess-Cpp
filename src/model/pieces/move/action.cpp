@@ -7,14 +7,14 @@ namespace Pieces {
         , _initial(Position())
         , _final(Position()) {}
 
-    Action::Action(const Pieces::Piece *piece, const Position initial, const Position final)
+    Action::Action(Pieces::Piece *piece, const Position initial, const Position final)
         : _piece(piece)
         , _initial(initial)
         , _final(final) {}
 
     bool Action::isPieceNullptr() const { return _piece == nullptr; }
 
-    const Pieces::Piece *Action::piece() const {
+    Pieces::Piece *Action::piece() const {
         if (isPieceNullptr()) throw std::runtime_error("Piece is nullptr");
 
         return &*_piece;
@@ -34,14 +34,16 @@ namespace Pieces {
         return _piece == other._piece && _initial == other._initial && _final == other._final;
     }
 
+    Action::operator std::string() const {
+        std::string str, from = this->initial(), to = this->final();
+
+        if (this->isPieceNullptr()) return "Action(nullptr, From: " + from + " To: " + to + ")";
+
+        return "Action(" + std::string(*this->piece()) + ", From: " + from + " To: " + to + ")";
+    }
+
     std::ostream &operator<<(std::ostream &os, const Pieces::Action &action) {
-        if (action.isPieceNullptr()) {
-            os << "Action(nullptr, From: " << action.initial() << " To: " << action.final() << ")";
-        } else {
-            os << "Action(" << action.piece() << ", From: " << action.initial()
-               << " To: " << action.final() << ")";
-        }
-        return os;
+        return os << std::string(action);
     }
 
 } // namespace Pieces

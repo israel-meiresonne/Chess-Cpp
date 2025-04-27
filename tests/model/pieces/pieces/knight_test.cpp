@@ -22,7 +22,7 @@ TEST_F(KnightTest, DefaultConstructor) {
     EXPECT_EQ(knight.type(), Pieces::Types::KNIGHT);
     EXPECT_EQ(typeid(knight.position()), typeid(Position));
     EXPECT_EQ(knight.nMoves(), 0);
-    EXPECT_THROW(knight.player(), std::runtime_error);
+    EXPECT_THROW(knight.owner(), std::runtime_error);
 }
 
 TEST_F(KnightTest, ParameterizedConstructor) {
@@ -33,7 +33,7 @@ TEST_F(KnightTest, ParameterizedConstructor) {
     EXPECT_EQ(knight.type(), Pieces::Types::KNIGHT);
     EXPECT_EQ(knight.position(), position);
     EXPECT_EQ(knight.nMoves(), 0);
-    EXPECT_EQ(knight.player(), &player);
+    EXPECT_EQ(knight.owner(), &player);
 }
 
 TEST_F(KnightTest, MovesEmpty) {

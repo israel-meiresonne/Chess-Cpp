@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+#include <regex>
 
 #include <model/pieces/pieces.hpp>
 #include <model/pieces/pieces_test.hpp>
@@ -51,4 +52,24 @@ TEST(ActionTest, Hash) {
 
     EXPECT_NE(action1.hash(), action2.hash());
     EXPECT_EQ(action2.hash(), action3.hash());
+}
+
+TEST(ActionTest, ToStringWithPiece) {
+    Pieces::Player player;
+    Pieces::Pawn pawn(Position(1, 1), &player);
+    Position from(1, 1);
+    Position to(2, 1);
+    std::string actionStr = Pieces::Action(&pawn, from, to);
+
+    std::regex pattern("Action\\(.+, From: .+ To: .+\\)");
+    EXPECT_TRUE(std::regex_match(actionStr, pattern));
+}
+
+TEST(ActionTest, ToStringWithoutPiece) {
+    Position from(1, 1);
+    Position to(2, 1);
+    std::string actionStr = Pieces::Action(nullptr, from, to);
+
+    std::regex pattern("Action\\(nullptr, From: .+ To: .+\\)");
+    EXPECT_TRUE(std::regex_match(actionStr, pattern));
 }

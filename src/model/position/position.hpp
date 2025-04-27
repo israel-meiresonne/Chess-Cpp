@@ -20,6 +20,7 @@ class Position {
     int hash() const;
 
     bool operator==(const Position &other) const;
+    bool operator!=(const Position &other) const;
 
     operator std::string() const;
 

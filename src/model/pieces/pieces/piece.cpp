@@ -5,21 +5,21 @@ namespace Pieces {
         : _type(type)
         , _position(Position())
         , _nMoves(0)
-        , _player(nullptr)
+        , _owner(nullptr)
         , _friendlies(nullptr)
         , _opponents(nullptr) {};
     Piece::Piece(const Position position, Types type)
         : _type(type)
         , _position(position)
         , _nMoves(0)
-        , _player(nullptr)
+        , _owner(nullptr)
         , _friendlies(nullptr)
         , _opponents(nullptr) {};
     Piece::Piece(const Position position, Player *player, Types type)
         : _type(type)
         , _position(position)
         , _nMoves(0)
-        , _player(player)
+        , _owner(player)
         , _friendlies(nullptr)
         , _opponents(nullptr) {};
 
@@ -27,11 +27,11 @@ namespace Pieces {
     Position Piece::position() const { return _position; };
     int Piece::nMoves() const { return _nMoves; };
 
-    bool Piece::isPlayerNullptr() const { return _player == nullptr; }
+    bool Piece::isPlayerNullptr() const { return _owner == nullptr; }
 
-    Player *Piece::player() const {
+    Player *Piece::owner() const {
         if (this->isPlayerNullptr()) throw std::runtime_error("Player is nullptr");
-        return _player;
+        return _owner;
     };
 
     std::unordered_map<Position, Piece *> &Piece::friendlies() {
@@ -273,13 +273,11 @@ namespace Pieces {
                position.column() >= columnMinBound && position.column() < columnMaxBound;
     }
 
-    int Piece::hash() const {
-        int playerHash = (this->isPlayerNullptr()) ? 0 : _player->hash();
-        return typeid(*this).hash_code() ^ (_position.hash() << 1) ^ (_nMoves << 2) ^
-               (_type.hash() << 3) ^ (playerHash << 4);
-    };
+    int Piece::hash() const { return std::hash<std::string>()(*this); };
 
     bool Piece::operator==(const Piece &other) const { return this->hash() == other.hash(); };
+
+    bool Piece::operator!=(const Piece &other) const { return !(*this == other); };
 
     std::ostream &operator<<(std::ostream &os, const Pieces::Piece *piece) {
         std::string pieceStr = *piece;
@@ -289,8 +287,9 @@ namespace Pieces {
 
     Piece::operator std::string() const {
         std::string type = _type;
-        std::string position = this->position();
-        return "Piece(" + type + ", " + typeid(*this).name() + ", " + position + ")";
+        std::string position = this->_position;
+        std::string owner = this->isPlayerNullptr() ? "nullptr" : std::string(*this->_owner);
+        return "Piece(" + type + ", " + position + ", " + owner + ")";
     }
 
 } // namespace Pieces
