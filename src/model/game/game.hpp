@@ -104,6 +104,32 @@ namespace Game {
                                                        Pieces::Types type,
                                                        bool throwNotFound = false);
     };
+
+    class Game {
+        Pieces::Player *_player1;
+        Pieces::Player *_player2;
+        Pieces::Player *_currentPlayer;
+        Board *_board;
+
+        void nextPlayer();
+
+        static Pieces::Piece *findPiece(std::vector<Pieces::Piece *> pieces, Position at,
+                                        Pieces::Player *player);
+
+      public:
+        Game();
+        Game(std::string player1, std::string player2);
+        ~Game();
+
+        Pieces::Player player1() const;
+        Pieces::Player player2() const;
+        Pieces::Player currentPlayer() const;
+        std::vector<std::vector<Pieces::Piece *>> board() const;
+
+        void start();
+        Status status() const;
+        std::vector<std::vector<Pieces::Piece *>> move(Position from, Position to);
+    };
 }; // namespace Game
 
 #endif // GAME_HPP
