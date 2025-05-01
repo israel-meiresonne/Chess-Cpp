@@ -1,22 +1,21 @@
 #!/bin/bash
 
-COMPILER="-std=c++20"
+COMPILER_VERSION="-std=c++20"
 
 run_main() {
-  headers_src="-I./src"
+  headers_src="-I./src -I./libs"
   app_src=$(find src -type f -name "*.cpp")
   built_binary="builds/main"
 
   mkdir -p builds
 
-  echo $headers_src $app_src | xargs clang++ $COMPILER -o $built_binary && ./$built_binary
+  echo "$headers_src" "$app_src" | xargs clang++ "$COMPILER_VERSION" -o "$built_binary" && ./"$built_binary"
 }
 
 run_tests() {
   test_files=$(_clean_var "$1" "")
 
   headers_src="-I./src -I./tests -I./libs/googletest/include -I./libs/googletest"
-  gtest_src='./libs/googletest/src/gtest-all.cc'
   built_binary='./builds/main_test'
 
   app_srcs=$(find src -type f -name "*.cpp" | grep -v 'main.cpp')
@@ -32,20 +31,22 @@ run_tests() {
 
   mkdir -p builds
 
-  echo "$headers_src" "$gtest_src" "$app_srcs" "$test_srcs" | xargs clang++ $COMPILER -o $built_binary && $built_binary
+  echo "$headers_src" "$gtest_src" "$app_srcs" "$test_srcs" | xargs clang++ "$COMPILER_VERSION" -o "$built_binary" && "$built_binary"
 }
 
 run_formatter() {
-  SRC_DIR=$(find src -type f -name "*.[ch]pp")
-  TESTS_DIR=$(find tests -type f -name "*.[ch]pp")
+  src_dir=$(find src -type f -name "*.[ch]pp")
+  tests_dir=$(find tests -type f -name "*.[ch]pp")
 
-  echo "$SRC_DIR $TESTS_DIR" | xargs clang-format -i
+  echo "$src_dir $tests_dir" | xargs clang-format -i
 }
 
 download_libs() {
   echo "Downloading libs..."
 
-  _download_lib 'https://github.com/google/googletest.git' 'v1.16.x' 'googletest' './googletest/googletest'
+  _download_lib 'https://github.com/google/googletest.git' 'v1.16.x' './googletest/googletest'
+
+  _download_lib 'https://github.com/CLIUtils/CLI11.git' 'v2.5.0' './CLI11/include/CLI'
 }
 
 ###############################################################################
@@ -53,32 +54,42 @@ download_libs() {
 ###############################################################################
 
 _download_lib() {
-  REPO_URL="$1"
-  BRANCH="$2"
-  LIB_NAME="$3"
-  REPO_SRC_DIR="$4"
+  repo_url="$1"
+  branch="$2"
+  dir_repo_src="$3"
 
-  DEST_DIR="./libs/"
+  dir_local_libs="./libs"
+  repo_name=$(_github_repo_name "$repo_url")
+  dir_storage_new_lib="$dir_local_libs/$repo_name"
 
-  git clone --branch "$BRANCH" --depth 1 "$REPO_URL" "$LIB_NAME"
+  if [ -d "$dir_storage_new_lib" ]; then
+    echo "Library '$repo_name' already exists in '$dir_storage_new_lib'."
+    return 0
+  fi
 
-  if [ ! -d "$LIB_NAME" ]; then
+  git clone --branch "$branch" --depth 1 "$repo_url" "$repo_name"
+
+  if [ ! -d "$repo_name" ]; then
     echo "Error: Failed to clone the repository."
     return 1
   fi
 
-  mkdir -p "$DEST_DIR"
+  if [ ! -d "$dir_local_libs" ]; then
+    mkdir -p "$dir_local_libs"
+  fi
 
-  cp -r "$REPO_SRC_DIR" "$DEST_DIR"
+  cp -r "$dir_repo_src" "$dir_storage_new_lib"
 
-  if [ ! -d "$DEST_DIR/$LIB_NAME" ]; then
+  if [ ! -d "$dir_storage_new_lib" ]; then
     echo "Error: Failed to download the library."
     return 1
   fi
 
-  rm -rf "$LIB_NAME"
+  echo "$branch" >"$dir_storage_new_lib/.version"
 
-  echo "'$LIB_NAME' has been successfully downloaded into '$DEST_DIR/$LIB_NAME'."
+  rm -fr "./$repo_name"
+
+  echo "New library '$repo_name' has been successfully downloaded in '$dir_storage_new_lib'."
 }
 
 _clean_var() {
@@ -86,4 +97,9 @@ _clean_var() {
   var_default=$2
 
   test -n "$var" && echo "$var" || echo "$var_default"
+}
+
+_github_repo_name() {
+  repo_url="$1"
+  echo "$repo_url" | sed -E 's#.+/(.+)\.git#\1#g'
 }
