@@ -246,3 +246,18 @@ TEST_F(BoardTest, StatusIsStalemate) {
         piece = nullptr;
     }
 }
+
+TEST_F(BoardTest, Serialize) {
+    auto serialized = board.serialize();
+    Pieces::Piece *piece00 = serialized[0][0];
+    Pieces::Piece *piece77 = serialized[7][7];
+
+    ASSERT_EQ(serialized.size(), board.boundaries().first);
+    ASSERT_EQ(serialized[0].size(), board.boundaries().second);
+
+    ASSERT_NE(piece00, nullptr);
+    EXPECT_EQ(*piece00, Pieces::Rook(Position(0, 0), &player1));
+    ASSERT_NE(piece77, nullptr);
+    EXPECT_EQ(*piece77, Pieces::Rook(Position(7, 7), &player2));
+    EXPECT_EQ(serialized[4][4], nullptr);
+}

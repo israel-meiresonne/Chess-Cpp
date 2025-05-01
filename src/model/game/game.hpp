@@ -65,7 +65,15 @@ namespace Game {
 
         void promote(Pieces::Piece *piece, Pieces::Types promotion);
 
+        std::vector<std::vector<Pieces::Piece *>> serialize() const;
+
       private:
+        std::pair<int, int> _boundaries;
+        int _nMoves;
+        Status _status;
+        Utils::Templates::UndoRedo<Pieces::Move> _moves;
+        std::vector<Pieces::Piece *> _pieces;
+
         void updateStatus(Pieces::Player &player);
 
         bool opponentKingIsLastPiece(Pieces::Player &player);
@@ -95,13 +103,6 @@ namespace Game {
         static std::vector<Pieces::Piece *> findPieces(std::vector<Pieces::Piece *> pieces,
                                                        Pieces::Types type,
                                                        bool throwNotFound = false);
-
-      private:
-        std::pair<int, int> _boundaries;
-        int _nMoves;
-        Status _status;
-        Utils::Templates::UndoRedo<Pieces::Move> _moves;
-        std::vector<Pieces::Piece *> _pieces;
     };
 }; // namespace Game
 
