@@ -104,6 +104,20 @@ namespace Game {
 
     void Board::promote(Pieces::Piece *piece, Pieces::Types promotion) {}
 
+    std::vector<std::vector<Pieces::Piece *>> Board::serialize() const {
+        int nRow = this->_boundaries.first, nColumn = this->_boundaries.second;
+        auto serialized = std::vector<std::vector<Pieces::Piece *>>(
+            nRow, std::vector<Pieces::Piece *>(nColumn, nullptr));
+        Position captured;
+        for (auto *piece : this->_pieces) {
+            auto position = piece->position();
+            if (position == captured) continue;
+
+            serialized[position.row()][position.column()] = piece;
+        }
+        return serialized;
+    };
+
     bool Board::opponentKingIsLastPiece(Pieces::Player &player) {
         auto opponents = this->playerPieces(player, false, false);
         return (opponents.size() == 1) && findKing(opponents);

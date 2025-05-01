@@ -65,7 +65,15 @@ namespace Game {
 
         void promote(Pieces::Piece *piece, Pieces::Types promotion);
 
+        std::vector<std::vector<Pieces::Piece *>> serialize() const;
+
       private:
+        std::pair<int, int> _boundaries;
+        int _nMoves;
+        Status _status;
+        Utils::Templates::UndoRedo<Pieces::Move> _moves;
+        std::vector<Pieces::Piece *> _pieces;
+
         void updateStatus(Pieces::Player &player);
 
         bool opponentKingIsLastPiece(Pieces::Player &player);
@@ -95,13 +103,32 @@ namespace Game {
         static std::vector<Pieces::Piece *> findPieces(std::vector<Pieces::Piece *> pieces,
                                                        Pieces::Types type,
                                                        bool throwNotFound = false);
+    };
 
-      private:
-        std::pair<int, int> _boundaries;
-        int _nMoves;
-        Status _status;
-        Utils::Templates::UndoRedo<Pieces::Move> _moves;
-        std::vector<Pieces::Piece *> _pieces;
+    class Game {
+        Pieces::Player *_player1;
+        Pieces::Player *_player2;
+        Pieces::Player *_currentPlayer;
+        Board *_board;
+
+        void nextPlayer();
+
+        static Pieces::Piece *findPiece(std::vector<Pieces::Piece *> pieces, Position at,
+                                        Pieces::Player *player);
+
+      public:
+        Game();
+        Game(std::string player1, std::string player2);
+        ~Game();
+
+        Pieces::Player player1() const;
+        Pieces::Player player2() const;
+        Pieces::Player currentPlayer() const;
+        std::vector<std::vector<Pieces::Piece *>> board() const;
+
+        void start();
+        Status status() const;
+        std::vector<std::vector<Pieces::Piece *>> move(Position from, Position to);
     };
 }; // namespace Game
 
