@@ -41,19 +41,26 @@ run_formatter() {
   echo "$src_dir $tests_dir" | xargs clang-format -i
 }
 
-download_libs() {
+install_libs() {
+  # TODO: Add and remove libs following the config file
+  #     : Move libs config to a config file
+  #     : Update version stored in libs if different from config file
   echo "Downloading libs..."
 
-  _download_lib 'https://github.com/google/googletest.git' 'v1.16.x' './googletest/googletest'
+  _install_lib 'https://github.com/google/googletest.git' 'v1.16.x' './googletest/googletest'
+}
 
-  _download_lib 'https://github.com/CLIUtils/CLI11.git' 'v2.5.0' './CLI11/include/CLI'
+sync_libs() {
+  # Add and remove libs following the config file
+  echo 'Not implemented'
+  return 1
 }
 
 ###############################################################################
 # Private functions                                                           #
 ###############################################################################
 
-_download_lib() {
+_install_lib() {
   repo_url="$1"
   branch="$2"
   dir_repo_src="$3"
