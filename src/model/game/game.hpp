@@ -16,8 +16,8 @@ namespace Game {
             UNDEFINED = -1
         };
 
-        Status();
-        Status(_Status status);
+        explicit Status();
+        explicit Status(_Status status);
 
         _Status _status;
 
