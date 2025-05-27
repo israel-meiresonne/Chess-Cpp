@@ -1,5 +1,5 @@
-#ifndef CLI_HPP
-#define CLI_HPP
+#ifndef VIEW_CLI_HPP
+#define VIEW_CLI_HPP
 
 #include <iostream>
 #include <regex>
@@ -34,14 +34,17 @@ namespace View {
 
         CLI();
 
-        std::string input();
-        std::string inputChecker(const std::string &regex, const std::string &errorMessage);
-        std::string inputSecret();
-        std::string menu(const std::vector<std::string> &choices);
-        void output(const std::string &message, Style style = Style::NORMAL);
-        void outputGrid(const std::vector<std::vector<std::string>> &grid);
+        std::string input() const;
+        std::string inputChecker(const std::string &regex, const std::string &errorMessage) const;
+        std::string inputSecret() const;
+        std::string menu(const std::vector<std::string> &choices) const;
+        void output(const std::string &message, Style style = Style::NORMAL) const;
+        void success(const std::string &message) const;
+        void warn(const std::string &message) const;
+        void error(const std::string &message) const;
+        void outputGrid(const std::vector<std::vector<std::string>> &grid) const;
     };
 
 } // namespace View
 
-#endif // CLI_HPP
+#endif // VIEW_CLI_HPP
