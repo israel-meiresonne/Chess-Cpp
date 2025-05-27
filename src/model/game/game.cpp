@@ -4,13 +4,7 @@ namespace Game {
     Game::Game()
         : _player1(nullptr)
         , _player2(nullptr)
-        , _currentPlayer(_player1)
-        , _board(nullptr) {};
-
-    Game::Game(std::string player1, std::string player2)
-        : _player1(new Pieces::Player(player1))
-        , _player2(new Pieces::Player(player2))
-        , _currentPlayer(_player1)
+        , _currentPlayer(nullptr)
         , _board(nullptr) {};
 
     Game::~Game() {
@@ -42,11 +36,15 @@ namespace Game {
         return this->_board->serialize();
     }
 
-    void Game::start() {
+    void Game::start(std::string &player1, std::string &player2) {
         if (this->_board) throw std::runtime_error("The game has already been started.");
+
+        this->_player1 = new Pieces::Player(player1);
+        this->_player2 = new Pieces::Player(player2);
 
         this->_board = new Board(8, 8);
         this->_board->initialize(*this->_player1, *this->_player2);
+        this->nextPlayer();
     }
 
     Status Game::status() const {

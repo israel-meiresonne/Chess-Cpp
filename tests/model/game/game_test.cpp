@@ -6,9 +6,9 @@ class GameTest : public ::testing::Test {
   protected:
     std::string namePlayer1 = "White";
     std::string namePlayer2 = "Black";
-    Game::Game game = Game::Game(namePlayer1, namePlayer2);
+    Game::Game game = Game::Game();
 
-    void SetUp() override { game.start(); }
+    void SetUp() override { game.start(namePlayer1, namePlayer2); }
 
     static Pieces::Piece *findPiece(std::vector<Pieces::Piece *> &pieces,
                                     Pieces::Piece &targetPiece) {
@@ -39,18 +39,18 @@ TEST_F(GameTest, ConstructorDefault) {
 }
 
 TEST_F(GameTest, ConstructorWithPlayer) {
-    std::string namePlayer1 = "Player 1";
-    std::string namePlayer2 = "Player 2";
-    Game::Game game(namePlayer1, namePlayer2);
+    Game::Game game;
 
     EXPECT_EQ(game.status(), Game::Status::NOT_STARTED);
-    EXPECT_EQ(game.player1().name(), namePlayer1);
-    EXPECT_EQ(game.player2().name(), namePlayer2);
-    EXPECT_EQ(game.currentPlayer(), game.player1());
-    EXPECT_EQ(typeid(game.board()), typeid(std::vector<std::vector<Pieces::Piece *>>));
+    EXPECT_THROW(game.player1(), std::runtime_error);
+    EXPECT_THROW(game.player2(), std::runtime_error);
+    EXPECT_THROW(game.currentPlayer(), std::runtime_error);
+    EXPECT_THROW(game.board(), std::runtime_error);
 }
 
-TEST_F(GameTest, StartWhenGameHasAlreadyStarted) { EXPECT_THROW(game.start(), std::runtime_error); }
+TEST_F(GameTest, StartWhenGameHasAlreadyStarted) {
+    EXPECT_THROW(game.start(namePlayer1, namePlayer2), std::runtime_error);
+}
 
 TEST_F(GameTest, Move) {
     Position player1From1(0, 1), player1To1(2, 0);
@@ -109,7 +109,7 @@ TEST_F(GameTest, MoveOpponentPiece) {
 }
 
 TEST_F(GameTest, MoveWhenGameHasNotStarted) {
-    Game::Game game("White", "Black");
+    Game::Game game;
     Position from(1, 1), to(2, 1);
 
     EXPECT_THROW(game.move(from, to), std::runtime_error);
