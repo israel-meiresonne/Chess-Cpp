@@ -10,13 +10,13 @@
 namespace View {
     CLI::CLI() {}
 
-    std::string CLI::input() {
+    std::string CLI::input() const {
         std::string line;
         std::getline(std::cin, line);
         return line;
     }
 
-    std::string CLI::inputChecker(const std::string &regex, const std::string &errorMessage) {
+    std::string CLI::inputChecker(const std::string &regex, const std::string &errorMessage) const {
         std::regex regexPattern(regex);
         std::string inputValue;
         while (true) {
@@ -29,7 +29,7 @@ namespace View {
         return inputValue;
     }
 
-    std::string CLI::inputSecret() {
+    std::string CLI::inputSecret() const {
         std::string secret;
 
 #ifdef _WIN32
@@ -57,7 +57,7 @@ namespace View {
         return secret;
     }
 
-    std::string CLI::menu(const std::vector<std::string> &choices) {
+    std::string CLI::menu(const std::vector<std::string> &choices) const {
         int i = 1;
         std::string choiceStr;
         for (const auto choice : choices) {
@@ -67,16 +67,16 @@ namespace View {
         }
 
         int choice = 0;
-        auto errorMessages = [this]() {
-            this->output("Invalid choice!", Style::ERROR);
+        std::string errorMessage("Invalid choice!");
+        auto errorMessages = [this, &errorMessage]() {
+            this->output(errorMessage, Style::ERROR);
             this->output("Try again:");
         };
+        std::string regex("^\\d+$");
         while (true) {
             try {
-                choice = std::stoi(this->input());
-                if (choice >= 1 && static_cast<size_t>(choice) <= choices.size()) break;
-
-                errorMessages();
+                choice = std::stoi(this->inputChecker(regex, errorMessage));
+                if (choice >= 1 && choice <= static_cast<int>(choices.size())) break;
             } catch (const std::exception &e) {
                 errorMessages();
             }
@@ -85,11 +85,15 @@ namespace View {
         return choices[choice - 1];
     }
 
-    void CLI::output(const std::string &message, Style style) {
+    void CLI::output(const std::string &message, Style style) const {
         std::cout << std::string(style) + message + std::string(Style::NORMAL) << std::endl;
     }
 
-    void CLI::outputGrid(const std::vector<std::vector<std::string>> &grid) {
+    void CLI::success(const std::string &message) const { this->output(message, Style::SUCCESS); }
+    void CLI::warn(const std::string &message) const { this->output(message, Style::WARNING); }
+    void CLI::error(const std::string &message) const { this->output(message, Style::ERROR); }
+
+    void CLI::outputGrid(const std::vector<std::vector<std::string>> &grid) const {
         for (const auto rows : grid) {
             for (const auto column : rows) {
                 std::cout << column;

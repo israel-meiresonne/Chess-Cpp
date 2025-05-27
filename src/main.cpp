@@ -1,6 +1,7 @@
-#include <iostream>
+#include "controller/controller.hpp"
 
 int main() {
-    std::cout << "Hello, Chess Game!" << std::endl;
+    Controller::CLI controller;
+    controller.start();
     return 0;
 }

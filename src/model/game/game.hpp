@@ -118,7 +118,6 @@ namespace Game {
 
       public:
         Game();
-        Game(std::string player1, std::string player2);
         ~Game();
 
         Pieces::Player player1() const;
@@ -126,7 +125,7 @@ namespace Game {
         Pieces::Player currentPlayer() const;
         std::vector<std::vector<Pieces::Piece *>> board() const;
 
-        void start();
+        void start(std::string &player1, std::string &player2);
         Status status() const;
         std::vector<std::vector<Pieces::Piece *>> move(Position from, Position to);
     };

@@ -59,6 +59,7 @@ namespace Pieces {
 
         static bool isInBounds(const Position &position, int rowMaxBound, int columnMaxBound,
                                int rowMinBound = 0, int columnMinBound = 0);
+        std::string icon() const;
 
         int hash() const;
 

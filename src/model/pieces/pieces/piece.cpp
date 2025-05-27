@@ -76,6 +76,18 @@ namespace Pieces {
         throw std::runtime_error("Child class must implement method 'Piece::_moves'");
     }
 
+    std::string Piece::icon() const {
+        auto pieceType = this->_type;
+        if (pieceType == Types::KING) return "♔";
+        if (pieceType == Types::QUEEN) return "♕";
+        if (pieceType == Types::ROOK) return "♖";
+        if (pieceType == Types::BISHOP) return "♗";
+        if (pieceType == Types::KNIGHT) return "♘";
+        if (pieceType == Types::PAWN) return "♙";
+
+        throw std::runtime_error("Unsupported Piece::Types: '" + std::string(pieceType) + "'");
+    }
+
     std::unordered_map<Position, Move> &
     Piece::removeMovesOutsideBounds(std::unordered_map<Position, Move> &moves,
                                     std::pair<int, int> boundaries) {
