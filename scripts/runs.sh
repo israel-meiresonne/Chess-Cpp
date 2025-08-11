@@ -1,37 +1,39 @@
 #!/bin/bash
 
 COMPILER_VERSION="-std=c++20"
+DIR_BUILDS="builds"
+BIN_BUILT_APP="$DIR_BUILDS/main"
+BIN_BUILT_TESTS="$DIR_BUILDS/main_test"
 
 run_main() {
-  headers_src="-I./src -I./libs"
+  headers_hpp="-I./src -I./libs"
   app_src=$(find src -type f -name "*.cpp")
-  built_binary="builds/main"
 
-  mkdir -p builds
+  mkdir -p "$DIR_BUILDS"
 
-  echo "$headers_src" "$app_src" | xargs clang++ "$COMPILER_VERSION" -o "$built_binary" && ./"$built_binary"
+  echo "$headers_hpp" "$app_src" | xargs clang++ "$COMPILER_VERSION" -o "$BIN_BUILT_APP" && ./"$BIN_BUILT_APP"
 }
 
 run_tests() {
   test_files=$(_clean_var "$1" "")
 
-  headers_src="-I./src -I./tests -I./libs/googletest/include -I./libs/googletest"
-  built_binary='./builds/main_test'
+  headers_hpp="-I./src -I./tests -I./libs/googletest/include -I./libs/googletest"
+  gtest_cpp='./libs/googletest/src/gtest-all.cc'
 
-  app_srcs=$(find src -type f -name "*.cpp" | grep -v 'main.cpp')
+  app_cpp=$(find src -type f -name "*.cpp" | grep -v 'main.cpp')
 
   if [[ -z "${test_files}" ]]; then
-    test_srcs=$(find tests -type f -name "*.cpp")
+    test_cpp=$(find tests -type f -name "*.cpp")
   else
-    test_srcs=$(
+    test_cpp=$(
       find tests -type f -name "*.cpp" | grep -E "main.*\.cpp"
       echo "$test_files"
     )
   fi
 
-  mkdir -p builds
+  mkdir -p "$DIR_BUILDS"
 
-  echo "$headers_src" "$gtest_src" "$app_srcs" "$test_srcs" | xargs clang++ "$COMPILER_VERSION" -o "$built_binary" && "$built_binary"
+  echo "$headers_hpp" "$gtest_cpp" "$app_cpp" "$test_cpp" | xargs clang++ "$COMPILER_VERSION" -o "$BIN_BUILT_TESTS" && "$BIN_BUILT_TESTS"
 }
 
 run_formatter() {
