@@ -1,14 +1,16 @@
 #!/bin/bash
 
-COMPILER_VERSION="-std=c++20"
 DIR_BUILDS="builds"
 DIR_APP="src"
 DIR_TESTS="tests"
+DIR_LIBS="libs"
 BIN_BUILT_APP="$DIR_BUILDS/main"
 BIN_BUILT_TESTS="$DIR_BUILDS/main_test"
 
+COMPILER_VERSION="-std=c++20"
+
 run_main() {
-  headers_hpp="-I./$DIR_APP -I./libs"
+  headers_hpp="-I./$DIR_APP -I./$DIR_LIBS"
   app_cpp=$(find "$DIR_APP" -type f -name "*.cpp")
 
   mkdir -p "$DIR_BUILDS"
@@ -19,8 +21,9 @@ run_main() {
 run_tests() {
   test_files=$(_clean_var "$1" "")
 
-  headers_hpp="-I./$DIR_APP -I./$DIR_TESTS -I./libs/googletest/include -I./libs/googletest"
-  gtest_cpp='./libs/googletest/src/gtest-all.cc'
+  headers_hpp="-I./$DIR_APP -I./$DIR_TESTS -I./$DIR_LIBS"
+  lib_headers_hpp="-I./$DIR_LIBS/googletest/include -I./$DIR_LIBS/googletest"
+  gtest_cpp="./$DIR_LIBS/googletest/src/gtest-all.cc"
 
   app_cpp=$(find "$DIR_APP" -type f -name "*.cpp" | grep -v 'main.cpp')
 
@@ -35,7 +38,7 @@ run_tests() {
 
   mkdir -p "$DIR_BUILDS"
 
-  echo "$headers_hpp" "$gtest_cpp" "$app_cpp" "$test_cpp" | xargs clang++ "$COMPILER_VERSION" -o "$BIN_BUILT_TESTS" && "$BIN_BUILT_TESTS"
+  echo "$headers_hpp" "$lib_headers_hpp" "$gtest_cpp" "$app_cpp" "$test_cpp" | xargs clang++ "$COMPILER_VERSION" -o "$BIN_BUILT_TESTS" && "$BIN_BUILT_TESTS"
 }
 
 run_formatter() {
@@ -69,9 +72,8 @@ _install_lib() {
   branch="$2"
   dir_repo_src="$3"
 
-  dir_local_libs="./libs"
   repo_name=$(_github_repo_name "$repo_url")
-  dir_storage_new_lib="$dir_local_libs/$repo_name"
+  dir_storage_new_lib="$DIR_LIBS/$repo_name"
 
   if [ -d "$dir_storage_new_lib" ]; then
     echo "Library '$repo_name' already exists in '$dir_storage_new_lib'."
@@ -85,8 +87,8 @@ _install_lib() {
     return 1
   fi
 
-  if [ ! -d "$dir_local_libs" ]; then
-    mkdir -p "$dir_local_libs"
+  if [ ! -d "$DIR_LIBS" ]; then
+    mkdir -p "$DIR_LIBS"
   fi
 
   cp -r "$dir_repo_src" "$dir_storage_new_lib"
