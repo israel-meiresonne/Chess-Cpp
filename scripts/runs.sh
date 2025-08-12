@@ -48,7 +48,7 @@ run_formatter() {
   echo "$src_dir $tests_dir" | xargs clang-format -i
 }
 
-install_libs() {
+run_install_libs() {
   # TODO: Add and remove libs following the config file
   #     : Move libs config to a config file
   #     : Update version stored in libs if different from config file
@@ -57,7 +57,7 @@ install_libs() {
   _install_lib 'https://github.com/google/googletest.git' 'v1.16.x' './googletest/googletest'
 }
 
-sync_libs() {
+run_sync_libs() {
   # Add and remove libs following the config file
   echo 'Not implemented'
   return 1
@@ -73,17 +73,17 @@ _install_lib() {
   dir_repo_src="$3"
 
   repo_name=$(_github_repo_name "$repo_url")
-  dir_storage_new_lib="$DIR_LIBS/$repo_name"
+  dir_new_lib="$DIR_LIBS/$repo_name"
 
-  if [ -d "$dir_storage_new_lib" ]; then
-    echo "Library '$repo_name' already exists in '$dir_storage_new_lib'."
+  if [ -d "$dir_new_lib" ]; then
+    echo "Library '$repo_name' already exists in '$dir_new_lib'."
     return 0
   fi
 
   git clone --branch "$branch" --depth 1 "$repo_url" "$repo_name"
 
   if [ ! -d "$repo_name" ]; then
-    echo "Error: Failed to clone the repository."
+    echo "Error: Failed to clone the repository"
     return 1
   fi
 
@@ -91,18 +91,18 @@ _install_lib() {
     mkdir -p "$DIR_LIBS"
   fi
 
-  cp -r "$dir_repo_src" "$dir_storage_new_lib"
+  cp -r "$dir_repo_src" "$dir_new_lib"
 
-  if [ ! -d "$dir_storage_new_lib" ]; then
-    echo "Error: Failed to download the library."
+  if [ ! -d "$dir_new_lib" ]; then
+    echo "Error: Failed to download the library"
     return 1
   fi
 
-  echo "$branch" >"$dir_storage_new_lib/.version"
+  echo "$branch" >"$dir_new_lib/.version"
 
   rm -fr "./$repo_name"
 
-  echo "New library '$repo_name' has been successfully downloaded in '$dir_storage_new_lib'."
+  echo "New library '$repo_name' has been successfully downloaded in '$dir_new_lib'."
 }
 
 _clean_var() {
@@ -113,6 +113,20 @@ _clean_var() {
 }
 
 _github_repo_name() {
-  repo_url="$1"
-  echo "$repo_url" | sed -E 's#.+/(.+)\.git#\1#g'
+  local repo_url="$1"
+
+  # Ensure argument is provided
+  if [ -z "$repo_url" ]; then
+    echo "Error: No repository URL provided" >&2
+    return 1
+  fi
+
+  # Remove trailing slash if present
+  repo_url="${repo_url%/}"
+
+  # Extract last path component and strip .git if present
+  local repo_name
+  repo_name="$(basename "$repo_url" .git)"
+
+  echo "$repo_name"
 }
