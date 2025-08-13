@@ -1,11 +1,19 @@
 #!/bin/bash
 
 DIR_BUILDS="builds"
+BIN_BUILT_APP="$DIR_BUILDS/main"
+BIN_BUILT_TESTS="$DIR_BUILDS/main_test"
+
 DIR_APP="src"
 DIR_TESTS="tests"
 DIR_LIBS="libs"
-BIN_BUILT_APP="$DIR_BUILDS/main"
-BIN_BUILT_TESTS="$DIR_BUILDS/main_test"
+
+DIR_SCRIPTS="scripts"
+FILE_LOCKED_LIBS="$DIR_SCRIPTS/libs.lock.json"
+FILE_NAME_LIB_VERSION=".version"
+
+DIR_IGNORE=".ignore"
+DIR_SCRIPT_LOGS="$DIR_IGNORE/logs"
 
 COMPILER_VERSION="-std=c++20"
 
@@ -49,12 +57,45 @@ run_formatter() {
 }
 
 run_install_libs() {
-  # TODO: Add and remove libs following the config file
-  #     : Move libs config to a config file
-  #     : Update version stored in libs if different from config file
-  echo "Downloading libs..."
+  if ! [ -z "$(jq empty $FILE_LOCKED_LIBS 2>&1)" ]; then
+    echo "Error: '$FILE_LOCKED_LIBS' is invalid" >&2
+    return 1
+  fi
 
-  _install_lib 'https://github.com/google/googletest.git' 'v1.16.x' './googletest/googletest'
+  declare -A local_versions
+  for version_file in "$DIR_LIBS"/*/"$FILE_NAME_LIB_VERSION"; do
+      [[ -f "$version_file" ]] || continue
+      read -r version < "$version_file"
+      repo_name=$(basename "$(dirname "$version_file")")
+      local_versions[$repo_name]=$version
+  done
+
+  declare -A locked_versions
+  n_libs=$(jq 'length' "$FILE_LOCKED_LIBS")
+  for lib_i in {0..$((n_libs - 1))}; do
+      lib_url=$(jq -r --argjson i "$lib_i" '.[$i].url' "$FILE_LOCKED_LIBS")
+      version=$(jq -r --argjson i "$lib_i" '.[$i].version' "$FILE_LOCKED_LIBS")
+      repo_name=$(_github_repo_name "$lib_url")
+      locked_versions[$repo_name]=$version
+  done
+
+  for repo_name version in "${(@kv)local_versions}"; do
+    if ([[ -z "${locked_versions[$repo_name]}" ]]); then
+      echo "Library '$repo_name:$version' will be removed."
+      rm -fr "$DIR_LIBS/$repo_name"
+    elif ([[ "${locked_versions[$repo_name]}" != "$version" ]]); then
+      echo "Library '$repo_name:$version' will be replaced with '$repo_name:${locked_versions[$repo_name]}'."
+      rm -fr "$DIR_LIBS/$repo_name"
+    fi
+  done
+
+  for lib_i in {0..$((n_libs - 1))}; do
+    repo_url=$(jq -r --argjson i "$lib_i" '.[$i].url' "$FILE_LOCKED_LIBS")
+    branch=$(jq -r --argjson i "$lib_i" '.[$i].version' "$FILE_LOCKED_LIBS")
+    dir_repo_src_root=$(jq -r --argjson i "$lib_i" '.[$i].root' "$FILE_LOCKED_LIBS")
+
+    _install_lib "$repo_url" "$branch" "$dir_repo_src_root"
+  done
 }
 
 run_sync_libs() {
@@ -70,20 +111,22 @@ run_sync_libs() {
 _install_lib() {
   repo_url="$1"
   branch="$2"
-  dir_repo_src="$3"
+  dir_repo_src_root="$3"
 
   repo_name=$(_github_repo_name "$repo_url")
   dir_new_lib="$DIR_LIBS/$repo_name"
 
   if [ -d "$dir_new_lib" ]; then
-    echo "Library '$repo_name' already exists in '$dir_new_lib'."
+    echo "Library '$repo_name:$branch' already exists in '$dir_new_lib'."
     return 0
   fi
 
-  git clone --branch "$branch" --depth 1 "$repo_url" "$repo_name"
+  [ -d "$DIR_SCRIPT_LOGS" ] ||  mkdir $DIR_SCRIPT_LOGS
+
+  git clone --branch "$branch" --depth 1 "$repo_url" "$repo_name" 2>> "$DIR_SCRIPT_LOGS/$repo_name.log"
 
   if [ ! -d "$repo_name" ]; then
-    echo "Error: Failed to clone the repository"
+    echo "Error: Failed to clone the repository '$repo_name:$branch'"
     return 1
   fi
 
@@ -91,18 +134,18 @@ _install_lib() {
     mkdir -p "$DIR_LIBS"
   fi
 
-  cp -r "$dir_repo_src" "$dir_new_lib"
+  cp -r "$dir_repo_src_root" "$dir_new_lib"
 
   if [ ! -d "$dir_new_lib" ]; then
     echo "Error: Failed to download the library"
     return 1
   fi
 
-  echo "$branch" >"$dir_new_lib/.version"
+  echo "$branch" >"$dir_new_lib/$FILE_NAME_LIB_VERSION"
 
   rm -fr "./$repo_name"
 
-  echo "New library '$repo_name' has been successfully downloaded in '$dir_new_lib'."
+  echo "New library '$repo_name:$branch' has been successfully downloaded in '$dir_new_lib'."
 }
 
 _clean_var() {
@@ -115,7 +158,6 @@ _clean_var() {
 _github_repo_name() {
   local repo_url="$1"
 
-  # Ensure argument is provided
   if [ -z "$repo_url" ]; then
     echo "Error: No repository URL provided" >&2
     return 1
@@ -124,7 +166,6 @@ _github_repo_name() {
   # Remove trailing slash if present
   repo_url="${repo_url%/}"
 
-  # Extract last path component and strip .git if present
   local repo_name
   repo_name="$(basename "$repo_url" .git)"
 
