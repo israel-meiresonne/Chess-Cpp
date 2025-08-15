@@ -1,21 +1,25 @@
 #!/bin/bash
 
-DIR_BUILDS="builds"
+COMPILER_VERSION="-std=c++20"
+
+TRASH='/dev/null'
+
+DIR_BUILDS='builds'
 BIN_BUILT_APP="$DIR_BUILDS/main"
 BIN_BUILT_TESTS="$DIR_BUILDS/main_test"
 
-DIR_APP="src"
-DIR_TESTS="tests"
-DIR_LIBS="libs"
+DIR_APP='src'
+DIR_TESTS='tests'
+DIR_LIBS='libs'
 
-DIR_SCRIPTS="scripts"
+DIR_SCRIPTS='scripts'
 FILE_LOCKED_LIBS="$DIR_SCRIPTS/libs.lock.json"
 FILE_NAME_LIB_VERSION=".version"
 
-DIR_IGNORE=".ignore"
+DIR_IGNORE='.ignore'
 DIR_SCRIPT_LOGS="$DIR_IGNORE/logs"
 
-COMPILER_VERSION="-std=c++20"
+mkdir -p $DIR_SCRIPTS $DIR_LIBS $DIR_BUILDS $DIR_APP $DIR_TESTS $DIR_IGNORE $DIR_SCRIPT_LOGS
 
 run_main() {
   headers_hpp="-I./$DIR_APP -I./$DIR_LIBS"
@@ -75,7 +79,13 @@ run_install_libraries() {
 }
 
 ###############################################################################
-# Private functions                                                           #
+# UP   Public functions                                                       #
+# DOWN Main                                                                   #
+###############################################################################
+
+###############################################################################
+# UP   Main                                                                   #
+# DOWN Private functions                                                      #
 ###############################################################################
 
 _library_app_headers() {
@@ -145,6 +155,8 @@ _install_library() {
 }
 
 _assign_local_libraries() {
+  if [ -z "$(ls $DIR_LIBS 2> $TRASH)" ]; then return 0; fi
+
   for version_file in "$DIR_LIBS"/*/"$FILE_NAME_LIB_VERSION"; do
     [[ -f "$version_file" ]] || continue
     read -r version < "$version_file"
