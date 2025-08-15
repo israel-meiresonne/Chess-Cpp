@@ -1,0 +1,36 @@
+[
+  {
+    "url": "https://github.com/google/googletest.git",
+    "version": "v1.16.x",
+    "root": "./googletest/googletest",
+    "app": {
+      "headers": [
+        "googletest/include",
+        "googletest"
+      ],
+      "sources": []
+    },
+    "test": {
+      "headers": [
+        "googletest/include",
+        "googletest"
+      ],
+      "sources": [
+        "googletest/src/gtest-all.cc"
+      ]
+    }
+  },
+  {
+    "url": "https://github.com/CLIUtils/CLI11.git",
+    "version": "v2.5.0",
+    "root": "./CLI11/include/CLI",
+    "app": {
+      "headers": [],
+      "sources": []
+    },
+    "test": {
+      "headers": [],
+      "sources": []
+    }
+  }
+]
