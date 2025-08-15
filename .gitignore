@@ -1,6 +1,7 @@
-# Code
+# Config
 builds
 libs
+.ignore
 
 # OS
 .DS_Store
