@@ -21,17 +21,20 @@ run_main() {
   headers_hpp="-I./$DIR_APP -I./$DIR_LIBS"
   app_cpp=$(find "$DIR_APP" -type f -name "*.cpp")
 
+  lib_headers_hpp=$(_library_app_headers)
+  lib_sources_cpp=$(_library_app_sources)
+
   mkdir -p "$DIR_BUILDS"
 
-  echo "$headers_hpp" "$app_cpp" | xargs clang++ "$COMPILER_VERSION" -o "$BIN_BUILT_APP" && ./"$BIN_BUILT_APP"
+  echo "$headers_hpp" "$lib_headers_hpp" "$lib_sources_cpp" "$app_cpp" | xargs clang++ "$COMPILER_VERSION" -o "$BIN_BUILT_APP" && ./"$BIN_BUILT_APP"
 }
 
 run_tests() {
   test_files=$(_clean_var "$1" "")
 
   headers_hpp="-I./$DIR_APP -I./$DIR_TESTS -I./$DIR_LIBS"
-  lib_headers_hpp="-I./$DIR_LIBS/googletest/include -I./$DIR_LIBS/googletest"
-  gtest_cpp="./$DIR_LIBS/googletest/src/gtest-all.cc"
+  lib_headers_hpp=$(_library_test_headers)
+  lib_sources_cpp=$(_library_test_sources)
 
   app_cpp=$(find "$DIR_APP" -type f -name "*.cpp" | grep -v 'main.cpp')
 
@@ -46,7 +49,7 @@ run_tests() {
 
   mkdir -p "$DIR_BUILDS"
 
-  echo "$headers_hpp" "$lib_headers_hpp" "$gtest_cpp" "$app_cpp" "$test_cpp" | xargs clang++ "$COMPILER_VERSION" -o "$BIN_BUILT_TESTS" && "$BIN_BUILT_TESTS"
+  echo "$headers_hpp" "$lib_headers_hpp" "$lib_sources_cpp" "$app_cpp" "$test_cpp" | xargs clang++ "$COMPILER_VERSION" -o "$BIN_BUILT_TESTS" && "$BIN_BUILT_TESTS"
 }
 
 run_formatter() {
@@ -74,6 +77,22 @@ run_install_libraries() {
 ###############################################################################
 # Private functions                                                           #
 ###############################################################################
+
+_library_app_headers() {
+  jq -r --arg dir "$DIR_LIBS" '.[] | .app.headers[] | "-I./\($dir)/\(.)"' "$FILE_LOCKED_LIBS" | xargs
+}
+
+_library_app_sources() {
+  jq -r --arg dir "$DIR_LIBS" '.[] | .app.sources[] | "\($dir)/\(.)"' "$FILE_LOCKED_LIBS" | xargs
+}
+
+_library_test_headers() {
+  jq -r --arg dir "$DIR_LIBS" '.[] | .test.headers[] | "-I./\($dir)/\(.)"' "$FILE_LOCKED_LIBS" | xargs
+}
+
+_library_test_sources() {
+  jq -r --arg dir "$DIR_LIBS" '.[] | .test.sources[] | "\($dir)/\(.)"' "$FILE_LOCKED_LIBS" | xargs
+}
 
 _install_libraries() {
   for lib_i in {0..$((n_libs - 1))}; do
