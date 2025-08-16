@@ -1,6 +1,7 @@
 [
   {
-    "url": "https://github.com/google/googletest.git",
+    "origin": "git",
+    "target": "https://github.com/google/googletest.git",
     "version": "v1.16.x",
     "root": "./googletest/googletest",
     "app": {
@@ -8,7 +9,11 @@
         "googletest/include",
         "googletest"
       ],
-      "sources": []
+      "sources": [],
+      "frameworks": {
+        "paths": [],
+        "names": []
+      }
     },
     "test": {
       "headers": [
@@ -17,20 +22,33 @@
       ],
       "sources": [
         "googletest/src/gtest-all.cc"
-      ]
+      ],
+      "frameworks": {
+        "paths": [],
+        "names": []
+      }
     }
   },
   {
-    "url": "https://github.com/CLIUtils/CLI11.git",
+    "origin": "git",
+    "target": "https://github.com/CLIUtils/CLI11.git",
     "version": "v2.5.0",
     "root": "./CLI11/include/CLI",
     "app": {
       "headers": [],
-      "sources": []
+      "sources": [],
+      "frameworks": {
+        "paths": [],
+        "names": []
+      }
     },
     "test": {
       "headers": [],
-      "sources": []
+      "sources": [],
+      "frameworks": {
+        "paths": [],
+        "names": []
+      }
     }
   }
 ]
